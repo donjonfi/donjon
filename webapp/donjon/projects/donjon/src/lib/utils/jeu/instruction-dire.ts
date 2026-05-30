@@ -644,6 +644,11 @@ export class InstructionDire {
       const cible = decoupe[1].toLowerCase();
       const val: Intitule | undefined = (cible === 'ceci') ? ctxTour?.ceci : ctxTour?.cela;
       if (!val) return '';
+      // Élément du jeu → intitulé DYNAMIQUE (familiarité réelle ; toujours le nombre pour les
+      //  ressources). Paramètre texte/synthétique (Intitulé non-élément) → intitulé brut.
+      if (val.classe && ClasseUtils.heriteDe(val.classe, EClasseRacine.element)) {
+        return this.eju.calculerIntituleElement(val as ElementJeu, false, false);
+      }
       return val.intitule ? val.intitule.toString() : (val.nom ?? '');
     });
   }

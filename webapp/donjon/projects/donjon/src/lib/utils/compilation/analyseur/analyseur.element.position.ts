@@ -246,6 +246,30 @@ export class AnalyseurElementPosition {
           }
         }
 
+        // « Il y a … » (formulation A, offset 0) est RÉSERVÉ aux ressources déjà définies.
+        //  On résout le nom placé (singulier ou pluriel) vers une ressource déclarée ; si trouvée,
+        //  on normalise sur son nom canonique (pour la fusion et l'agrégation des piles). Sinon,
+        //  c'est une erreur d'auteur : on ne crée PAS d'objet ordinaire à partir de « il y a ».
+        if (offset === 0 && newElementGenerique) {
+          const nomPlace = newElementGenerique.nom.toLowerCase();
+          const nomPlaceSing = MotUtils.getSingulier(nomPlace);
+          const ressource = ctx.elementsGeneriques.find(x =>
+            x.classeIntitule === EClasseRacine.ressource &&
+            [x.nom, x.nomS, x.nomP].filter(Boolean).some(n => {
+              const nl = n.toLowerCase();
+              return nl === nomPlace || MotUtils.getSingulier(nl) === nomPlaceSing;
+            }));
+          if (ressource) {
+            // normaliser sur le nom canonique de la ressource (« 1 fruit » → ressource « fruits »)
+            newElementGenerique.nom = ressource.nom;
+          } else {
+            // signaler à l'analyseur V8 (qui émettra UN message bien formaté via ctx.probleme).
+            ctx.placementNonRessource = newElementGenerique.nom;
+            newElementGenerique = null;
+            elementConcerne = null;
+          }
+        }
+
       }
 
     }

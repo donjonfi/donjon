@@ -17,6 +17,7 @@ import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ExprReg } from './expr-reg';
 import { Genre } from '../../models/commun/genre.enum';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { RessourceAffichee } from '../../models/jeu/ressource-affichee';
 import { Jeu } from '../../models/jeu/jeu';
 import { Lieu } from '../../models/jeu/lieu';
 import { Liste } from '../../models/jeu/liste';
@@ -344,12 +345,36 @@ export class Generateur {
         if (curEle.unites) {
           newObjet.unites = curEle.unites;
         }
+        // genre grammatical de l’unité (pour les accords des messages)
+        if (curEle.uniteGenre) {
+          newObjet.uniteGenre = curEle.uniteGenre;
+        }
 
         // Ressource déclarée mais jamais placée ni créée → quantité 0 (type/gabarit seulement,
         //  pas de pile illimitée fantôme). Une ressource placée a reçu une position via la fusion ;
         //  sa quantité (issue du placement) est alors conservée.
         if (ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource) && (curEle.positionString?.length ?? 0) === 0) {
           newObjet.quantite = 0;
+        }
+
+        // RESSOURCE affichée dans le cartouche : config figée à la compilation (ancrée sur la
+        //  définition) ; la quantité est sommée en direct à l'exécution selon le périmètre (scope).
+        //  Dédup par nom : seul le 1er exemplaire (la définition) porte positionAffichage.
+        if (curEle.positionAffichage
+          && ClasseUtils.heriteDe(newObjet.classe, EClasseRacine.ressource)
+          && !jeu.ressourcesAffichees.some(r => r.nom === newObjet.nom)) {
+          const proprieteTitre = curEle.proprietes?.find(p => p.nom?.toLowerCase() === 'titre');
+          jeu.ressourcesAffichees.push(new RessourceAffichee(
+            newObjet.nom,
+            curEle.positionAffichage,
+            intitule.nom,
+            curEle.scopeAffichage ?? 'possede',
+            newObjet.unite ?? null,
+            newObjet.unites ?? null,
+            proprieteTitre?.valeur ?? null,
+            !!curEle.sansIntitule,
+            !!curEle.sansUnite,
+          ));
         }
 
         // s'il s'agit d'un objet multiple, lui donner l'id de sa classe comme id initial
@@ -468,17 +493,18 @@ export class Generateur {
             newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(unites, true));
             newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(unites + ' de ' + newObjet.nom, true));
           }
+          // Le NOM seul (« or ») doit aussi être désignable avec une quantité (« prendre 10 or »).
+          //  Sans ça, une quantité plurielle cherche l'intitulé pluriel (« ors ») qui ne matche pas
+          //  le nom massif. On enregistre le nom comme synonyme (matché quelle que soit la quantité).
+          newObjet.synonymes.push(PhraseUtils.getGroupeNominalDefini(newObjet.nom, true));
         }
 
-        // description par défaut
+        // description par défaut : phrase DYNAMIQUE résolue à l'affichage.
+        //  « [Cest ceci] » → « C'est »/« Ce sont » accordé ; « [ceci] » → intitulé selon l'état
+        //  réel (« une pomme » → « la pomme »), et toujours le nombre pour les ressources
+        //  (« 1 pièce d'or », « 4 fruits »). L'auteur peut toujours définir sa propre description.
         if (newObjet.description === null) {
-          // mettre un déterminant indéfini, sauf si intitulé sans déterminant.
-          const detIndefini = newObjet.intitule.determinant ? ElementsJeuUtils.trouverDeterminantIndefini(newObjet) : "";
-          if (newObjet.nombre == Nombre.p || newObjet.nombre == Nombre.tp) {
-            newObjet.description = "Ce sont " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";
-          } else {
-            newObjet.description = "C’est " + detIndefini + newObjet.intitule.nom + (newObjet.intitule.epithete ? (" " + newObjet.intitule.epithete) : "") + ".";
-          }
+          newObjet.description = "[Cest ceci] [ceci].";
         }
 
         // POSITION de l’élément

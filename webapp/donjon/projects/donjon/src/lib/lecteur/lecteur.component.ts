@@ -12,6 +12,7 @@ import { ExprReg, Sauvegarde, StringUtils } from '../../public-api';
 import { EtapeEnregistrement, FichierEnregistrement } from '../models/jouer/fichier-enregistrement';
 import { TexteUtils } from '../utils/commun/texte-utils';
 import { MotUtils } from '../utils/commun/mot-utils';
+import { ElementsJeuUtils } from '../utils/commun/elements-jeu-utils';
 import { Statisticien } from '../utils/jeu/statisticien';
 import { AleatoireInstantane, AleatoireUtils } from '../utils/jeu/aleatoire-utils';
 import * as FileSaver from 'file-saver-es';
@@ -2821,15 +2822,44 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return this.afficherLieuDansCartoucheBas || this.compteursBasGauche.length > 0 || this.compteursBasDroite.length > 0;
   }
 
-  get compteursHautGauche() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-gauche") ?? []; }
-  get compteursHautDroite() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-droite") ?? []; }
-  get compteursBasGauche() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-gauche") ?? []; }
-  get compteursBasDroite() { return this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-droite") ?? []; }
+  get compteursHautGauche() { return [...(this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-gauche") ?? []), ...this.ressourcesCartouche("haut-gauche")]; }
+  get compteursHautDroite() { return [...(this.jeu?.compteurs.filter(c => c.positionAffichage === "haut-droite") ?? []), ...this.ressourcesCartouche("haut-droite")]; }
+  get compteursBasGauche() { return [...(this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-gauche") ?? []), ...this.ressourcesCartouche("bas-gauche")]; }
+  get compteursBasDroite() { return [...(this.jeu?.compteurs.filter(c => c.positionAffichage === "bas-droite") ?? []), ...this.ressourcesCartouche("bas-droite")]; }
+
+  /**
+   * Ressources affichées dans un coin du cartouche, adaptées au format des compteurs.
+   * La quantité est sommée EN DIRECT à chaque rendu (selon le périmètre possede/disponible),
+   * si bien que prendre/lâcher/consommer/créer mettent le cartouche à jour automatiquement.
+   * Une pile illimitée donne « ∞ ».
+   */
+  private ressourcesCartouche(position: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite') {
+    const jeu = this.jeu;
+    if (!jeu?.ressourcesAffichees?.length || !jeu.joueur) { return []; }
+    return jeu.ressourcesAffichees
+      .filter(r => r.positionAffichage === position)
+      .map(r => {
+        const somme = ElementsJeuUtils.sommeQuantiteRessource(jeu.objets, jeu.joueur.id, r.nom, r.scope);
+        return {
+          nom: r.nom,
+          titre: r.titre,
+          intitule: { nom: r.intituleNom },
+          valeur: somme === -1 ? '∞' : somme,
+          unite: r.unite,
+          unites: r.unites,
+          sansIntitule: r.sansIntitule,
+          sansUnite: r.sansUnite,
+        };
+      });
+  }
 
   /** Retourne l'unité accordée selon la valeur (singulier si |valeur| ≤ 1, pluriel sinon). */
-  uniteAccordee(compteur: { valeur: number, unite?: string }): string | null {
+  uniteAccordee(compteur: { valeur: number | string, unite?: string | null, unites?: string | null }): string | null {
     if (!compteur.unite) return null;
-    return Math.abs(compteur.valeur) <= 1 ? compteur.unite : MotUtils.getPluriel(compteur.unite);
+    // ressource illimitée (« ∞ ») ou valeur non numérique → pluriel
+    const valeurNum = typeof compteur.valeur === 'number' ? compteur.valeur : 2;
+    if (Math.abs(valeurNum) <= 1) return compteur.unite;
+    return compteur.unites ?? MotUtils.getPluriel(compteur.unite);
   }
 
   get paddingTopCompteurs(): number {

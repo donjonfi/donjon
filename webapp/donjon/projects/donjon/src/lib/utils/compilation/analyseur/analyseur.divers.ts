@@ -163,7 +163,15 @@ export class AnalyseurDivers {
 
     if (result) {
       elementTrouve = ResultatAnalysePhrase.afficherCompteur;
-      const nomBrut = result[1].trim();
+      let nomBrut = result[1].trim();
+      // Ressource : mot-clé optionnel de périmètre en suffixe du nom (« possédé(e)(s) » / « disponible(s) »).
+      //  Ex: « L'argent possédé est affiché… », « Le bois disponible est affiché… ».
+      let scopeAffichage: 'possede' | 'disponible' | undefined;
+      const mScope = /^(.+?)\s+(poss[ée]d[ée]e?s?|disponibles?)$/i.exec(nomBrut);
+      if (mScope) {
+        nomBrut = mScope[1].trim();
+        scopeAffichage = /^disponible/i.test(mScope[2]) ? 'disponible' : 'possede';
+      }
       const verticalite = (result[2] ?? 'haut').toLowerCase();
       const lateralite = (result[3] ?? 'droite').toLowerCase();
       const position = `${verticalite}-${lateralite}` as 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
@@ -200,8 +208,13 @@ export class AnalyseurDivers {
         cpt = ctxAnalyse.dernierElementGenerique;
       } else {
         const nomNormalise = StringUtils.normaliserMot(nomBrut).trim();
+        // Match sur le nom, mais aussi sur les formes singulier/pluriel : une ressource
+        //  déclarée « Les fruits » (nom singularisé « fruit ») doit être trouvable via
+        //  « Les fruits sont affichés ».
+        const correspond = (valeur: string | null | undefined) =>
+          !!valeur && StringUtils.normaliserMot(valeur).trim() === nomNormalise;
         cpt = ctxAnalyse.elementsGeneriques.find(el =>
-          StringUtils.normaliserMot(el.nom).trim() === nomNormalise
+          correspond(el.nom) || correspond(el.nomP) || correspond(el.nomS)
         );
       }
 
@@ -209,6 +222,7 @@ export class AnalyseurDivers {
         cpt.positionAffichage = position;
         if (sansIntitule) cpt.sansIntitule = true;
         if (sansUnite) cpt.sansUnite = true;
+        if (scopeAffichage) cpt.scopeAffichage = scopeAffichage;
       } else if (estPronomPersonnel) {
         ctxAnalyse.probleme(phrase, undefined,
           CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,

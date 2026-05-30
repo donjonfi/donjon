@@ -78,6 +78,7 @@ export * from './lib/models/compilateur/type-valeur';
 export * from './lib/models/compilateur/verification';
 
 export * from './lib/models/jeu/element-jeu';
+export * from './lib/models/jeu/ressource-affichee';
 export * from './lib/models/jeu/intitule';
 export * from './lib/models/jeu/inventaire';
 export * from './lib/models/jeu/jeu';

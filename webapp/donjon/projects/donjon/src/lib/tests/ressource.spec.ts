@@ -375,16 +375,12 @@ describe('Ressource — forme « N <unité> de <ressource> » (C4)', () => {
     argent.forEach((o: any) => expect(o.unites).toBe('pièces'));
   });
 
-  it('[F057-T133] « 5 pommes de terre » (terre n’est pas une ressource) → PAS traité comme ressource', () => {
-    const ctx = TestUtils.genererEtCommencerLeJeu(
+  it('[F057-T133] « Il y a 5 pommes de terre » (pas une ressource définie) → erreur d’auteur', () => {
+    // « Il y a … » est réservé aux ressources définies ; un objet ordinaire se déclare via
+    //  « … est un objet ici ». Référencer un non-ressource via « Il y a » est une erreur.
+    expect(() => TestUtils.genererEtCommencerLeJeu(
       `La salle est un lieu.\nLe panier est un contenant ici.\nIl y a 5 pommes de terre dans le panier.`
-    );
-    // un objet « pommes de terre » existe et n'est PAS une ressource
-    const pdt = ctx.jeu.objets.find((o: any) => o.nom === 'pommes de terre' || o.nom === 'pomme de terre');
-    expect(pdt).toBeDefined();
-    expect(ClasseUtils.heriteDe(pdt.classe, EClasseRacine.ressource)).toBeFalse();
-    // aucune ressource « terre » fantôme
-    expect(ctx.jeu.objets.some((o: any) => o.nom === 'terre')).toBeFalse();
+    )).toThrowError(/Ressource attendue/);
   });
 
 });

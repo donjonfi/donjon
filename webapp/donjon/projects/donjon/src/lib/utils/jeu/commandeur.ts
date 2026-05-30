@@ -458,6 +458,15 @@ export class Commandeur {
         const celaNomV2 = isCelaV2 ? actionChoisie.cela.nom : null;
         const celaClasseV2 = (isCelaV2 ? actionChoisie.cela.classe : null)
 
+        // intitulé pour l'écho de commande : pour une ressource, refléter la quantité + l'unité
+        //  demandées (« prendre 2 litres d'eau ») plutôt que l'intitulé statique (« l'eau »).
+        const ceciIntituleComprise = (actionChoisie.ceci && ClasseUtils.heriteDe(actionChoisie.ceci.classe, EClasseRacine.ressource) && (actionChoisie.ceci as Objet).unite)
+          ? ElementsJeuUtils.intituleEchoRessource(actionChoisie.ceci as Objet, candidatCommande.ceciQuantiteV1)
+          : actionChoisie.ceci?.intitule;
+        const celaIntituleComprise = (actionChoisie.cela && ClasseUtils.heriteDe(actionChoisie.cela.classe, EClasseRacine.ressource) && (actionChoisie.cela as Objet).unite)
+          ? ElementsJeuUtils.intituleEchoRessource(actionChoisie.cela as Objet, candidatCommande.celaQuantiteV1)
+          : actionChoisie.cela?.intitule;
+
         // mettre à jour l'évènement avec les éléments trouvés
         ctx.evenement = new Evenement(
           TypeEvenement.action,
@@ -468,7 +477,7 @@ export class Commandeur {
           // cela
           isCelaV2, candidatCommande.els.preposition1, celaQuantiteV2, celaNomV2, celaClasseV2,
           // commande correspondante
-          (actionChoisie.action.infinitif + (candidatCommande.els.preposition0 ? (" " + candidatCommande.els.preposition0) : '') + (actionChoisie.ceci ? (' {/' + actionChoisie.ceci.intitule + '/}') : '') + (candidatCommande.els.preposition1 ? (' ' + candidatCommande.els.preposition1) : '') + (actionChoisie.cela ? (' {/' + actionChoisie.cela.intitule + '/}') : ''))
+          (actionChoisie.action.infinitif + (candidatCommande.els.preposition0 ? (" " + candidatCommande.els.preposition0) : '') + (actionChoisie.ceci ? (' {/' + ceciIntituleComprise + '/}') : '') + (candidatCommande.els.preposition1 ? (' ' + candidatCommande.els.preposition1) : '') + (actionChoisie.cela ? (' {/' + celaIntituleComprise + '/}') : ''))
         );
 
         // éviter « aller en le haut » et « aller au le nord ».

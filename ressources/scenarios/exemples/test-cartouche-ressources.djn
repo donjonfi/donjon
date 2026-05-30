@@ -1,0 +1,72 @@
+-- ============================================================
+--  Bac à sable : afficher des ressources dans le cartouche
+--  (chargez ce fichier dans l'éditeur, puis tapez les commandes
+--   suggérées plus bas pour voir le cartouche réagir.)
+-- ============================================================
+
+Le titre du jeu est "Test cartouche ressources".
+
+La clairière est un lieu.
+Sa description est "Une clairière baignée de soleil : de l'or et du bois jonchent le sol, et un marchand patiente.".
+
+Le marchand est une personne ici.
+
+-- ----- Or : unité explicite (féminine via « (f) »), affiché en PÉRIMÈTRE POSSÉDÉ (défaut) -----
+L'or est une ressource exprimée en pièces (f).
+L'or est affiché en haut à droite.
+Il y a 12 pièces d'or ici.
+
+-- ----- Bois : unité par défaut, affiché en PÉRIMÈTRE DISPONIBLE -----
+--   « disponible » = tout sauf l'inventaire du joueur (ici, ce qui reste au sol).
+Le bois est une ressource.
+Le bois disponible est affiché en haut à gauche.
+Il y a 20 unités de bois ici.
+
+-- ----- Eau : exemple « sans intitulé », affichée en bas -----
+L'eau est une ressource avec l'unité litre.
+L'eau possédée est affichée en bas à droite sans intitulé.
+Il y a 3 litres d'eau ici.
+
+-- ============================================================
+--  Actions de test pour modifier l'affichage EN COURS DE PARTIE
+-- ============================================================
+
+-- Déplacer l'or en bas à gauche.
+action repositionner:
+  changer l'or est affiché en bas à gauche.
+  dire "L'or passe en bas à gauche.".
+fin action
+
+-- Masquer l'or du cartouche.
+action masquer:
+  changer l'or n'est plus affiché.
+  dire "L'or n'est plus affiché.".
+fin action
+
+-- Réafficher l'or en haut à droite.
+action montrer:
+  changer l'or est affiché en haut à droite.
+  dire "L'or revient en haut à droite.".
+fin action
+
+-- Cacher l'intitulé de l'or (n'affiche plus que la valeur).
+action anonymiser:
+  changer l'or est affiché en haut à droite sans intitulé.
+  dire "L'or est affiché sans son intitulé.".
+fin action
+
+-- Faire apparaître 5 pièces d'or dans l'inventaire (le compteur possédé grimpe).
+action invoquer:
+  créer 5 pièces d'or dans l'inventaire.
+  dire "5 pièces d'or apparaissent dans votre bourse.".
+fin action
+
+-- ============================================================
+--  À ESSAYER (dans cet ordre, par exemple) :
+--   regarder
+--   prendre les pièces          -> l'or possédé (haut-droite) passe à 12
+--   invoquer                    -> l'or possédé passe à 17
+--   prendre les unités de bois  -> le bois disponible (haut-gauche) tombe à 0 (reste affiché)
+--   repositionner / masquer / montrer / anonymiser
+--   donner 5 pièces d'or au marchand  -> l'or possédé diminue
+-- ============================================================

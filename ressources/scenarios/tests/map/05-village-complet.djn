@@ -114,7 +114,8 @@ La farine (f) est un objet dans le sac de farine.
 Le petit caillou est un objet dans le sac de farine.
 
 La bourse (f) est un contenant possédé.
-Il y a 3 pièces (f) dans la bourse.
+Les pièces sont une ressource.
+Il y a 3 pièces dans la bourse.
 La carte du village est un objet possédé.
 
 Le joueur est sur la place du village.

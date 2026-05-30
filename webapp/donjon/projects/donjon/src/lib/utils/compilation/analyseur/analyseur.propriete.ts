@@ -8,6 +8,7 @@ import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-
 import { EClasseRacine } from "../../../models/commun/constantes";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
+import { Genre } from "../../../models/commun/genre.enum";
 import { MotUtils } from "../../commun/mot-utils";
 import { StringUtils } from "../../commun/string.utils";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
@@ -122,11 +123,25 @@ export class AnalyseurPropriete {
           }
           // B) UNITÉ d’une ressource (« Son unité est le barile »)
         } else if (StringUtils.normaliserMot(nomProprieteCible) === 'unite' && elementCible.classeIntitule === EClasseRacine.ressource) {
+          // genre de l’unité : marqueur « (f) »/« (m) » prioritaire, sinon déduit de l’article
+          //  (« la » → féminin, « le » → masculin), sinon masculin par défaut.
+          const valeurNettoyee = valeurBrut.trim();
+          const mMarqueur = /\((f|m)\)\s*$/i.exec(valeurNettoyee);
+          const valeurSansMarqueur = valeurNettoyee.replace(/\s*\((?:f|m)\)\s*$/i, '').trim();
+          let uniteGenre = Genre.m;
+          if (mMarqueur) {
+            uniteGenre = (mMarqueur[1].toLowerCase() === 'f') ? Genre.f : Genre.m;
+          } else if (/^la\s/i.test(valeurSansMarqueur)) {
+            uniteGenre = Genre.f;
+          } else if (/^le\s/i.test(valeurSansMarqueur)) {
+            uniteGenre = Genre.m;
+          }
           // valeurBrut p.ex. « le barile » → retirer l’article et dériver singulier/pluriel
-          const uniteNom = valeurBrut.trim().replace(/^(le |la |les |l'|l’|un |une |des |du |de la |de l'|de l’)/i, '').trim();
+          const uniteNom = valeurSansMarqueur.replace(/^(le |la |les |l'|l’|un |une |des |du |de la |de l'|de l’)/i, '').trim();
           if (uniteNom) {
             elementCible.unite = MotUtils.getSingulier(uniteNom.toLowerCase());
             elementCible.unites = MotUtils.getPluriel(elementCible.unite);
+            elementCible.uniteGenre = uniteGenre;
           }
           elementTrouve = ResultatAnalysePhrase.propriete;
           // C) PROPRIÉTÉ

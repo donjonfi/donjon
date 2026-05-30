@@ -27,6 +27,7 @@ import { Intitule } from '../../models/jeu/intitule';
 import { Jeu } from '../../models/jeu/jeu';
 import { Localisation, ELocalisation } from '../../models/jeu/localisation';
 import { MotUtils } from '../commun/mot-utils';
+import { Nombre } from '../../models/commun/nombre.enum';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { Resultat } from '../../models/jouer/resultat';
@@ -407,7 +408,10 @@ export class Instructions {
       quantite = evenement.quantiteCela;
     }
     // résoudre la ressource (résolution synonyme-aware) pour identifier son nom
-    const objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1] ?? [];
+    // résolution robuste au singulier/pluriel (« consommer 1 pomme » comme « consommer 2 pommes »)
+    let objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1] ?? [];
+    if (!objetsTrouves.length) { objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.s)[1] ?? []; }
+    if (!objetsTrouves.length) { objetsTrouves = this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.p)[1] ?? []; }
     if (!objetsTrouves.length) {
       resultat.succes = false;
       return resultat;
@@ -471,8 +475,11 @@ export class Instructions {
     if (quantite < 1) {
       quantite = 1;
     }
-    // résoudre la ressource modèle (résolution synonyme-aware : gère « pièces d'argent »)
-    const modele = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1]?.[0];
+    // résoudre la ressource modèle (synonyme-aware ; robuste au singulier/pluriel : « créer une
+    //  pomme » comme « créer 2 pommes » — on essaie indéfini, puis singulier, puis pluriel).
+    const modele = this.eju.trouverObjetSurIntituleAvecScore(sujet, false)[1]?.[0]
+      ?? this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.s)[1]?.[0]
+      ?? this.eju.trouverObjetSurIntituleAvecScore(sujet, false, Nombre.p)[1]?.[0];
     if (!modele) {
       resultat.succes = false;
       return resultat;

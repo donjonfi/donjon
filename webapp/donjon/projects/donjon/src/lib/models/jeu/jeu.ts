@@ -12,6 +12,7 @@ import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
 import { ProgrammationTemps } from './programmation-temps';
 import { RegleBeta } from '../compilateur/regle-beta';
+import { RessourceAffichee } from './ressource-affichee';
 import { RoutineSimple } from '../compilateur/routine-simple';
 import { Statistiques } from './statistiques';
 import { DeclenchementFutur, Sauvegarde } from '../jouer/sauvegarde';
@@ -122,6 +123,9 @@ export class Jeu {
 
   /** Compteurs ajoutés au jeu */
   compteurs: Compteur[] = [];
+
+  /** Ressources à afficher dans le cartouche (config figée à la compilation, valeur calculée en direct) */
+  ressourcesAffichees: RessourceAffichee[] = [];
 
   /** Listes ajoutées au jeu */
   listes: Liste[] = [];

@@ -233,14 +233,25 @@ Le sable est une ressource.
 Son unité est le grain.                            -- séparément, après la définition
 ```
 
+**Genre de l'unité** — l'unité a son propre genre grammatical (« pièce » est féminin), qui peut différer de celui de la ressource (« or » masculin). Il sert aux accords des messages (« 3 pièces d'or **ont été ajoutées** »). Par défaut **masculin** ; déduit de l'article (`la`→féminin, `le`→masculin) quand il est présent ; ou forcé avec le marqueur `(f)` / `(m)` :
+
+```
+L'or est une ressource exprimée en pièces (f).    -- marqueur explicite
+Le minerai est une ressource. Son unité est la pépite.   -- déduit de « la » → féminin
+L'eau est une ressource avec l'unité litre (m).   -- masculin (défaut, ici explicite)
+```
+
 ### Placer des quantités
 
 Les nombres s'écrivent en **chiffres**. Positions : `ici`, `dans …`, `sur …`, `sous …`.
+
+> **« Il y a … » est réservé aux ressources.** L'instruction `Il y a N X …` exige que `X` soit une **ressource déjà définie** (reconnue au singulier comme au pluriel : `Il y a 1 fruit` place 1 unité de la ressource `fruits`). Si `X` n'est pas une ressource, c'est une **erreur d'auteur** : pour un objet ordinaire, utilisez plutôt `X est un objet ici` (ou `… dans/sur/sous …`).
 
 ```
 Il y a 30 unités de bois ici.
 Il y a 5 pièces d'argent dans le coffre.
 Il y a 3 unités d'essence sous la table.
+Il y a 1 fruit ici.                       -- singulier accepté → ressource « fruits »
 ```
 
 Une même ressource peut former **plusieurs piles indépendantes** :
@@ -287,3 +298,36 @@ déplacer 5 unités d'argent depuis l'inventaire vers le dessous du lit.
 ```
 
 Emplacements reconnus : `l'inventaire`, `l'intérieur du <contenant>`, `le dessus du <support>`, `le dessous du <support>`, ou un lieu / contenant / support nommé.
+
+### Afficher une ressource dans le cartouche
+
+Une ressource s'affiche dans le cartouche (la barre fixe du lecteur) comme un compteur. La quantité affichée est calculée **en direct** : prendre, lâcher, consommer ou créer la ressource met le cartouche à jour automatiquement.
+
+```
+L'argent est une ressource exprimée en pièces.
+
+-- Afficher dans un coin (haut/bas + gauche/droite ; « en haut » et « droite » par défaut)
+L'argent est affiché en haut à droite.
+Le bois est affiché en bas à gauche.
+
+-- Périmètre compté (mot-clé optionnel après le nom)
+L'argent possédé est affiché en haut à droite.    -- piles de l'inventaire du joueur (défaut)
+Le bois disponible est affiché en bas à gauche.    -- tout SAUF l'inventaire du joueur (lieux, coffres, PNJ…)
+
+-- Options : masquer l'intitulé et/ou l'unité
+L'argent est affiché en haut à droite sans intitulé.
+L'argent est affiché en haut à droite sans unité.
+L'argent est affiché en haut à droite sans intitulé sans unité.
+
+-- Modifier l'affichage EN COURS DE PARTIE (dans une règle/action/réaction)
+changer l'argent est affiché en bas à gauche.            -- repositionner (et/ou changer les options)
+changer l'argent est affiché en haut à droite sans intitulé.
+changer l'argent n'est plus affiché.                     -- retirer du cartouche
+```
+
+Notes :
+- À l'exécution, `changer … est affiché …` sur une ressource encore jamais affichée **crée** l'entrée (périmètre `possédé`). À chaque réaffichage, les options « sans X » sont réinitialisées (les redéclarer pour les conserver). Le périmètre possédé/disponible se choisit à la définition, pas via `changer`.
+- Sans mot-clé, le périmètre est **possédé** (ce que le joueur transporte). `possédé` et `disponible` sont complémentaires : leur somme couvre toutes les piles de la ressource, sans recouvrement.
+- L'unité s'accorde automatiquement (singulier si la quantité vaut 0 ou 1, pluriel sinon). Une pile illimitée affiche « ∞ ».
+- L'entrée du cartouche reste affichée même quand la quantité tombe à 0 (elle affiche « 0 », elle ne disparaît pas).
+- Le périmètre est **direct** (comme `consommer`) : une pile rangée dans un sac porté par le joueur compte comme `disponible`, pas comme `possédé`.

@@ -576,9 +576,6 @@ action examiner ceci:
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
-      changer ceci est familier.
-      changer ceci n’est plus discret.
-      changer ceci n’est plus intact.
     -- objet
     si ceci est un objet:
       -- sous l’objet
@@ -615,7 +612,12 @@ action examiner ceci:
     -- inconnu
     sinon
       dire "Hum ceci [intitulé ceci] n’est ni un objet ni un lieu. Je ne connais pas.".
-    fin si    
+    fin si
+    -- marquer l’élément APRÈS l’avoir décrit : ainsi la 1re description emploie la forme
+    -- indéfinie (« C’est un parchemin. ») et les examens suivants la forme définie (« le parchemin »).
+    changer ceci est familier.
+    changer ceci n’est plus discret.
+    changer ceci n’est plus intact.
 fin action
 
 action examiner ceci:

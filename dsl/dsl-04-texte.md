@@ -84,8 +84,10 @@ terminer le jeu.
 ## 12. Balises dynamiques dans `dire`
 
 ```
-[intitulé ceci]          -- "la pomme", "le coffre"...
+[intitulé ceci]          -- forme familière : "la pomme", "le coffre"...
 [Intitulé ceci]          -- majuscule : "La pomme"
+[ceci]                   -- intitulé selon l'état réel : "une pomme" (neuf) → "la pomme" (connu) ;
+                         --   toujours le nombre pour les ressources : "1 pièce d'or", "4 fruits"
 [description ceci]       -- description de l'objet
 [aperçu ceci]            -- aperçu de l'objet
 [statut ceci]            -- statut (ouvert/fermé) d'une porte ou contenant
@@ -120,6 +122,8 @@ terminer le jeu.
 [es ceci]                -- "e" ou "es" selon genre/nombre
 [s ceci]                 -- "s" si pluriel
 [accord ceci]            -- "e" si féminin
+[Cest ceci]              -- "C'est" ou "Ce sont" selon le compte (majuscule)
+[cest ceci]              -- "c'est" / "ce sont" (minuscule)
 
 -- Verbes conjugués
 [v être ipr ceci]        -- conjugaison de "être" à l'indicatif présent

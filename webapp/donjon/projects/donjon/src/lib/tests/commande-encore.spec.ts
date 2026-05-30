@@ -19,9 +19,10 @@ describe('Test de l’action répéter (la dernière commande)', () => {
     ctxCommande = ctxPartie.com.executerCommande("examiner la table", false);
     expect(ctxCommande.sortie).toEqual("C’est une table.{N}Il n’y a rien de particulier dessus.{N}");
     ctxCommande = ctxPartie.com.executerCommande("répéter la dernière commande", false);
-    expect(ctxCommande.sortie).toEqual("C’est une table.{N}Il n’y a rien de particulier dessus.{N}");
+    // 2e examen : l'objet est désormais familier → forme définie « la table ».
+    expect(ctxCommande.sortie).toEqual("C’est la table.{N}Il n’y a rien de particulier dessus.{N}");
     ctxCommande = ctxPartie.com.executerCommande("répéter la dernière commande", false);
-    expect(ctxCommande.sortie).toEqual("C’est une table.{N}Il n’y a rien de particulier dessus.{N}");
+    expect(ctxCommande.sortie).toEqual("C’est la table.{N}Il n’y a rien de particulier dessus.{N}");
     ctxCommande = ctxPartie.com.executerCommande("prendre la table", false);
     expect(ctxCommande.sortie).toEqual("Elle est fixée.{N}");
     ctxCommande = ctxPartie.com.executerCommande("répéter la dernière commande", false);

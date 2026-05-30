@@ -67,8 +67,9 @@ export class AnalyseurElementSimple {
       nombre = MotUtils.getNombre(result[1], estToujoursPluriel);
       quantite = MotUtils.getQuantite(result[1], 1);
       attributsString = result[6];
-      initialiseA = result[7] ?? result[9];
+      initialiseA = result[7] ?? result[10];
       const unite = result[8];
+      const uniteGenreMarqueur = result[9];
       attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
       if (initialiseA) {
         attributs.push(initialiseA);
@@ -104,6 +105,9 @@ export class AnalyseurElementSimple {
         // (« exprimée en pièces ») : on stocke les deux formes.
         nouvelElementGenerique.unite = MotUtils.getSingulier(unite);
         nouvelElementGenerique.unites = MotUtils.getPluriel(nouvelElementGenerique.unite);
+        // genre grammatical de l’unité (ex. « pièce » est féminin) : marqueur « (f) »/« (m) »,
+        //  masculin par défaut. Sert aux accords des messages (« 3 pièces … ajoutées »).
+        nouvelElementGenerique.uniteGenre = (uniteGenreMarqueur?.toLowerCase() === 'f') ? Genre.f : Genre.m;
       }
 
     } else {

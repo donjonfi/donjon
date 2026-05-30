@@ -105,4 +105,23 @@ fin action`);
     expect(totalParNom(ctx, 'rations', ctx.jeu.joueur.id) + totalParNom(ctx, 'ration', ctx.jeu.joueur.id)).toBe(2);
   });
 
+  it('[F057-T304] exemple « cartouche » → affichage possédé / disponible', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + `
+Le campement est un lieu.
+L'or est une ressource exprimée en pièces.
+L'or est affiché en haut à droite.
+Il y a 12 pièces d'or ici.
+Le bois est une ressource.
+Le bois disponible est affiché en haut à gauche.
+Il y a 20 unités de bois ici.`);
+    // deux ressources configurées dans le cartouche, avec leur périmètre
+    expect(ctx.jeu.ressourcesAffichees.length).toBe(2);
+    const or = ctx.jeu.ressourcesAffichees.find((r: any) => r.nom === 'or');
+    const bois = ctx.jeu.ressourcesAffichees.find((r: any) => r.nom === 'bois');
+    expect(or.scope).toBe('possede');
+    expect(or.positionAffichage).toBe('haut-droite');
+    expect(bois.scope).toBe('disponible');
+    expect(bois.positionAffichage).toBe('haut-gauche');
+  });
+
 });

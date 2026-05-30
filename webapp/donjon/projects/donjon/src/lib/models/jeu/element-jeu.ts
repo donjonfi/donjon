@@ -100,6 +100,21 @@ export class ElementJeu extends Concept {
     }
   }
 
+  /** Genre grammatical de l’unité (ressource) — ex. « pièce » → féminin. null si non défini. */
+  get uniteGenre(): Genre {
+    const v = this.proprietes.find(x => x.nom == 'uniteGenre')?.valeur;
+    return v ? (v as Genre) : null;
+  }
+  /** Genre grammatical de l’unité (ressource). */
+  set uniteGenre(valeur: Genre) {
+    let existant = this.proprietes.find(x => x.nom == 'uniteGenre');
+    if (existant) {
+      existant.valeur = valeur;
+    } else {
+      this.proprietes.push(new ProprieteConcept(this, 'uniteGenre', TypeValeur.mots, valeur));
+    }
+  }
+
   // RACCOURCIS: TITRE
 
   /** Titre (lieux) */
