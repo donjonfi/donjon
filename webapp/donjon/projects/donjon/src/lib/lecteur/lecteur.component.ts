@@ -665,7 +665,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    * Utilisé par les 4 sites de déclenchement (chrono, restauration .sol, intro magnéto,
    * pas-à-pas magnéto) pour éviter toute divergence de résolution entre eux.
    */
-  private lierEtEnfilerRoutine(nom: string, args: string[]): { routine?: RoutineSimple, erreur?: string } {
+  private lierEtEnfilerRoutine(nom: string, args: string[]): { routine?: RoutineSimple, valeurCanonique?: string, erreur?: string } {
     const liaison = this.partie.ins.lierAppelRoutine(nom, args);
     if (liaison.erreur || !liaison.routine) {
       return { erreur: liaison.erreur ?? `La routine n’a pas pu être liée : ${nom}` };
@@ -676,9 +676,47 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     const parts: string[] = [];
     if (routine.ceci && liaison.ceciVal) parts.push(this.partie.ins.canoniserArg(liaison.ceciVal, routine.paramCeci!));
     if (routine.cela && liaison.celaVal) parts.push(this.partie.ins.canoniserArg(liaison.celaVal, routine.paramCela!));
+    const trailer = parts.join(' et ');
     this.jeu.tamponRoutinesEnAttente.push(new RoutineEnAttente(routine, liaison.ceciVal, liaison.celaVal));
-    this.partie.ajouterDeclenchementDansSauvegarde(routine.nom, parts.join(' et '));
-    return { routine };
+    this.partie.ajouterDeclenchementDansSauvegarde(routine.nom, trailer);
+    // Valeur 'd' canonique (même format que l'entrée de sauvegarde) pour reconstruire une étape.
+    const valeurCanonique = trailer.length ? `${routine.nom} avec ${trailer}` : routine.nom;
+    return { routine, valeurCanonique };
+  }
+
+  /**
+   * Force immédiatement les routines programmées par une commande insérée au magnéto (qui n'a pas
+   * de temps réel) : chaque programmation en attente est exécutée tout de suite et ajoutée comme
+   * étape 'd' juste après `posApres` (avec sa sortie et ses lectures d'horloge). Le délai est ignoré.
+   * À appeler en mode replay (flag `restaurationPartieEnCours` à true) pour qu'une routine récurrente
+   * ne se re-programme pas pendant le forçage. Retourne le nombre d'étapes 'd' insérées.
+   * Limite connue : une routine programmée *par une routine forcée* n'est pas re-forcée (chaînage).
+   */
+  private magnetoForcerRoutinesProgrammees(posApres: number): number {
+    if (!this.enregistrementEnCours) return 0;
+    let nbInserees = 0;
+    while (this.jeu.programmationsTemps.length) {
+      const prog = this.jeu.programmationsTemps.shift()!;
+      const valeurBrute = prog.argsTrailer ? `${prog.routine} avec ${prog.argsTrailer}` : prog.routine;
+      const { nom, argsCanoniques } = this.partie.ins.parseDeclenchement(valeurBrute);
+      this.partie.reinitialiserDerniereSortieEnregistree();
+      HorlogeUtils.chargerRejeuEtape(null); // lectures live, capturées pour rejeu déterministe
+      const res = this.lierEtEnfilerRoutine(nom, argsCanoniques);
+      if (!res.routine || res.valeurCanonique === undefined) {
+        this.ajouteErreur(`Magnéto: routine programmée introuvable: ${res.erreur ?? nom}`);
+        continue;
+      }
+      this.traiterProchaineRoutine();
+      this.terminerInterruptionsBloquantesPourMagneto();
+      const etape: EtapeEnregistrement = { type: 'd', valeur: res.valeurCanonique, sortie: this.partie.derniereSortieEnregistree ?? '' };
+      const horloge = HorlogeUtils.lecturesUtiliseesEtape();
+      if (horloge.length) etape.horloge = horloge;
+      this.enregistrementEnCours.etapes.splice(posApres + nbInserees, 0, etape);
+      this.enregistrementCompteurs.ajouts++;
+      this.enregistrementActions.push({ idx: posApres + nbInserees, action: 'routine forcée', detail: `« ${res.valeurCanonique} »` });
+      nbInserees++;
+    }
+    return nbInserees;
   }
 
   private traiterProchaineRoutine() {
@@ -2182,10 +2220,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     const etaitEnModification = this.magnetoEdition === 'modifier';
     const etaitEnInsererReponse = this.magnetoEdition === 'inserer-reponse';
 
-    // Garantir que la nouvelle commande est exécutée. Si on a déjà testé cette commande, on garde l'exécution.
+    // Garantir que la nouvelle commande est exécutée. Si on a déjà testé cette commande, on garde
+    // l'exécution — SAUF en insertion : on ré-exécute pour autoriser la programmation des routines
+    // (le flag de replay est levé le temps de l'exécution de la commande insérée).
     let sortieNouvelle: string;
     let horlogeNouvelle: number[];
-    if (this.magnetoDernierTest?.commande === cmd) {
+    if (this.magnetoDernierTest?.commande === cmd && this.magnetoEdition !== 'inserer') {
       sortieNouvelle = this.magnetoDernierTest.sortie;
       horlogeNouvelle = this.magnetoDernierTest.horloge;
     } else {
@@ -2201,9 +2241,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       }
       // Bande d'horloge vide : capturer les lectures (en heure réelle) de la nouvelle commande.
       HorlogeUtils.chargerRejeuEtape(null);
+      // Insertion : la commande est nouvelle (« live ») et peut programmer une routine ; on lève le
+      // flag de replay le temps de son exécution pour que `programmerRoutine` ne la saute pas. Les
+      // routines ainsi programmées sont ensuite forcées immédiatement (cf. magnetoForcerRoutinesProgrammees).
+      const flagReplay = this.partie.ins.restaurationPartieEnCours;
+      if (this.magnetoEdition === 'inserer') this.partie.ins.restaurationPartieEnCours = false;
       sortieNouvelle = (this.magnetoEditionTypeOriginal === 'r' || etaitEnInsererReponse)
         ? this.executerReponseChoix(cmd)
         : this.executerCommandeAffichee(cmd);
+      this.partie.ins.restaurationPartieEnCours = flagReplay;
       horlogeNouvelle = HorlogeUtils.lecturesUtiliseesEtape();
     }
 
@@ -2258,7 +2304,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         idxNouvelleEtape = d.idx + 1;
         this.enregistrementCompteurs.ajouts++;
         this.enregistrementActions.push({ idx: d.idx + 1, action: 'inséré après', detail: `« ${cmd} »` });
-        this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 2, false);
+        // Forcer les routines programmées par la commande insérée (étapes 'd' juste après).
+        const nbD = this.magnetoForcerRoutinesProgrammees(d.idx + 2);
+        this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 2 + nbD, false);
       }
       this.magnetoDivergence = null;
     } else {
@@ -2296,6 +2344,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
           // Pas de reset à 'aucun' — on reste dans le sous-panneau saisie.
           return;
         }
+
+        // Forcer les routines programmées par la commande insérée (étapes 'd' juste après).
+        const nbD = this.magnetoForcerRoutinesProgrammees(idx + 1);
+        if (nbD) this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1 + nbD, false);
       }
     }
 

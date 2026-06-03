@@ -161,6 +161,46 @@ fin action
     expect(lecteur.magnetoSaisieHorloge!.inputs.length).toBe(1);
   });
 
+  it("[F050-MAG-HOR-T008] insérer une commande qui programme une routine : la routine est forcée (étape 'd' + sortie)", () => {
+    const scn = `La salle est un lieu.
+routine bip:
+  dire "DING".
+fin routine
+action attendre:
+  dire "ok".
+fin action
+action armer:
+  exécuter la routine bip dans 3 secondes.
+fin action
+` + actions;
+
+    // Enregistrement initial : une commande neutre.
+    const jeuRec = TestUtils["genererLeJeu"](scn, false);
+    const lecteurRec = instancierLecteur(jeuRec, undefined);
+    (lecteurRec as any).commande = "attendre";
+    (lecteurRec as any).validationCommande();
+    const fichier = (lecteurRec as any).partie.creerFichierEnregistrement() as FichierEnregistrement;
+
+    // Replay : jouer c:attendre, puis INSÉRER « armer » (qui programme la routine bip).
+    const jeuReplay = TestUtils["genererLeJeu"](scn, false);
+    const lecteur = instancierLecteur(jeuReplay, fichier);
+    lecteur.magnetoPasSuivant(); // joue c:attendre
+    lecteur.magnetoEntrerInsertion("apres");
+    lecteur.magnetoSaisieCommande = "armer";
+    lecteur.magnetoValiderSaisie();
+
+    // La commande insérée est dans l'enregistrement.
+    const etapes = lecteur.enregistrementEnCours!.etapes;
+    const idxArmer = etapes.findIndex(e => e.type === 'c' && e.valeur === "armer");
+    expect(idxArmer).withContext("commande insérée présente").toBeGreaterThanOrEqual(0);
+
+    // La routine programmée est forcée : une étape 'd' « bip » apparaît juste après, avec sa sortie.
+    const etapeD = etapes.find(e => e.type === 'd' && e.valeur === "bip");
+    expect(etapeD).withContext("routine forcée présente en étape 'd'").toBeDefined();
+    expect(etapes.indexOf(etapeD!)).withContext("'d' juste après la commande").toBe(idxArmer + 1);
+    expect(etapeD!.sortie ?? "").withContext("sortie de la routine capturée").toContain("DING");
+  });
+
   it("[F050-MAG-HOR-T005] avancerAutoJusqua ré-avance le replay jusqu'à la cible (continuer, pas rester sur l'intro)", () => {
     const scn = `La salle est un lieu.
 action attendre:
