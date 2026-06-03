@@ -330,7 +330,7 @@ describe("Routines paramétrées + surcharge", () => {
     expect(ctx.jeu.tamponErreurs.length).toBeGreaterThan(0);
   });
 
-  it("[F056-T016] erreur: appel différé AVEC args (phase 1 refuse)", () => {
+  it("[F056-T016] OK: appel différé AVEC args (trailer mémorisé pour résolution au déclenchement)", () => {
     const scenario = `
       Le salon est un lieu.
       routine afficher:
@@ -344,7 +344,12 @@ describe("Routines paramétrées + surcharge", () => {
       fin règle
     `;
     const { ctx, sortie } = preparer(scenario);
-    expect(ctx.jeu.tamponErreurs.some(e => /différ|phase/i.test(e))).toBeTrue();
+    // L'appel différé avec arguments est désormais accepté : le trailer brut est mémorisé
+    // dans la programmation et résolu au déclenchement (fire-time).
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    expect(ctx.jeu.programmationsTemps.length).toBe(1);
+    expect(ctx.jeu.programmationsTemps[0].routine).toBe("afficher");
+    expect(ctx.jeu.programmationsTemps[0].argsTrailer).toBe("1");
   });
 
   it("[F056-T017] OK: appel différé SANS args (régression)", () => {

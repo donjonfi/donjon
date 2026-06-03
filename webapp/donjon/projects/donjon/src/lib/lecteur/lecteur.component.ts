@@ -19,6 +19,9 @@ import * as FileSaver from 'file-saver-es';
 import { QuestionCommande } from '../models/jouer/questions-commande';
 import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 import { ProgrammationTemps } from '../models/jeu/programmation-temps';
+import { RoutineEnAttente } from '../models/jeu/routine-en-attente';
+import { RoutineSimple } from '../models/compilateur/routine-simple';
+import { HorlogeUtils } from '../utils/jeu/horloge-utils';
 
 /** Segment de texte issu de la comparaison de deux sorties dans le magnéto. */
 export interface SegmentDiff {
@@ -98,6 +101,28 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Divergence sur l'intro du jeu (avant la première étape c/r), ou null. */
   public magnetoDivergenceIntro: { sortie: string, sortieObtenue: string, diffAttendu: SegmentDiff[], diffObtenue: SegmentDiff[] } | null = null;
 
+  /**
+   * Saisie d'heure : l'étape courante a lu l'horloge sans valeur enregistrée (instruction
+   * insérée/modifiée). Le magnéto se met en pause et demande à l'auteur la/les date(s)-heure(s)
+   * à rejouer (champs datetime-local éditables). `idx` = étape concernée ; `inputs` = valeurs
+   * éditables au format datetime-local (converties depuis les lectures réelles capturées).
+   */
+  public magnetoSaisieHorloge: { idx: number, inputs: string[] } | null = null;
+
+  /**
+   * Index d'étapes dont la sortie attendue doit être **recalculée** au prochain rejeu (après que
+   * l'auteur a fourni/modifié l'heure via la saisie) : au lieu de comparer, le rejeu accepte la
+   * sortie obtenue (recalculée avec l'heure fournie). Survit au reload de `magnetoRecommencer`.
+   */
+  public magnetoIdxSortieARecalculer = new Set<number>();
+
+  /**
+   * Après une saisie d'heure : position (idx) à laquelle ré-avancer automatiquement le replay
+   * une fois le rejeu déterministe relancé, afin que l'auteur retrouve l'endroit où il était
+   * (au lieu de rester sur l'intro). null si pas de ré-avance en attente. Survit au reload.
+   */
+  public magnetoIdxRejeuCible: number | null = null;
+
   /** Lecture auto en cours (boucle temporisée) ? */
   public magnetoLectureAutoEnCours = false;
 
@@ -115,8 +140,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Saisie utilisateur en mode modifier/inserer. */
   public magnetoSaisieCommande = '';
 
-  /** Mémorise la dernière commande testée (avec sortie capturée) pour la séquence Tester → Valider. */
-  public magnetoDernierTest: { commande: string, sortie: string } | null = null;
+  /** Mémorise la dernière commande testée (avec sortie + lectures d'horloge capturées) pour la séquence Tester → Valider. */
+  public magnetoDernierTest: { commande: string, sortie: string, horloge: number[] } | null = null;
 
   /** Affiche le dialogue « RAZ avant de lancer le magnéto ? » au chargement d'un .rec. */
   public magnetoDemanderRaz = false;
@@ -379,6 +404,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.partie.nouvelleGraineAleatoire(graineDeDepart);
     }
 
+    // ============================================
+    //  HORLOGE DÉTERMINISTE (même principe que la graine)
+    // ============================================
+    // On repart à zéro, puis — si on (re)démarre une partie à rejouer — on charge les lectures
+    // d'horloge de la phase intro pour les rejouer (au lieu de l'heure réelle). L'intro est
+    // jouée juste après (« commencer le jeu » / « regarder »), donc on charge avant.
+    HorlogeUtils.reinitialiser();
+    if (this.enregistrementEnAttente && this.enregistrementEnCours) {
+      HorlogeUtils.chargerRejeuEtape(this.enregistrementEnCours.horlogeIntro ?? null);
+    } else if ((this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.manuTricheEnAttente || this.interruptionEnCoursAvantAnnulation) && this.jeu.sauvegarde) {
+      HorlogeUtils.chargerRejeuEtape(this.jeu.sauvegarde.horlogeIntro ?? null);
+    }
+
     // =====================
     //  COMMENCER LA PARTIE
     // =====================
@@ -461,8 +499,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         // restaurer la partie
         this.jeu.interrompu = false;
       }
-      // si la partie n’est pas en pause, vérifier les chronos
-      if (!this.jeu.interrompu) {
+      // si la partie n’est pas en pause, vérifier les chronos.
+      // Pendant un replay (restauration .sol, triche, magnétoscope), on NE déclenche PAS les
+      // routines via le chrono temps réel : les étapes 'd' enregistrées les forcent au bon moment.
+      // Sans ce garde-fou, une routine programmée pendante serait jouée 2× (1× forcée + 1× chrono).
+      // (Les routines encore en attente en fin d'enregistrement relèvent de declenchementsFuturs.)
+      if (!this.jeu.interrompu && !this.partie.ins.restaurationPartieEnCours) {
         if (this.jeu.programmationsTemps.length) {
           // vérifier les programmations qui sont terminées (temps écoulé)
           const tempsActuel = Date.now();
@@ -485,17 +527,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
             if (this.partie.verbeux) {
               console.log("Chrono écoulé");
             }
-            // retrouver la routine
-            const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == programmation.routine);
-            if (routine) {
+            // résoudre la routine + ses arguments (résolus au déclenchement = fire-time).
+            // Le trailer brut a été mémorisé à la programmation ; on le découpe puis on lie.
+            const valeurDeclenchement = programmation.argsTrailer
+              ? `${programmation.routine} avec ${programmation.argsTrailer}`
+              : programmation.routine;
+            const { nom, argsCanoniques } = this.partie.ins.parseDeclenchement(valeurDeclenchement);
+            const resLiaison = this.lierEtEnfilerRoutine(nom, argsCanoniques);
+            if (resLiaison.routine) {
               if (this.partie.verbeux) {
                 console.log("routine trouvée");
               }
-              this.jeu.tamponRoutinesEnAttente.push(routine);
-
-              // enregistrer le moment où la routine a été mise sur le pile pour la sauvegarde
-              this.partie.ajouterDeclenchementDansSauvegarde(routine.nom);
-
               // a) commande/interruption déjà en cours => garder pour plus tard.
               if (this.commandeEnCours || this.interruptionEnCours) {
                 if (this.verbeux) {
@@ -506,7 +548,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
                 this.traiterProchaineRoutine();
               }
             } else {
-              this.partie.eju.ajouterErreur(`Programmation routine: routine pas trouvée: ${programmation.routine}.`);
+              this.partie.eju.ajouterErreur(`Programmation routine: ${resLiaison.erreur}`);
             }
           });
 
@@ -614,14 +656,40 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.scrollSortie();
   }
 
+  /**
+   * Lie un appel de routine déclenchée (nom + arguments, bruts ou canoniques) à une routine
+   * concrète via la résolution de surcharge, puis — en cas de succès — met la routine en file
+   * (`tamponRoutinesEnAttente`) avec ses arguments liés et enregistre l'étape 'd' dans la
+   * sauvegarde avec les arguments **canoniques** (rejouables à l'identique).
+   *
+   * Utilisé par les 4 sites de déclenchement (chrono, restauration .sol, intro magnéto,
+   * pas-à-pas magnéto) pour éviter toute divergence de résolution entre eux.
+   */
+  private lierEtEnfilerRoutine(nom: string, args: string[]): { routine?: RoutineSimple, erreur?: string } {
+    const liaison = this.partie.ins.lierAppelRoutine(nom, args);
+    if (liaison.erreur || !liaison.routine) {
+      return { erreur: liaison.erreur ?? `La routine n’a pas pu être liée : ${nom}` };
+    }
+    const routine = liaison.routine;
+    // Recomposer le trailer canonique à partir des valeurs liées (pour la sauvegarde) — idempotent
+    // si les args étaient déjà canoniques (cas replay).
+    const parts: string[] = [];
+    if (routine.ceci && liaison.ceciVal) parts.push(this.partie.ins.canoniserArg(liaison.ceciVal, routine.paramCeci!));
+    if (routine.cela && liaison.celaVal) parts.push(this.partie.ins.canoniserArg(liaison.celaVal, routine.paramCela!));
+    this.jeu.tamponRoutinesEnAttente.push(new RoutineEnAttente(routine, liaison.ceciVal, liaison.celaVal));
+    this.partie.ajouterDeclenchementDansSauvegarde(routine.nom, parts.join(' et '));
+    return { routine };
+  }
+
   private traiterProchaineRoutine() {
-    const routine = this.jeu.tamponRoutinesEnAttente.shift();
+    const enAttente = this.jeu.tamponRoutinesEnAttente.shift();
+    const routine = enAttente.routine;
 
     if (this.verbeux) {
       console.warn("routine exécutée: ", routine.nom);
     }
 
-    const sortieRoutine = this.partie.com.executerRoutine(routine);
+    const sortieRoutine = this.partie.com.executerRoutine(routine, enAttente.ceciVal, enAttente.celaVal);
     this.partie.ecran.ajouterParagrapheDonjon(sortieRoutine);
     this.scrollSortie();
 
@@ -1204,11 +1272,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
         let ignorerEtapeGraine = true;
 
-        this.jeu.sauvegarde.etapesSauvegarde.forEach(async curCom => {
+        this.jeu.sauvegarde.etapesSauvegarde.forEach(async (curCom, idxEtape) => {
 
           if (ignorerEtapeGraine) {
             ignorerEtapeGraine = false;
           } else {
+            // Charger les lectures d'horloge de cette étape (rejeu déterministe) avant de l'exécuter.
+            HorlogeUtils.chargerRejeuEtape(this.jeu.sauvegarde.horlogesSauvegarde?.[idxEtape] ?? null);
             let [type, valeur] = curCom.split(":");
             switch (type) {
               // commande et réponse
@@ -1225,17 +1295,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
               // déclenchement
               case 'd':
-                const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == valeur);
-                if (routine) {
+                const declTriche = this.partie.ins.parseDeclenchement(valeur);
+                const resTriche = this.lierEtEnfilerRoutine(declTriche.nom, declTriche.argsCanoniques);
+                if (resTriche.routine) {
                   if (this.partie.verbeux) {
                     console.log("routine trouvée");
                   }
-                  this.jeu.tamponRoutinesEnAttente.push(routine);
-                  // enregistrer le moment où la routine a été mise sur le pile pour la sauvegarde
-                  this.partie.ajouterDeclenchementDansSauvegarde(routine.nom);
                   this.traiterProchaineRoutine();
                 } else {
-                  this.ajouteErreur(`Triche auto: routine pas trouvée: ${valeur}`)
+                  this.ajouteErreur(`Triche auto: ${resTriche.erreur}`)
                 }
                 break;
 
@@ -1249,7 +1317,14 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
         // fin du mode triche
         this.autoTricheActif = false;
-        this.partie.ins.restaurationPartieEnCours = false;
+        // En magnéto, l'auto-triche ne sert qu'à restaurer l'état (ex. reload post-« Précédent ») :
+        // le magnéto reste actif ensuite, donc on NE lève PAS le flag de replay ni le rejeu horloge
+        // (sinon le « Suivant » suivant reprogrammerait réellement les routines au lieu de les forcer).
+        if (!this.enregistrementActif) {
+          this.partie.ins.restaurationPartieEnCours = false;
+          // fin du rejeu horloge : les prochaines lectures utiliseront l'heure réelle
+          HorlogeUtils.terminerRejeu();
+        }
 
         // // nouvelle graine pour l’aléatoire
         // /!\ ATTENTION: il faut sauvegarder l’ensemble des graines de la partie
@@ -1330,6 +1405,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    */
   public setEnregistrement(fichier: FichierEnregistrement) {
     this.enregistrementEnCours = fichier;
+    this.magnetoIdxSortieARecalculer.clear();
+    this.magnetoIdxRejeuCible = null;
     this.partie.ecran.ajouterParagrapheDonjon('{/Enregistrement chargé./}');
     this.scrollSortie();
     // Inclure le cas « intro en pause sur attendre touche / choisir » dans la branche
@@ -1381,6 +1458,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.enregistrementCompteurs = { acceptations: 0, retraits: 0, modifications: 0, ajouts: 0 };
     this.magnetoIdx = 0;
     this.magnetoDivergence = null;
+    this.magnetoSaisieHorloge = null;
     this.magnetoLectureAutoEnCours = false;
     this.magnetoEdition = 'aucun';
     this.magnetoSaisieCommande = '';
@@ -1424,6 +1502,21 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         diffObtenue: diff.droite,
       };
     }
+
+    // Ré-avance automatique après une saisie d'heure : on rejoue jusqu'à la position où l'auteur
+    // était, pour qu'il continue son enregistrement plutôt que de rester sur l'intro.
+    if (this.magnetoIdxRejeuCible !== null && !this.magnetoDivergenceIntro) {
+      const cible = this.magnetoIdxRejeuCible;
+      this.magnetoIdxRejeuCible = null;
+      setTimeout(() => {
+        if (this.enregistrementActif && this.enregistrementEnCours) {
+          this.avancerAutoJusqua(cible);
+        }
+      }, 0);
+    } else {
+      // Divergence d'intro (ou pas de ré-avance) : on abandonne la cible éventuelle.
+      this.magnetoIdxRejeuCible = null;
+    }
   }
 
   /** Valide la sortie d'intro obtenue comme nouvelle sortie attendue. */
@@ -1462,10 +1555,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       }
       if (e.type === 'd' && enIntro) {
         // En intro : forcer la routine silencieusement. Pas de comparaison ici (gérée par sortieIntro).
-        const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == e.valeur);
-        if (routine) {
-          this.jeu.tamponRoutinesEnAttente.push(routine);
-          this.partie.ajouterDeclenchementDansSauvegarde(routine.nom);
+        const declIntro = this.partie.ins.parseDeclenchement(e.valeur);
+        const resIntro = this.lierEtEnfilerRoutine(declIntro.nom, declIntro.argsCanoniques);
+        if (resIntro.routine) {
           this.traiterProchaineRoutine();
         }
         idx++;
@@ -1482,17 +1574,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    * a été ouverte (magnetoDivergence posé).
    */
   private executerEtapeDeclenchement(etape: EtapeEnregistrement, idx: number): boolean {
-    const routine = this.jeu.routines.find(x => x.nom.toLocaleLowerCase() == etape.valeur);
-    if (!routine) {
-      // Routine référencée par le .rec absente du scénario : ouvrir une divergence dédiée
-      // pour que l'utilisateur en soit informé via l'UI du magnéto plutôt que via un texte de jeu.
+    this.partie.reinitialiserDerniereSortieEnregistree();
+    // Charger les lectures d'horloge de cette étape (rejeu déterministe) avant exécution.
+    HorlogeUtils.chargerRejeuEtape(etape.horloge ?? null);
+    const decl = this.partie.ins.parseDeclenchement(etape.valeur);
+    const resLiaison = this.lierEtEnfilerRoutine(decl.nom, decl.argsCanoniques);
+    if (!resLiaison.routine) {
+      // Routine référencée par le .rec absente du scénario (ou surcharge non liable) : ouvrir une
+      // divergence dédiée pour informer l'utilisateur via l'UI plutôt que via un texte de jeu.
       this.magnetoDivergence = { etape, idx, sortieObtenue: '', diffAttendu: [], diffObtenue: [], routineIntrouvable: true };
       this.magnetoLectureAutoEnCours = false;
       return false;
     }
-    this.partie.reinitialiserDerniereSortieEnregistree();
-    this.jeu.tamponRoutinesEnAttente.push(routine);
-    this.partie.ajouterDeclenchementDansSauvegarde(routine.nom);
     this.traiterProchaineRoutine();
     // Si la routine forcée contient un `attendre touche` ou `attendre N secondes`, on
     // doit auto-presser/auto-consommer comme pour une c/r, sinon le magnéto resterait
@@ -1500,6 +1593,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // sans rien faire pour la consommer).
     this.terminerInterruptionsBloquantesPourMagneto();
     const sortieObtenue = this.partie.derniereSortieEnregistree ?? '';
+    if (this.magnetoIdxSortieARecalculer.has(idx)) {
+      // Sortie recalculée avec l'heure fournie : on l'accepte (pas de divergence).
+      etape.sortie = sortieObtenue;
+      this.magnetoIdxSortieARecalculer.delete(idx);
+      return true;
+    }
     if (etape.sortie !== undefined && etape.sortie !== sortieObtenue) {
       const diff = LecteurComponent.calculerDiffSorties(etape.sortie, sortieObtenue);
       this.magnetoDivergence = { etape, idx, sortieObtenue, diffAttendu: diff.gauche, diffObtenue: diff.droite };
@@ -1556,7 +1655,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Exécute l'étape courante et compare la sortie. Met en pause sur divergence. */
   public magnetoPasSuivant(): void {
     if (!this.enregistrementActif || !this.enregistrementEnCours) return;
-    if (this.magnetoDivergence || this.magnetoDivergenceIntro) return; // bloqué tant que divergence non résolue
+    if (this.magnetoDivergence || this.magnetoDivergenceIntro || this.magnetoSaisieHorloge) return; // bloqué tant que divergence / saisie non résolue
     if (this.magnetoIdx >= this.enregistrementEnCours.etapes.length) {
       this.afficherRecap();
       return;
@@ -1574,6 +1673,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (etape.type === 'd') {
       // Étape « routine forcée » : sa sortie est comparée séparément de la commande qui précède.
       const ok = this.executerEtapeDeclenchement(etape, this.magnetoIdx);
+      // Une lecture d'horloge non enregistrée prime sur la divergence (qui serait fondée sur
+      // l'heure réelle) : on demande l'heure à l'auteur.
+      if (this.detecterLectureHorlogeManquante(this.magnetoIdx)) { this.magnetoDivergence = null; return; }
       if (ok) {
         this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdx + 1, false);
         if (this.magnetoIdx >= this.enregistrementEnCours.etapes.length) {
@@ -1584,6 +1686,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     }
 
     const sortieObtenue = this.executerEtapeEnregistrement(etape);
+    if (this.detecterLectureHorlogeManquante(this.magnetoIdx)) return;
+    if (this.magnetoIdxSortieARecalculer.has(this.magnetoIdx)) {
+      // Sortie recalculée avec l'heure fournie : on l'accepte (pas de divergence).
+      etape.sortie = sortieObtenue;
+      this.magnetoIdxSortieARecalculer.delete(this.magnetoIdx);
+      this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdx + 1, false);
+      if (this.magnetoIdx >= this.enregistrementEnCours.etapes.length) {
+        this.afficherRecap();
+      }
+      return;
+    }
     if ((etape.sortie ?? '') === sortieObtenue) {
       this.magnetoIdx = this.avancerJusquAEtapeJouable(this.magnetoIdx + 1, false);
       if (this.magnetoIdx >= this.enregistrementEnCours.etapes.length) {
@@ -1595,6 +1708,72 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.magnetoDivergence = { etape, idx: this.magnetoIdx, sortieObtenue, diffAttendu: diff.gauche, diffObtenue: diff.droite };
       this.magnetoLectureAutoEnCours = false;
     }
+  }
+
+  /**
+   * Si l'étape qui vient d'être jouée a lu l'horloge sans valeur enregistrée (instruction
+   * insérée/modifiée), ouvre la saisie d'heure (pause). Retourne true dans ce cas.
+   */
+  private detecterLectureHorlogeManquante(idx: number): boolean {
+    if (!HorlogeUtils.aLectureManquante) return false;
+    this.magnetoSaisieHorloge = {
+      idx,
+      inputs: HorlogeUtils.lecturesUtiliseesEtape().map(ts => this.horlogeVersInput(ts)),
+    };
+    this.magnetoLectureAutoEnCours = false;
+    return true;
+  }
+
+  /**
+   * Valide les heures saisies : les inscrit dans l'étape (.rec), marque sa sortie pour recalcul,
+   * puis rejoue de façon déterministe et **ré-avance automatiquement** jusqu'à la position courante
+   * (équivaut à « Précédent puis Suivant » sur l'instruction : sa sortie est recalculée avec l'heure
+   * fournie, et l'auteur retrouve sa place au lieu de rester sur l'intro).
+   */
+  public magnetoConfirmerSaisieHorloge(): void {
+    if (!this.magnetoSaisieHorloge || !this.enregistrementEnCours) return;
+    const { idx, inputs } = this.magnetoSaisieHorloge;
+    const lectures = inputs.map(s => this.inputVersHorloge(s));
+    this.enregistrementEnCours.etapes[idx].horloge = lectures;
+    // La sortie attendue a été capturée avec l'heure réelle : la marquer pour recalcul au rejeu
+    // (l'instruction sera rejouée avec l'heure fournie, et sa sortie acceptée sans divergence).
+    this.magnetoIdxSortieARecalculer.add(idx);
+    this.enregistrementActions.push({ idx, action: 'heure', detail: `${lectures.length} lecture(s) d'horloge définie(s)` });
+    this.magnetoSaisieHorloge = null;
+    // Position à retrouver après le rejeu (là où on était — juste après l'instruction).
+    this.magnetoIdxRejeuCible = this.magnetoIdx;
+    // Rejeu déterministe ; initialiserMagneto ré-avancera automatiquement jusqu'à la cible.
+    this.magnetoRecommencer();
+  }
+
+  /**
+   * Ré-avance le replay (pas-à-pas) jusqu'à atteindre `cible`, en s'arrêtant si une divergence /
+   * saisie s'ouvre ou si le curseur n'avance plus. Utilisé après une saisie d'heure pour ramener
+   * l'auteur là où il était, après le rejeu déterministe.
+   */
+  private avancerAutoJusqua(cible: number): void {
+    let garde = 0;
+    while (this.enregistrementActif && this.enregistrementEnCours
+      && !this.magnetoDivergence && !this.magnetoDivergenceIntro && !this.magnetoSaisieHorloge
+      && this.magnetoIdx < cible && this.magnetoIdx < this.enregistrementEnCours.etapes.length
+      && garde++ < 100000) {
+      const avant = this.magnetoIdx;
+      this.magnetoPasSuivant();
+      if (this.magnetoIdx === avant) break; // plus de progression : on s'arrête
+    }
+  }
+
+  /** Convertit un horodatage (epoch ms) en valeur de champ `datetime-local` (heure locale). */
+  public horlogeVersInput(ts: number): string {
+    const d = new Date(ts);
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  }
+
+  /** Convertit une valeur de champ `datetime-local` en horodatage (epoch ms). */
+  public inputVersHorloge(valeur: string): number {
+    const t = new Date(valeur).getTime();
+    return isNaN(t) ? Date.now() : t;
   }
 
   /** Recule d'une étape : annule la commande exécutée à l'écran et décrémente l'idx. */
@@ -1771,6 +1950,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // Reset des sous-états d'édition / divergence.
     this.magnetoDivergence = null;
     this.magnetoDivergenceIntro = null;
+    this.magnetoSaisieHorloge = null;
     this.magnetoEdition = 'aucun';
     this.magnetoSaisieCommande = '';
     this.magnetoDernierTest = null;
@@ -1793,8 +1973,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoLectureAutoEnCours = false;
     this.enregistrementActif = false;
     this.partie.ins.restaurationPartieEnCours = false;
+    HorlogeUtils.terminerRejeu();
     this.enregistrementEnCours = null;
     this.magnetoDivergence = null;
+    this.magnetoSaisieHorloge = null;
+    this.magnetoIdxSortieARecalculer.clear();
+    this.magnetoIdxRejeuCible = null;
     this.magnetoIdxReponsesChoix.clear();
   }
 
@@ -1982,10 +2166,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
     }
     const cmd = this.magnetoSaisieCommande.trim();
+    // Repartir d'une bande d'horloge vide : les lectures de cette commande (testée à l'instant,
+    // donc en heure réelle) sont capturées pour être inscrites dans l'étape à la validation.
+    HorlogeUtils.chargerRejeuEtape(null);
     const sortie = (this.magnetoEditionTypeOriginal === 'r' || this.magnetoEdition === 'inserer-reponse')
       ? this.executerReponseChoix(cmd)
       : this.executerCommandeAffichee(cmd);
-    this.magnetoDernierTest = { commande: cmd, sortie };
+    this.magnetoDernierTest = { commande: cmd, sortie, horloge: HorlogeUtils.lecturesUtiliseesEtape() };
   }
 
   /** Valide la saisie (modifier/inserer/inserer-reponse) : applique au .rec en mémoire. */
@@ -1997,8 +2184,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
     // Garantir que la nouvelle commande est exécutée. Si on a déjà testé cette commande, on garde l'exécution.
     let sortieNouvelle: string;
+    let horlogeNouvelle: number[];
     if (this.magnetoDernierTest?.commande === cmd) {
       sortieNouvelle = this.magnetoDernierTest.sortie;
+      horlogeNouvelle = this.magnetoDernierTest.horloge;
     } else {
       // Pas testée (ou autre commande testée puis non annulée) : annuler éventuel test précédent et exécuter celle-ci.
       if (this.magnetoDernierTest) {
@@ -2010,16 +2199,28 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (!etaitEnInsererReponse && this.magnetoIdxEnEdition !== null) {
         this.restaurerSnapshotRng(this.magnetoIdxEnEdition);
       }
+      // Bande d'horloge vide : capturer les lectures (en heure réelle) de la nouvelle commande.
+      HorlogeUtils.chargerRejeuEtape(null);
       sortieNouvelle = (this.magnetoEditionTypeOriginal === 'r' || etaitEnInsererReponse)
         ? this.executerReponseChoix(cmd)
         : this.executerCommandeAffichee(cmd);
+      horlogeNouvelle = HorlogeUtils.lecturesUtiliseesEtape();
     }
+
+    // Fabrique d'étape : attache les lectures d'horloge capturées (si la commande lit l'heure),
+    // afin que l'heure soit sauvegardée à côté de la nouvelle commande et rejouable.
+    const construireEtape = (type: 'c' | 'r', valeur: string): EtapeEnregistrement =>
+      horlogeNouvelle.length
+        ? { type, valeur, sortie: sortieNouvelle, horloge: horlogeNouvelle.slice() }
+        : { type, valeur, sortie: sortieNouvelle };
+    // Index de l'étape nouvellement créée/modifiée (pour proposer la saisie d'heure ensuite).
+    let idxNouvelleEtape: number | null = null;
 
     // Branche 2e passe : on commit le r: associé à l'insertion c: précédente.
     if (etaitEnInsererReponse) {
       const idxC = this.magnetoIdxInsertionAvecChoix!;
       const idxR = idxC + 1;
-      this.enregistrementEnCours.etapes.splice(idxR, 0, { type: 'r', valeur: cmd, sortie: sortieNouvelle });
+      this.enregistrementEnCours.etapes.splice(idxR, 0, construireEtape('r', cmd));
       this.enregistrementCompteurs.ajouts++;
       this.enregistrementActions.push({ idx: idxR, action: 'inséré r:', detail: `« ${cmd} »` });
       this.magnetoIdx = this.avancerJusquAEtapeJouable(idxR + 1, false);
@@ -2045,14 +2246,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.magnetoIdxReponsesChoix.clear();
       if (this.magnetoEdition === 'modifier') {
         const typeNouvelle: 'c' | 'r' = this.magnetoEditionTypeOriginal === 'r' ? 'r' : 'c';
-        this.enregistrementEnCours.etapes[d.idx] = { type: typeNouvelle, valeur: cmd, sortie: sortieNouvelle };
+        this.enregistrementEnCours.etapes[d.idx] = construireEtape(typeNouvelle, cmd);
+        idxNouvelleEtape = d.idx;
         this.enregistrementCompteurs.modifications++;
         this.enregistrementActions.push({ idx: d.idx, action: 'modifié', detail: `« ${d.etape.valeur} » → « ${cmd} »` });
         this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 1, false);
       } else if (this.magnetoEdition === 'inserer') {
         // L'étape divergente est acceptée (sortie obtenue devient attendue), la nouvelle est insérée après.
         d.etape.sortie = d.sortieObtenue;
-        this.enregistrementEnCours.etapes.splice(d.idx + 1, 0, { type: 'c', valeur: cmd, sortie: sortieNouvelle });
+        this.enregistrementEnCours.etapes.splice(d.idx + 1, 0, construireEtape('c', cmd));
+        idxNouvelleEtape = d.idx + 1;
         this.enregistrementCompteurs.ajouts++;
         this.enregistrementActions.push({ idx: d.idx + 1, action: 'inséré après', detail: `« ${cmd} »` });
         this.magnetoIdx = this.avancerJusquAEtapeJouable(d.idx + 2, false);
@@ -2066,13 +2269,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (this.magnetoEdition === 'modifier') {
         const ancienne = this.enregistrementEnCours.etapes[idx];
         const typeNouvelle: 'c' | 'r' = this.magnetoEditionTypeOriginal === 'r' ? 'r' : 'c';
-        this.enregistrementEnCours.etapes[idx] = { type: typeNouvelle, valeur: cmd, sortie: sortieNouvelle };
+        this.enregistrementEnCours.etapes[idx] = construireEtape(typeNouvelle, cmd);
+        idxNouvelleEtape = idx;
         this.enregistrementCompteurs.modifications++;
         this.enregistrementActions.push({ idx, action: 'modifié', detail: `« ${ancienne.valeur} » → « ${cmd} »` });
         this.magnetoIdx = this.avancerJusquAEtapeJouable(idx + 1, false);
       } else if (this.magnetoEdition === 'inserer') {
         // Insère AVANT l'étape courante ; l'étape originale est repoussée à idx+1.
-        this.enregistrementEnCours.etapes.splice(idx, 0, { type: 'c', valeur: cmd, sortie: sortieNouvelle });
+        this.enregistrementEnCours.etapes.splice(idx, 0, construireEtape('c', cmd));
+        idxNouvelleEtape = idx;
         this.enregistrementCompteurs.ajouts++;
         this.enregistrementActions.push({ idx, action: 'inséré avant', detail: `« ${cmd} »` });
         // Avance d'un cran : la nouvelle commande a déjà été jouée, l'étape originale est à idx+1.
@@ -2099,6 +2304,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.magnetoDernierTest = null;
     this.magnetoIdxEnEdition = null;
     this.magnetoEditionTypeOriginal = null;
+
+    // La nouvelle commande lit l'horloge : ses lectures (capturées en heure réelle) sont déjà
+    // inscrites dans l'étape ; on propose à l'auteur de fixer/ajuster l'heure à rejouer.
+    if (idxNouvelleEtape !== null && horlogeNouvelle.length) {
+      this.magnetoSaisieHorloge = {
+        idx: idxNouvelleEtape,
+        inputs: horlogeNouvelle.map(ts => this.horlogeVersInput(ts)),
+      };
+      return; // pause sur la saisie ; recap/Pas suivant reprendront après validation
+    }
+
     if (this.magnetoIdx >= this.enregistrementEnCours.etapes.length) {
       this.afficherRecap();
     } else if (etaitEnModification) {
@@ -2370,6 +2586,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    */
   private afficherRecap(): void {
     this.partie.ins.restaurationPartieEnCours = false;
+    HorlogeUtils.terminerRejeu();
   }
 
   /**
@@ -2383,6 +2600,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    */
   private executerEtapeEnregistrement(etape: EtapeEnregistrement): string {
     this.partie.reinitialiserDerniereSortieEnregistree();
+    // Charger les lectures d'horloge de cette étape (rejeu déterministe) avant exécution.
+    HorlogeUtils.chargerRejeuEtape(etape.horloge ?? null);
     // Une étape 'r' avec une interruption attendreChoix / attendreChoixLibre pendante
     // est une RÉPONSE au choisir, pas une commande. La router via le handler de choix
     // (qui pousse r:* dans la sauvegarde et résout l'interruption) au lieu de

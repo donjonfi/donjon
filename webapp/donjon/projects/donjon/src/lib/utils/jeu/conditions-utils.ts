@@ -1,4 +1,5 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { HorlogeUtils } from './horloge-utils';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
 
@@ -1227,13 +1228,13 @@ export class ConditionsUtils {
     if (match) {
       switch (match[1]) {
         case 'heure':
-          retVal = new Compteur("heure", new Date().getHours());
+          retVal = new Compteur("heure", HorlogeUtils.maintenant().getHours());
           break;
         case 'minute':
-          retVal = new Compteur("minute", new Date().getMinutes());
+          retVal = new Compteur("minute", HorlogeUtils.maintenant().getMinutes());
           break;
         case 'seconde':
-          retVal = new Compteur("seconde", new Date().getSeconds());
+          retVal = new Compteur("seconde", HorlogeUtils.maintenant().getSeconds());
           break;
         default:
           this.eju.ajouterErreur("getValeurHorloge: valeurRecherchee doit être en minuscules.")
@@ -1250,7 +1251,7 @@ export class ConditionsUtils {
       switch (match[1]) {
         // jour de la semaine
         case 'jour':
-          const indexJour = new Date().getDay();
+          const indexJour = HorlogeUtils.maintenant().getDay();
           // valeur numérique (1 => 7)
           if (ExprReg.verbesCompteur.test(verbe)) {
             const jours = [7, 1, 2, 3, 4, 5, 6];
@@ -1263,11 +1264,11 @@ export class ConditionsUtils {
           break;
         // date du mois
         case 'date':
-          retVal = new Compteur("date", new Date().getDate());
+          retVal = new Compteur("date", HorlogeUtils.maintenant().getDate());
           break;
         // mois (1 => 12)
         case 'mois':
-          const indexMois = new Date().getMonth();
+          const indexMois = HorlogeUtils.maintenant().getMonth();
           // valeur numérique (1 => 12)
           if (ExprReg.verbesCompteur.test(verbe)) {
             const mois = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -1279,7 +1280,7 @@ export class ConditionsUtils {
           }
           break;
         case 'année':
-          retVal = new Compteur("année", new Date().getFullYear());
+          retVal = new Compteur("année", HorlogeUtils.maintenant().getFullYear());
           break;
         default:
           this.eju.ajouterErreur("getValeurCalendrier: valeurRecherchee doit être en minuscules.")

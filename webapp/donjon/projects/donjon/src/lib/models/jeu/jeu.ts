@@ -14,6 +14,7 @@ import { ProgrammationTemps } from './programmation-temps';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RessourceAffichee } from './ressource-affichee';
 import { RoutineSimple } from '../compilateur/routine-simple';
+import { RoutineEnAttente } from './routine-en-attente';
 import { Statistiques } from './statistiques';
 import { DeclenchementFutur, Sauvegarde } from '../jouer/sauvegarde';
 import { Concept } from '../compilateur/concept';
@@ -87,8 +88,8 @@ export class Jeu {
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponInterruptions: Interruption[] = [];
 
-  /** Les routines simples qui attendent d’être exécutées (elle ne le sont qu’entre 2 tours de jeu) */
-  tamponRoutinesEnAttente: RoutineSimple[] = [];
+  /** Les routines simples qui attendent d’être exécutées (elle ne le sont qu’entre 2 tours de jeu), avec leurs arguments liés */
+  tamponRoutinesEnAttente: RoutineEnAttente[] = [];
 
   classes: Classe[] = [];
 

@@ -162,11 +162,11 @@
       <!-- Toolbar principale -->
       <div class="djn-magneto-toolbar">
         <button class="btn btn-sm btn-outline-primary" (click)="magnetoRecommencer()" [disabled]="magnetoLectureAutoEnCours || magnetoEdition !== 'aucun'" title="Recommencer le replay depuis le début (intro)"><i class="fas fa-fw fa-backward-fast me-1"></i>Recommencer</button>
-        <button class="btn btn-sm btn-outline-primary" (click)="magnetoPrecedent()" [disabled]="magnetoLectureAutoEnCours || (magnetoIdx === 0 && !magnetoDivergence && !magnetoDivergenceIntro)" title="Reculer d'une étape"><i class="fas fa-fw fa-backward-step me-1"></i>Précédent</button>
-        <button class="btn btn-sm btn-outline-primary" (click)="magnetoPasSuivant()" [disabled]="magnetoLectureAutoEnCours || !!magnetoDivergence || !!magnetoDivergenceIntro || magnetoIdx >= enregistrementEnCours.etapes.length" title="Exécuter l'étape suivante"><i class="fas fa-fw fa-forward-step me-1"></i>Suivant</button>
+        <button class="btn btn-sm btn-outline-primary" (click)="magnetoPrecedent()" [disabled]="magnetoLectureAutoEnCours || !!magnetoSaisieHorloge || (magnetoIdx === 0 && !magnetoDivergence && !magnetoDivergenceIntro)" title="Reculer d'une étape"><i class="fas fa-fw fa-backward-step me-1"></i>Précédent</button>
+        <button class="btn btn-sm btn-outline-primary" (click)="magnetoPasSuivant()" [disabled]="magnetoLectureAutoEnCours || !!magnetoDivergence || !!magnetoDivergenceIntro || !!magnetoSaisieHorloge || magnetoIdx >= enregistrementEnCours.etapes.length" title="Exécuter l'étape suivante"><i class="fas fa-fw fa-forward-step me-1"></i>Suivant</button>
         <span class="djn-magneto-sep"></span>
         @if (!magnetoLectureAutoEnCours) {
-          <button class="btn btn-sm btn-primary" (click)="magnetoLireAuto()" [disabled]="!!magnetoDivergence || magnetoIdx >= enregistrementEnCours.etapes.length" title="Lire automatiquement jusqu'à la prochaine divergence"><i class="fas fa-fw fa-play me-1"></i>Lire auto</button>
+          <button class="btn btn-sm btn-primary" (click)="magnetoLireAuto()" [disabled]="!!magnetoDivergence || !!magnetoSaisieHorloge || magnetoIdx >= enregistrementEnCours.etapes.length" title="Lire automatiquement jusqu'à la prochaine divergence"><i class="fas fa-fw fa-play me-1"></i>Lire auto</button>
         } @else {
           <button class="btn btn-sm btn-warning" (click)="magnetoStop()" title="Arrêter la lecture auto"><i class="fas fa-fw fa-pause me-1"></i>Stop</button>
         }
@@ -235,6 +235,20 @@
               <button class="btn btn-sm btn-success" (click)="magnetoValider()" title="Accepter la nouvelle sortie"><i class="fas fa-fw fa-check me-1"></i>Valider la sortie</button>
             </div>
           }
+        </div>
+      }
+
+      <!-- Encart saisie d'heure : l'étape a lu l'horloge sans valeur enregistrée -->
+      @if (magnetoSaisieHorloge) {
+        <div class="djn-magneto-divergence">
+          <div class="djn-magneto-divergence-titre"><i class="fas fa-fw fa-clock me-1"></i>Cette étape lit l'horloge : précisez l'heure à rejouer</div>
+          <p class="djn-magneto-info">Une lecture d'horloge a eu lieu sans valeur enregistrée (instruction ajoutée ou modifiée). Indiquez la/les date(s)-heure(s) à utiliser pour cette étape, puis validez.</p>
+          @for (s of magnetoSaisieHorloge.inputs; track $index; let i = $index) {
+            <input type="datetime-local" step="1" class="form-control mb-1" [(ngModel)]="magnetoSaisieHorloge.inputs[i]">
+          }
+          <div class="djn-magneto-actions">
+            <button class="btn btn-sm btn-success" (click)="magnetoConfirmerSaisieHorloge()" title="Enregistrer ces heures"><i class="fas fa-fw fa-check me-1"></i>Enregistrer</button>
+          </div>
         </div>
       }
 

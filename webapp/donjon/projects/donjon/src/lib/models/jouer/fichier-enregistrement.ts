@@ -19,6 +19,12 @@ export class FichierEnregistrement {
   public sortieIntro?: string;
 
   /**
+   * Lectures d'horloge (epoch ms) effectuées pendant la phase intro, dans l'ordre.
+   * Rejouées (au lieu de l'heure réelle) au démarrage du magnéto pour le déterminisme.
+   */
+  public horlogeIntro?: number[];
+
+  /**
    * Étapes de l'enregistrement.
    * Chaque étape associe une commande/réponse/graine/déclenchement à
    * la sortie attendue (pour c, r et d).
@@ -32,6 +38,12 @@ export interface EtapeEnregistrement {
   /** Sortie textuelle attendue après l'exécution. Présent pour c, r et d
    *  (sur d : permet de détecter qu'une routine forcée a vu son contenu changer entre l'enregistrement et le replay). */
   sortie?: string;
+  /**
+   * Lectures d'horloge (epoch ms) effectuées pendant l'exécution de cette étape, dans l'ordre.
+   * Rejouées (au lieu de l'heure réelle) pour le déterminisme ; éditables à la main / au magnéto.
+   * Absent si l'étape ne lit pas l'heure.
+   */
+  horloge?: number[];
 }
 
 /**

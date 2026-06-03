@@ -2,6 +2,7 @@ import { CompilateurV8, Jeu } from "../../public-api";
 
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { Generateur } from "./compilation/generateur";
+import { HorlogeUtils } from "./jeu/horloge-utils";
 
 export class TestUtils {
 
@@ -16,6 +17,9 @@ export class TestUtils {
     const jeu = this.genererLeJeu(scenario, verbeux);
     // 2) démarrer la partie
     let ctxPartie = new ContextePartie(jeu);
+    // Repartir d'une horloge déterministe propre (parité avec la graine ; évite qu'un rejeu
+    // laissé actif par un test magnéto antérieur ne fuite dans ce jeu).
+    HorlogeUtils.reinitialiser();
     ctxPartie.nouvelleGraineAleatoire();
     // --> définir visibilité des objets initiale
     ctxPartie.eju.majPresenceDesObjets();

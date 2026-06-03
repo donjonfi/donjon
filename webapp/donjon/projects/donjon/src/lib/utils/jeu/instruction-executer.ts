@@ -247,14 +247,6 @@ export class InstructionExecuter {
     const temps: string | undefined = tokens[3] ?? undefined;
     const uniteTemps: string | undefined = tokens[4] ?? undefined;
 
-    // Phase 1 : args + délai en même temps non supportés
-    if (trailerArgs !== undefined && uniteTemps !== undefined) {
-      contexteTour.ajouterErreurInstruction(instruction,
-        `Les appels différés avec arguments ne sont pas encore supportés. Soit retirer « avec ${trailerArgs} », soit retirer « dans ${temps} ${uniteTemps} ».`);
-      res.succes = false;
-      return res;
-    }
-
     // Récupérer toutes les routines partageant le nom (surcharge)
     const candidatsParNom = this.jeu.routines.filter(x => x.nom === nomRoutine);
     if (!candidatsParNom.length) {
@@ -263,21 +255,60 @@ export class InstructionExecuter {
       return res;
     }
 
-    // Cas appel différé : phase 1 = pas d’args, on cherche une variante sans contrat
+    // Cas appel différé (« dans N seconde(s) ») : on mémorise le trailer brut tel quel ;
+    // les arguments sont résolus au déclenchement (fire-time), pas à la programmation.
     if (uniteTemps) {
-      const variantSansContrat = candidatsParNom.find(x => !x.ceci);
-      if (!variantSansContrat) {
-        contexteTour.ajouterErreurInstruction(instruction,
-          `La routine ${nomRoutine} attend des arguments et ne peut pas être programmée sans arguments (phase 1).`);
-        res.succes = false;
-        return res;
-      }
-      this.programmerRoutine(instruction, contexteTour, nomRoutine, temps!, uniteTemps);
+      this.programmerRoutine(instruction, contexteTour, nomRoutine, temps!, uniteTemps, trailerArgs);
       return res;
     }
 
     // Découper le trailer en arguments (séparés par « et » à profondeur 0)
     const args: string[] = trailerArgs ? this.couperTrailerArgs(trailerArgs) : [];
+
+    // Résolution de surcharge (arité + types) — partagée avec le replay via lierAppelRoutine.
+    const liaison = this.lierAppelRoutine(nomRoutine, args);
+    if (liaison.erreur || !liaison.routine) {
+      contexteTour.ajouterErreurInstruction(instruction, liaison.erreur ?? `La routine n’a pas pu être liée : ${nomRoutine}`);
+      res.succes = false;
+      return res;
+    }
+
+    // Exécuter le candidat retenu
+    const sousContexteTour = new ContexteTour(liaison.ceciVal, liaison.celaVal);
+    res = this.ins.executerInstructions(liaison.routine.instructions, sousContexteTour, evenement, declenchements);
+    return res;
+  }
+
+  /**
+   * Sépare une valeur d’étape de déclenchement ('d') en nom de routine + arguments canoniques.
+   * Format : `nom` (sans argument) ou `nom avec <trailerCanonique>` (le trailer est découpé
+   * via `couperTrailerArgs`, quote-aware). Utilisé par tous les sites de replay.
+   */
+  public parseDeclenchement(valeur: string): { nom: string, argsCanoniques: string[] } {
+    const sep = ' avec ';
+    const idx = valeur.indexOf(sep);
+    if (idx === -1) {
+      return { nom: valeur.trim(), argsCanoniques: [] };
+    }
+    const nom = valeur.substring(0, idx).trim();
+    const trailer = valeur.substring(idx + sep.length);
+    return { nom, argsCanoniques: this.couperTrailerArgs(trailer) };
+  }
+
+  /**
+   * Lie un appel de routine (nom + arguments) à une routine concrète, en re-jouant la
+   * résolution de surcharge (arité + types + score de spécificité). Réutilisé par l’appel
+   * synchrone (`executerRoutine`) ET par tous les sites de replay (chrono, restauration,
+   * magnéto) — d’où l’extraction : un simple `find` par nom exécuterait la mauvaise surcharge.
+   */
+  public lierAppelRoutine(nom: string, args: string[]): { routine?: RoutineSimple, ceciVal?: Intitule, celaVal?: Intitule, erreur?: string } {
+    // Comparaison insensible à la casse : le chrono (ProgrammationTemps) mémorise le nom en
+    // minuscules, alors que routine.nom conserve la casse déclarée — un `===` raterait le fire-time.
+    const nomNorm = nom.toLocaleLowerCase();
+    const candidatsParNom = this.jeu.routines.filter(x => x.nom.toLocaleLowerCase() === nomNorm);
+    if (!candidatsParNom.length) {
+      return { erreur: `La routine n’a pas été trouvée : ${nom}` };
+    }
 
     // Filtrer par arité
     const candidatsArite = candidatsParNom.filter(r => {
@@ -285,10 +316,7 @@ export class InstructionExecuter {
       return arite === args.length;
     });
     if (!candidatsArite.length) {
-      contexteTour.ajouterErreurInstruction(instruction,
-        `Aucune routine ${nomRoutine} ne correspond avec ${args.length} argument(s).`);
-      res.succes = false;
-      return res;
+      return { erreur: `Aucune routine ${nom} ne correspond avec ${args.length} argument(s).` };
     }
 
     // Tenter le binding pour chaque candidat
@@ -309,10 +337,7 @@ export class InstructionExecuter {
     }
 
     if (!bindings.length) {
-      contexteTour.ajouterErreurInstruction(instruction,
-        `Aucune routine ${nomRoutine} ne correspond aux arguments fournis (${args.join(', ')}).`);
-      res.succes = false;
-      return res;
+      return { erreur: `Aucune routine ${nom} ne correspond aux arguments fournis (${args.join(', ')}).` };
     }
 
     // Trier par score décroissant
@@ -320,17 +345,32 @@ export class InstructionExecuter {
 
     // Ambiguïté : plusieurs candidats au score max
     if (bindings.length > 1 && bindings[0].score === bindings[1].score) {
-      contexteTour.ajouterErreurInstruction(instruction,
-        `Plusieurs routines ${nomRoutine} correspondent aux arguments (ambiguïté). Préciser un type plus spécifique dans le bloc {@définitions:@}.`);
-      res.succes = false;
-      return res;
+      return { erreur: `Plusieurs routines ${nom} correspondent aux arguments (ambiguïté). Préciser un type plus spécifique dans le bloc {@définitions:@}.` };
     }
 
-    // Exécuter le candidat retenu
     const choisi = bindings[0];
-    const sousContexteTour = new ContexteTour(choisi.ceciVal, choisi.celaVal);
-    res = this.ins.executerInstructions(choisi.routine.instructions, sousContexteTour, evenement, declenchements);
-    return res;
+    return { routine: choisi.routine, ceciVal: choisi.ceciVal, celaVal: choisi.celaVal };
+  }
+
+  /**
+   * Forme canonique d’un argument lié, pour sérialisation dans une étape 'd' puis re-liaison
+   * déterministe au replay. Le type du paramètre dicte la forme (pour retomber sur la même
+   * surcharge) :
+   *  - nombre → entier nu (`42`)
+   *  - texte  → littéral entre guillemets (`"bonjour"`)
+   *  - classe → intitulé de l’élément (`coffre rouge`)
+   */
+  public canoniserArg(val: Intitule, param: ParamRoutine): string {
+    if (param.type === 'nombre') {
+      return `${(val as Compteur).valeur}`;
+    }
+    if (param.type === 'texte') {
+      // La valeur texte synthétique conserve le texte brut dans son groupe nominal.
+      const brut = val.intitule ? val.intitule.nom : (val.nom ?? '');
+      return `"${brut}"`;
+    }
+    // classe : intitulé (nom + épithète, sans déterminant) — re-résolu via resoudreElementJeu.
+    return val.intitule ? val.intitule.nomEpithete : (val.nom ?? '');
   }
 
   /**
@@ -452,7 +492,7 @@ export class InstructionExecuter {
     return 500; // nombre / texte
   }
 
-  private programmerRoutine(instruction: ElementsPhrase, contexteTour: ContexteTour, routine: string, temps: string, unite: string) {
+  private programmerRoutine(instruction: ElementsPhrase, contexteTour: ContexteTour, routine: string, temps: string, unite: string, argsTrailer?: string) {
 
     let tempsNombre = Number.parseInt(temps);
     let tempsMs: number;
@@ -482,7 +522,7 @@ export class InstructionExecuter {
           console.warn(`Programmation de routine ${routine} ignorée (restaurationPartieEnCours)`);
         }
       } else {
-        let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs);
+        let nouvelleProgrammation = new ProgrammationTemps(routine, tempsMs, argsTrailer);
         this.jeu.programmationsTemps.push(nouvelleProgrammation);
       }
     } else {

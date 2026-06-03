@@ -29,10 +29,16 @@ export class CommandesUtils {
    */
   public static enleverToursDeJeux(nombreDeToursAEnlever: number, sauvegarde: Sauvegarde): Sauvegarde {
 
-    let pileDeclenchements: string[] = [];
+    // Lectures d'horloge par étape (alignées par index sur etapesSauvegarde) : on les pop/préserve
+    // en parallèle, sinon le tableau se désynchronise au premier annuler d'un tour qui lit l'heure.
+    const horloges = sauvegarde.horlogesSauvegarde;
+    const aHorloges = Array.isArray(horloges);
+
+    let pileDeclenchements: { etape: string, horloge: number[] | null }[] = [];
 
     for (let nbToursEnleves = 0; nbToursEnleves < nombreDeToursAEnlever; nbToursEnleves++) {
       const derniereCommande = sauvegarde.etapesSauvegarde.pop();
+      const derniereHorloge = aHorloges ? (horloges!.pop() ?? null) : null;
 
       // s'il s'agit d'une réponse à une question, une graine ou un déclenchement, ce n'est pas une commande
       // donc il faudra encore enlever la commande précédente pour enlever tout le tour
@@ -45,7 +51,7 @@ export class CommandesUtils {
           break;
         case ExprReg.caractereDeclenchement:
           // déclenchement: on doit annuler une étape de plus et on doit garder le déclenchement
-          pileDeclenchements.push(derniereCommande);
+          pileDeclenchements.push({ etape: derniereCommande, horloge: derniereHorloge });
           nbToursEnleves--;
           break;
 
@@ -65,7 +71,9 @@ export class CommandesUtils {
 
     // restaurer les déclenchements
     while (pileDeclenchements.length) {
-      sauvegarde.etapesSauvegarde.push(pileDeclenchements.pop())
+      const d = pileDeclenchements.pop();
+      sauvegarde.etapesSauvegarde.push(d.etape);
+      if (aHorloges) horloges!.push(d.horloge);
     }
 
     return sauvegarde;

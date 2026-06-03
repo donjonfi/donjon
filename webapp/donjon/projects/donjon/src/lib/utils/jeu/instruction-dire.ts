@@ -2,6 +2,7 @@ import { ConditionDebutee, StatutCondition, xFois } from "../../models/jouer/sta
 import { CadreCondition } from "../../models/jouer/cadre-condition";
 import { PileConditionsUtils, TypeMotCle } from "./pile-conditions-utils";
 import { ELocalisation, Localisation } from "../../models/jeu/localisation";
+import { HorlogeUtils } from "./horloge-utils";
 import { PositionObjet, PrepositionSpatiale } from "../../models/jeu/position-objet";
 
 import { Action } from "../../models/compilateur/action";
@@ -196,9 +197,15 @@ export class InstructionDire {
     if (texteDynamique) {
       // séparer les textes et les blocs conditionnels
       const morceaux = texteDynamique.split(/(?=\[)/);
+      // Une seule lecture d'horloge pour TOUTE l'instruction `dire` : le texte est découpé en
+      // morceaux (un par balise), mais [heure], [date], [mois]… doivent refléter le même instant
+      // et ne consommer qu'une seule lecture de la bande de rejeu. Paresseux : aucune lecture si
+      // aucune balise temporelle n'est présente.
+      let maintenantCache: Date | undefined;
+      const getMaintenant = () => (maintenantCache ??= HorlogeUtils.maintenant());
       for (let index = 0; index < morceaux.length; index++) {
         const curMorceau = morceaux[index];
-        let curResultat = this.calculerBalise(curMorceau, nbAffichage, intact, contexteTour, evenement, declenchements);
+        let curResultat = this.calculerBalise(curMorceau, nbAffichage, intact, contexteTour, evenement, declenchements, getMaintenant);
         retVal += curResultat;
       }
     } else {
@@ -596,8 +603,14 @@ export class InstructionDire {
     return verbeConjugue;
   }
 
-  public calculerBalise(texteDynamique: string, nbAffichage: number, intact: boolean | undefined, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined) {
+  public calculerBalise(texteDynamique: string, nbAffichage: number, intact: boolean | undefined, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined, getMaintenantPartage?: () => Date) {
     if (!texteDynamique.includes("[")) return texteDynamique;
+
+    // Lecture d'horloge partagée à l'échelle de l'instruction `dire` (fournie par
+    // interpreterLesCrochetsDynamiques) : calendrier et horloge reflètent le même instant et ne
+    // consomment qu'une seule lecture de la bande de rejeu. Repli local si appelé directement.
+    let maintenantCache: Date | undefined;
+    const getMaintenant = getMaintenantPartage ?? (() => (maintenantCache ??= HorlogeUtils.maintenant()));
 
     const pipeline: Array<(t: string) => string> = [
       t => this.apercuStatut.calculerBaliseApercu(t, ctxTour, evenement, declenchements),
@@ -612,8 +625,8 @@ export class InstructionDire {
       t => this.numerique.calculerBaliseCompteur(t, evenement, ctxTour),
       t => this.numerique.calculerBalisePluriel(t, evenement, ctxTour),
       t => this.calculerBaliseCeciCelaBrut(t, ctxTour),
-      t => this.numerique.calculerBaliseCalendrier(t),
-      t => this.numerique.calculerBaliseHorloge(t),
+      t => this.numerique.calculerBaliseCalendrier(t, getMaintenant),
+      t => this.numerique.calculerBaliseHorloge(t, getMaintenant),
       t => this.numerique.calculerBaliseMémoire(t, ctxTour),
       t => this.format.calculerBaliseVerbe(t, ctxTour, evenement),
       t => this.format.calculerBaliseImage(t),

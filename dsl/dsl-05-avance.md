@@ -373,9 +373,25 @@ routine boom:
 fin routine
 ```
 
-> **Limitation** : les appels différés (`dans N <unité>`) ne supportent pas
-> encore le passage d'arguments. La routine programmée doit être une variante
-> sans paramètre.
+Les appels différés acceptent aussi des **arguments** (comme un appel direct) :
+
+```
+-- Programmer une routine paramétrée
+exécuter la routine alerter avec "intrus" dans 3 secondes.
+
+routine alerter:
+  définitions:
+    ceci est un texte.
+  exécution:
+    dire "Alerte : [ceci] détecté !".
+  fin routine
+fin routine
+```
+
+> Les arguments sont évalués **au déclenchement** (et non à la programmation) :
+> un compteur passé en argument reflète sa valeur au moment où la routine s'exécute.
+> Les valeurs sont enregistrées dans les sauvegardes/enregistrements, donc le replay
+> (restauration, triche, magnétoscope) reproduit l'appel à l'identique.
 
 ## 22. Découper un scénario en plusieurs fichiers
 

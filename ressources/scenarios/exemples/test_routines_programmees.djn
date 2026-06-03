@@ -1,0 +1,52 @@
+Le titre du jeu est "Test - Routines programmées".
+L'auteur du jeu est "Donjon FI".
+
+-- Démontre les routines programmées (« exécuter la routine X dans N secondes »),
+-- avec et sans paramètres. Tapez une commande puis patientez ~3 secondes : la
+-- routine se déclenche toute seule (chrono temps réel).
+--
+-- Pour vérifier le rejeu déterministe : tapez « générer enregistrement » puis
+-- utilisez le magnétoscope, ou « générer solution » puis « triche auto ».
+
+Le laboratoire est un lieu.
+
+règle après commencer le jeu:
+  dire "Tapez « sonner », « alerter » ou « lancer », puis patientez 3 secondes que la routine programmée se déclenche.".
+fin règle
+
+-- Routine SANS paramètre
+routine bip:
+  dire "{N}BIP ! (routine sans paramètre déclenchée)".
+fin routine
+
+-- Routine AVEC un paramètre texte
+routine prevenir:
+  définitions:
+    ceci est un texte.
+  exécution:
+    dire "{N}ALERTE : [ceci] détecté !".
+fin routine
+
+-- Routine AVEC un paramètre nombre
+routine compte:
+  définitions:
+    ceci est un nombre.
+  exécution:
+    dire "{N}Décompte : il reste [c ceci] minutes.".
+fin routine
+
+-- Commandes joueur : programmer les routines (déclenchement différé de 3 secondes)
+action sonner:
+  dire "Minuteur armé : sonnerie dans 3 secondes...".
+  exécuter la routine bip dans 3 secondes.
+fin action
+
+action alerter:
+  dire "Surveillance activée : alerte dans 3 secondes...".
+  exécuter la routine prevenir avec "intrus" dans 3 secondes.
+fin action
+
+action lancer:
+  dire "Décompte programmé dans 3 secondes...".
+  exécuter la routine compte avec 5 dans 3 secondes.
+fin action
