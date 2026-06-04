@@ -127,6 +127,18 @@ export class ConditionsUtils {
     const conditionSujetNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
 
     if (condition.sujet) {
+      // LOCATEUR : sujet localisé d'un objet/instance de fond, p.ex. « le sol situé dans la cuisine
+      //  est sale », « la clé située sur la table est rouge ». (Forme « situé » : la forme
+      //  « qui se trouve » entre en collision avec le verbe de condition « se trouve ».)
+      //  Singulier en v1 : on prend la 1re instance correspondante.
+      const locSujet = PhraseUtils.extraireLocalisationReference(condition.sujet.nomEpithete);
+      if (locSujet && (locSujet.cible || locSujet.ici)) {
+        const baseGN = PhraseUtils.getGroupeNominalDefiniOuIndefini(locSujet.base, true) ?? condition.sujet;
+        const cibleGN = locSujet.cible ? PhraseUtils.getGroupeNominalDefiniOuIndefini(locSujet.cible, true) : null;
+        const trouves = this.eju.resoudreReferenceLocalisee(baseGN, locSujet.preposition ?? null, !!locSujet.ici, cibleGN);
+        return trouves.length > 0 ? trouves[0] : null;
+      }
+
       // ici
       if (conditionSujetNomNettoye === 'ici') {
         sujet = this.eju.curLieu;

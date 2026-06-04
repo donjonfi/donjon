@@ -880,6 +880,29 @@ export class InstructionDire {
         }
       });
 
+      // A.2 AFFICHER L'APERÇU DES FONDS PRÉSENTS (ciel, mer, sol…) lors de la description du LIEU.
+      //  Les fonds ne sont jamais listés (exclus de trouverContenu) ; on n'affiche que leur aperçu,
+      //  et seulement s'ils en ont un (sinon ils ne sont pas décrits). Commun (présence par prédicat)
+      //  et propre à chaque lieu (instance positionnée) sont tous deux couverts via l'état « présent ».
+      if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu) && this.eju.curLieu && ceci.id === this.eju.curLieu.id) {
+        const fondsPresents = this.jeu.objets.filter(x =>
+          ClasseUtils.heriteDe(x.classe, EClasseRacine.fond)
+          && x.apercu !== null
+          && this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.presentID)
+          && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID)
+          && !this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID)
+          && !idElementsDejaMentionnes.includes(x.id)
+        );
+        fondsPresents.forEach(obj => {
+          const apercuCalcule = this.calculerTexteDynamique(obj.apercu, ++obj.nbAffichageApercu, this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.intactID), undefined, undefined, undefined);
+          this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
+          idElementsDejaMentionnes.push(obj.id);
+          if (apercuCalcule && TexteUtils.enleverBalisesStyleDonjon(apercuCalcule).trim() !== '-') {
+            resultat.sortie += "{U}" + apercuCalcule;
+          }
+        });
+      }
+
       // B. AFFICHER LES ÉLÉMENTS POSITIONNÉS SUR DES SUPPORTS DÉCORATIFS
       // (uniquement si option activée)
       if (this.jeu.parametres.activerDescriptionDesObjetsSupportes) {

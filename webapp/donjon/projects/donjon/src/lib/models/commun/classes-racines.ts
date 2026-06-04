@@ -74,4 +74,10 @@ export class ClassesRacines {
   public static Support = new Classe(EClasseRacine.support, "support", ClassesRacines.Objet, 4,
     [EEtatsBase.fixe]);
 
+  /** Il s’agit d’un fond : un objet de décor présent dans plusieurs lieux à la fois
+   *  (ciel, soleil, mer, sol…). Non transportable (fixé). Ni contenant ni support :
+   *  les interactions spécifiques sont programmées par l’auteur. */
+  public static Fond = new Classe(EClasseRacine.fond, "fond", ClassesRacines.Objet, 4,
+    [EEtatsBase.fixe]);
+
 }

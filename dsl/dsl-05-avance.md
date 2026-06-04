@@ -1,4 +1,4 @@
-# Donjon DSL — Avancé : Positions, Routines, Réactions, Mémoire, Temps
+# Donjon DSL — Avancé : Positions, Routines, Réactions, Mémoire, Temps, Fonds
 
 ---
 
@@ -413,3 +413,67 @@ inclure "salle2.djn".
 **Outils** :
 - VS Code (extension `donjon-fi-compagnon`) : la résolution est automatique, les diagnostics pointent au bon fichier.
 - Web (`donjon-creer`) : utiliser le bouton « Ajouter fichier inclus » à côté de « Charger », puis compiler.
+
+## 23. Fonds (décor présent dans plusieurs lieux)
+
+Un **fond** est un objet de décor présent dans **plusieurs lieux à la fois** (le ciel, le soleil, la mer, le sol…). Un fond hérite d’`objet` : il n’est **ni contenant ni support**. On **ne peut pas le prendre**, il n’est **pas listé** parmi les objets du lieu, mais il est **examinable** et son **aperçu** (s’il en a un) s’affiche avec la description du lieu.
+
+```
+Le ciel est un fond. Il est commun à tous les lieux.
+L'aperçu du ciel est "Un grand ciel bleu se déploie au-dessus de vous.".
+La description du ciel est "Le ciel est limpide.".
+```
+
+### Portée d’un fond
+
+On précise **dans quels lieux** le fond est présent, et s’il s’agit d’une instance partagée ou d’une instance par lieu. Les deux formulations sont équivalentes (phrase séparée ou inline) :
+
+```
+Le soleil est un fond. Il est commun à tous les lieux.
+La mer est un fond commun dans les lieux côtiers.
+Le sol est un fond propre à chaque lieu.
+Le plafond est un fond propre aux lieux couverts.
+```
+
+| Formulation | Portée | Lieux concernés |
+|---|---|---|
+| `commun à tous les lieux` | **une seule** instance partagée | tous |
+| `commun dans les lieux <état>` | une seule instance partagée | lieux possédant `<état>` |
+| `propre à chaque lieu` | **une instance par lieu** | tous |
+| `propre aux lieux <état>` | une instance par lieu | lieux possédant `<état>` |
+
+- **commun** : une seule entité (mêmes description / aperçu / états partout). La présence est **dynamique** : si un lieu acquiert l’état du domaine en cours de partie, le fond y apparaît.
+- **propre à chaque lieu** : chaque lieu a sa **propre** instance ; on peut donc différencier ses propriétés lieu par lieu (voir §24).
+
+### Inaccessible
+
+Un fond peut être déclaré **inaccessible** (on le voit, on l’examine, mais on ne peut pas l’atteindre) :
+
+```
+Le ciel est un fond inaccessible. Il est commun à tous les lieux.
+```
+
+> Le moteur ne gère pas nativement le fait de **déposer des objets sur un fond** (par ex. « poser au sol »). Si vous voulez qu’un fond reçoive des objets, programmez-le avec des règles.
+
+## 24. Locateur spatial (désigner par la position)
+
+On peut désigner un objet (ou l’**instance d’un fond propre**) par **où il se trouve**, avec `situé(e)(s) (dans|sur|sous) <cible>` ou `qui se trouve(nt) (dans|sur|sous) <cible>` (et `… ici`).
+
+**Surcharge d’un fond propre, par lieu (en définition)** — chaque instance peut avoir ses propres propriétés :
+
+```
+Le sol est un fond propre à chaque lieu.
+La description du sol est "Un sol de pierre.".                       -- défaut (toutes les instances)
+La description du sol situé dans la cuisine est "Un carrelage gras.". -- surcharge pour la cuisine
+La description du sol situé ici est "Un parquet ciré.".              -- « ici » = dernier lieu défini
+```
+
+**Dans une condition** (singulier) — préférez la forme `situé` (la forme `qui se trouve` est réservée au test de position) :
+
+```
+si le sol situé dans la cuisine est sale, dire "Le carrelage est gras.".
+si la clé située sur la table est rouge, ...
+```
+
+- `est` est réservé aux **états** ; les positions/locateurs utilisent `situé` / `se trouve`.
+- En définition, sans locateur, une propriété d’un fond `propre` est la **valeur par défaut** appliquée à toutes ses instances.

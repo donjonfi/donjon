@@ -5,6 +5,7 @@ import { Genre } from '../commun/genre.enum';
 import { GroupeNominal } from '../commun/groupe-nominal';
 import { Nombre } from '../commun/nombre.enum';
 import { PositionSujetString } from './position-sujet';
+import { PresenceFond } from './presence-fond';
 import { ProprieteConcept } from '../commun/propriete-element';
 import { RoutineReaction } from './routine-reaction';
 
@@ -45,6 +46,12 @@ export class ElementGenerique implements ElementDonjon {
 
   /** Compteur : ne pas afficher l'unité dans le cartouche. */
   public sansUnite?: boolean;
+
+  /** Fond : spécification de présence (portée commun/propre + domaine). null si l’élément n’est pas un fond multi-lieux. */
+  public presenceFond: PresenceFond = null;
+
+  /** Fond « propre à chaque lieu » : surcharges de propriétés/attributs par lieu (clé = réf brute du lieu, ex. « la salle de bain »). */
+  public surchargesParLieu: Map<string, { proprietes: ProprieteConcept[], attributs: string[] }> = null;
 
   public synonymes: GroupeNominal[] = [];
   public valeursTexte: string[] = [];

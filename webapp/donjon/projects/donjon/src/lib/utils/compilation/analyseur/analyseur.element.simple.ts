@@ -1,3 +1,4 @@
+import { AnalyseurFond } from "./analyseur.fond";
 import { ClasseUtils } from "../../commun/classe-utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { Definition } from "../../../models/compilateur/definition";
@@ -31,12 +32,20 @@ export class AnalyseurElementSimple {
     let quantite: number;
     let position: PositionSujetString;
 
+    // FOND : portée déclarée INLINE (« Le sol est un fond propre à chaque lieu. »). La regex de
+    //  définition n'absorbe pas le suffixe de portée → on le détecte et on le retire pour analyser
+    //  « … est un fond », puis on pose la présence sur l'élément créé.
+    const presenceInlineFond = AnalyseurFond.extrairePorteeDeclaration(phrase.morceaux[0]);
+    const morceauPrincipal = presenceInlineFond
+      ? phrase.morceaux[0].replace(ExprReg.xFondPorteeSuffixe, '$1')
+      : phrase.morceaux[0];
+
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
     //  Les RESSOURCES ont leur propre regex dédiée (tous déterminants : le/la/les/l’ ET un/une/des),
     //  essayée en premier ; sinon on retombe sur la regex générique (autres éléments, inchangée).
-    let result = ExprReg.xDefinitionRessource.exec(phrase.morceaux[0]);
+    let result = ExprReg.xDefinitionRessource.exec(morceauPrincipal);
     if (result === null) {
-      result = ExprReg.xDefinitionElementAvecType.exec(phrase.morceaux[0]);
+      result = ExprReg.xDefinitionElementAvecType.exec(morceauPrincipal);
     }
     if (result !== null) {
       let genreSingPlur = result[4];
@@ -96,6 +105,11 @@ export class AnalyseurElementSimple {
         quantite,
         attributs,
       );
+
+      // FOND : poser la présence détectée inline (suffixe de portée déjà retiré ci-dessus).
+      if (presenceInlineFond) {
+        nouvelElementGenerique.presenceFond = presenceInlineFond;
+      }
 
       if (autreForme) {
         if (nouvelElementGenerique.nombre === Nombre.s) {

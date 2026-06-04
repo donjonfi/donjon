@@ -25,6 +25,7 @@ export enum EClasseRacine {
   obstacle = 'obstacle',
   contenant = 'contenant',
   support = 'support',
+  fond = 'fond',
   // types spéciaux
   joueur = 'joueur',
   inventaire = 'inventaire',

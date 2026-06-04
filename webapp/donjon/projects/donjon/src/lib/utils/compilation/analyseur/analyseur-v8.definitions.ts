@@ -1,6 +1,7 @@
 import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 
 import { AnalyseurAttributs } from "./analyseur.attributs";
+import { AnalyseurFond } from "./analyseur.fond";
 import { AnalyseurCapacite } from "./analyseur.capacite";
 import { AnalyseurDivers } from "./analyseur.divers";
 import { AnalyseurElementPosition } from "./analyseur.element.position";
@@ -342,6 +343,20 @@ export class AnalyseurV8Definitions {
         AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
         if (ctx.verbeux) {
           console.log("=> trouvé position (pronom personnel) :", ctx.dernierElementGenerique);
+        }
+      }
+    }
+
+    // ==========================================================================================================
+    // ÉLÉMENT 4bis - PORTÉE D’UN FOND (commun/propre à tous les lieux / dans|aux lieux <état>)
+    //   À tester AVANT les attributs, sinon « commun à tous les lieux » serait pris pour des attributs.
+    // ==========================================================================================================
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      elementTrouve = AnalyseurFond.testerPortee(phrase, ctx);
+      if (elementTrouve === ResultatAnalysePhrase.fondPortee) {
+        AnalyseurUtils.ajouterDescriptionDernierElement(phrase, ctx);
+        if (ctx.verbeux) {
+          console.log("=> trouvé portée de fond (pronom personnel) :", ctx.dernierElementGenerique);
         }
       }
     }

@@ -657,6 +657,11 @@ export class ListeEtats {
       return true;
       // s’il ne s’agit PAS d’un obstacle
     } else {
+      // un FOND présent est visible (présence multi-lieux : pas de position de lieu propre pour
+      //  un fond « commun »). Présent + ni invisible/couvert/secret a déjà été vérifié ci-dessus.
+      if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.fond)) {
+        return true;
+      }
       // on objet non positionné n’est pas visible
       if (!objet.position) {
         return false;
@@ -706,6 +711,11 @@ export class ListeEtats {
       return true;
       // s’il ne s’agit PAS d’un obstacle
     } else {
+      // un FOND présent est accessible (sauf « inaccessible », déjà filtré ci-dessus) : présence
+      //  multi-lieux, pas de position de lieu propre pour un fond « commun ».
+      if (ClasseUtils.heriteDe(objet.classe, EClasseRacine.fond)) {
+        return true;
+      }
       // on objet non positionné n’est pas accessible
       if (!objet.position) {
         return false;

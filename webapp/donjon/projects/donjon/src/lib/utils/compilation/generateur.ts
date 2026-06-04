@@ -1,6 +1,8 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
 import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
+import { PositionSujetString } from '../../models/compilateur/position-sujet';
+import { PresenceFond } from '../../models/compilateur/presence-fond';
 
 import { Action } from '../../models/compilateur/action';
 import { Auditeur } from '../../models/jouer/auditeur';
@@ -337,6 +339,12 @@ export class Generateur {
 
     // PLACER LES ÉLÉMENTS DU JEU DANS LES LIEUX (ET DANS LA LISTE COMMUNE)
     // *********************************************************************
+    // FONDS « propre à chaque lieu » : matérialiser une instance par lieu du domaine AVANT la
+    //  boucle (les clones sont alors générés normalement). Les clones sont ajoutés EN FIN de liste
+    //  → les ids des objets existants ne sont pas décalés (rejeu .sol/.rec déterministe). Les états
+    //  de lieu sont déjà appliqués à ce stade (les lieux sont générés avant les objets).
+    rc.monde.objets = Generateur.expanserFondsPropreParLieu(rc.monde.objets, jeu);
+
     // Placements à différer en 2ᵉ passe : objet posé sur un contenant/support déclaré APRÈS lui
     //  (la cible n'existe pas encore dans jeu.objets au moment de la résolution inline).
     const placementsADifferer: Array<{ newObjet: Objet, curEle: any, curPositionString: any }> = [];
@@ -395,6 +403,11 @@ export class Generateur {
         }
         newObjet.capacites = curEle.capacites;
         newObjet.reactions = curEle.reactions;
+
+        // FOND « commun » (partagé) : porter la spec de présence sur l'objet runtime (présence
+        //  résolue dynamiquement par prédicat dans majPresenceObjet). Les instances « propre »
+        //  ont presenceFond = null (clones localisés par leur position).
+        newObjet.presenceFond = curEle.presenceFond;
 
         // ajouter les états par défaut de la classe de l’objet
         //  (on commence par le parent le plus éloigné et on revient jusqu’à la classe le plus précise)
@@ -888,6 +901,90 @@ export class Generateur {
    * @param nomLieu
    * @returns ID du lieu ou -1 si pas trouvée.
    */
+  /**
+   * FONDS — résoudre le domaine de lieux d'un fond (tous, ou ceux possédant l'état du domaine).
+   */
+  private static resoudreDomaineFond(presence: PresenceFond, jeu: Jeu): Lieu[] {
+    if (presence.tousLesLieux) {
+      return jeu.lieux.slice();
+    }
+    if (!presence.etatDomaine) {
+      return [];
+    }
+    return jeu.lieux.filter(lieu => jeu.etats.possedeEtatElement(lieu, presence.etatDomaine, null));
+  }
+
+  /**
+   * FONDS — cloner un élément générique « propre à chaque lieu » pour un lieu donné.
+   * Le clone reçoit une position « dans <lieu> » (résolue par la boucle via getLieuID) et son
+   * propre jeu de propriétés (pour ne pas partager les pointeurs `parent` entre instances).
+   */
+  private static clonerElementGeneriquePourLieu(source: ElementGenerique, lieu: Lieu): ElementGenerique {
+    const clone = new ElementGenerique(
+      source.determinant,
+      source.nom,
+      source.epithete,
+      source.classeIntitule,
+      source.classe,
+      [new PositionSujetString(source.nom, lieu.nom, 'dans')],
+      source.genre,
+      source.nombre,
+      source.quantite,
+      source.attributs ? source.attributs.slice() : [],
+    );
+    clone.numeroLigne = source.numeroLigne;
+    clone.description = source.description;
+    clone.nomS = source.nomS;
+    clone.nomP = source.nomP;
+    clone.epitheteS = source.epitheteS;
+    clone.epitheteP = source.epitheteP;
+    clone.synonymes = source.synonymes ? source.synonymes.slice() : [];
+    clone.capacites = source.capacites ? source.capacites.slice() : [];
+    clone.reactions = source.reactions ? source.reactions.slice() : [];
+    clone.proprietes = (source.proprietes ?? []).map(p => new ProprieteConcept(null, p.nom, p.type, p.valeur, 0));
+    // instance localisée par sa position → pas de présence par prédicat
+    clone.presenceFond = null;
+
+    // SURCHARGES PAR LIEU : écraser/ajouter les propriétés (et attributs) propres à ce lieu
+    //  (« La description du sol situé dans la cuisine est "…" »). Clé = nom de lieu nettoyé.
+    if (source.surchargesParLieu) {
+      const key = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(lieu.nom);
+      const surcharge = source.surchargesParLieu.get(key);
+      if (surcharge) {
+        surcharge.proprietes.forEach(sp => {
+          const copie = new ProprieteConcept(null, sp.nom, sp.type, sp.valeur, 0);
+          const idx = clone.proprietes.findIndex(p => p.nom === sp.nom);
+          if (idx >= 0) { clone.proprietes[idx] = copie; } else { clone.proprietes.push(copie); }
+        });
+        if (surcharge.attributs?.length) {
+          clone.attributs = clone.attributs.concat(surcharge.attributs);
+        }
+      }
+    }
+    return clone;
+  }
+
+  /**
+   * FONDS — remplacer chaque fond « propre à chaque lieu » par une instance par lieu du domaine.
+   * Les instances (clones) sont ajoutées EN FIN de liste pour ne pas décaler les ids des autres
+   * objets (rejeu .sol/.rec déterministe). Les fonds « commun » (partagés) sont laissés tels quels.
+   */
+  private static expanserFondsPropreParLieu(elements: ElementGenerique[], jeu: Jeu): ElementGenerique[] {
+    const base: ElementGenerique[] = [];
+    const clones: ElementGenerique[] = [];
+    elements.forEach(el => {
+      const estFond = el.classe ? ClasseUtils.heriteDe(el.classe, EClasseRacine.fond) : (el.classeIntitule === EClasseRacine.fond);
+      if (el.presenceFond && estFond && el.presenceFond.portee === 'parLieu') {
+        const lieuxDomaine = Generateur.resoudreDomaineFond(el.presenceFond, jeu);
+        lieuxDomaine.forEach(lieu => clones.push(Generateur.clonerElementGeneriquePourLieu(el, lieu)));
+        // le template n'est pas généré (remplacé par ses instances par lieu)
+      } else {
+        base.push(el);
+      }
+    });
+    return base.concat(clones);
+  }
+
   static getLieuID(lieux: Lieu[], nomLieu: string, erreurSiPasTrouve: boolean) {
 
     let candidats: Lieu[] = [];

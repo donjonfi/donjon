@@ -16,6 +16,7 @@ export enum ResultatAnalysePhrase {
   pronomDemontratifTypeAttribut,
   pronomPersonnelPosition,
   pronomPersonnelAttribut,
+  fondPortee,
   pronomPersonnelContenuListe,
   positionElement,
   propriete,

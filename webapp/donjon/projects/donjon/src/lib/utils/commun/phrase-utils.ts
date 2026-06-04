@@ -671,6 +671,22 @@ export class PhraseUtils {
   }
 
   /**
+   * Extraire un qualifieur de localisation d’une référence d’objet :
+   * « <base> (qui se trouve|situé(e)(s)) (dans|sur|sous) <cible> » ou « <base> … ici ».
+   * Utilisé pour les instructions, les conditions et les définitions (surcharge de fond par lieu).
+   * @returns { base, preposition?, cible?, ici? } ou null si aucun qualifieur n’est présent.
+   */
+  public static extraireLocalisationReference(texte: string): { base: string, preposition?: string, cible?: string, ici?: boolean } | null {
+    if (!texte) { return null; }
+    const m = ExprReg.xQualifieurLocalisation.exec(texte.trim());
+    if (!m) { return null; }
+    if (m[4]) {
+      return { base: m[1].trim(), ici: true };
+    }
+    return { base: m[1].trim(), preposition: m[2].toLowerCase(), cible: m[3].trim() };
+  }
+
+  /**
  * Décomposer l’intitulé brut en un groupe nominal.
  */
   public static getGroupeNominalDefiniOuIndefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
