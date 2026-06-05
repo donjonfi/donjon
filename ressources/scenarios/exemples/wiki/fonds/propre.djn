@@ -1,0 +1,7 @@
+-- Un fond « propre à chaque lieu » : une instance distincte par lieu, personnalisable.
+La cuisine est un lieu.
+La salle de bain est un lieu au nord de la cuisine.
+
+Le sol est un fond. Il est propre à chaque lieu.
+La description du sol est "Un sol carrelé.".
+La description du sol situé dans la salle de bain est "Un carrelage humide et glissant.".

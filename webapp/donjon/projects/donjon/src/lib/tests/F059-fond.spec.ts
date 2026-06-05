@@ -5,6 +5,7 @@ import { ClasseUtils } from "../utils/commun/classe-utils";
 import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 import { Generateur } from "../utils/compilation/generateur";
 import { actions } from "./scenario_actions";
+import { PhraseUtils } from "../utils/commun/phrase-utils";
 
 describe('F059 — Type « fond »', () => {
 
@@ -333,6 +334,44 @@ fin action
     ctxPartie.com.executerCommande("ranger", false);
     const caillou = ctxPartie.jeu.objets.find(o => o.nom === "caillou");
     expect(caillou.etats).withContext("caillou possédé (déplacer vers l'inventaire)").toContain(ctxPartie.jeu.etats.possedeID);
+  });
+
+  it('[F059-T017] décomposition : « la description du sol situé dans la cuisine » préserve le locateur', () => {
+    const prop = PhraseUtils.trouverPropriete("la description du sol situé dans la cuisine");
+    expect(prop).withContext("propriété décomposée").toBeTruthy();
+    expect(prop.intituleProprieteElement?.nom).withContext("nom de la propriété").toEqual("description");
+    // le locateur doit survivre dans l'intitulé de l'élément (nomEpithete)
+    const loc = PhraseUtils.extraireLocalisationReference(prop.intituleElement.nomEpithete);
+    expect(loc).withContext("locateur extractible depuis l'intitulé élément").toBeTruthy();
+    expect(loc.base).withContext("base").toContain("sol");
+    expect(loc.preposition).toEqual("dans");
+    expect(loc.cible).withContext("cible").toContain("cuisine");
+  });
+
+  it('[F059-T018] runtime : changer une propriété d’une instance de fond ciblée par locateur', () => {
+    const scenario = `
+La cuisine est un lieu.
+Le salon est un lieu au nord de la cuisine.
+Le sol est un fond. Il est propre à chaque lieu.
+La description du sol est "Un sol carrelé.".
+action tremper:
+  phase exécution:
+    changer la description du sol situé dans la cuisine est "Le carrelage est trempé.".
+fin action
+`;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    ctxPartie.com.executerCommande("commencer le jeu", true);
+    ctxPartie.com.executerCommande("tremper", false);
+
+    const cuisine = ctxPartie.jeu.lieux.find(l => l.nom === "cuisine");
+    const salon = ctxPartie.jeu.lieux.find(l => l.nom === "salon");
+    const sols = ctxPartie.jeu.objets.filter(o => o.nom === "sol");
+    const solCuisine = sols.find(s => s.position.cibleId === cuisine.id);
+    const solSalon = sols.find(s => s.position.cibleId === salon.id);
+    expect(solCuisine.description).withContext("instance cuisine modifiée par le locateur").toEqual("Le carrelage est trempé.");
+    expect(solSalon.description).withContext("instance salon INCHANGÉE (le locateur cible une seule instance)").toEqual("Un sol carrelé.");
   });
 
   it('[F059-T003] « est propre » nu reste un attribut/état (pas une portée)', () => {

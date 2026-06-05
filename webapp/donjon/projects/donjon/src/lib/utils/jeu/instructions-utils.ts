@@ -265,8 +265,18 @@ export class InstructionsUtils {
 
     // retrouver l’élément cible
     if (recherche.intituleElement) {
-      // rechercher parmi les éléments
-      recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, contexteTour, eju, jeu, false);
+      // LOCATEUR : élément/instance de fond ciblé par sa position, p.ex.
+      // « changer la description du sol situé dans la cuisine est "…" ».
+      const locElement = PhraseUtils.extraireLocalisationReference(recherche.intituleElement.nomEpithete);
+      if (locElement && (locElement.cible || locElement.ici)) {
+        const baseGN = PhraseUtils.getGroupeNominalDefiniOuIndefini(locElement.base, true) ?? recherche.intituleElement;
+        const cibleGN = locElement.cible ? PhraseUtils.getGroupeNominalDefiniOuIndefini(locElement.cible, true) : null;
+        const trouves = eju.resoudreReferenceLocalisee(baseGN, locElement.preposition ?? null, !!locElement.ici, cibleGN);
+        recherche.element = trouves.length > 0 ? trouves[0] : null;
+      } else {
+        // rechercher parmi les éléments
+        recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, contexteTour, eju, jeu, false);
+      }
       // rechercher parmi les listes
       if (!recherche.element) {
         recherche.liste = InstructionsUtils.trouverListe(recherche.intituleElement, eju, jeu, false);

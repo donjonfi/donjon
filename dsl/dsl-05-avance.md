@@ -484,5 +484,13 @@ déplacer les clés situées sur la table vers le joueur.
 
 (La destination peut être `le joueur` / `l'inventaire` / `ici` / un contenant ou support.)
 
+**Dans une règle, modifier une instance précise avec `changer`** (runtime) — le locateur cible **une seule** instance, les autres restent inchangées :
+
+```
+règle après ouvrir le robinet:
+    changer la description du sol situé dans la cuisine est "Le carrelage est trempé.".
+    changer la description du sol situé ici est "Le sol est mouillé.".   -- « ici » = lieu courant
+```
+
 - `est` est réservé aux **états** ; les positions/locateurs utilisent `situé` / `se trouve`.
 - En définition, sans locateur, une propriété d’un fond `propre` est la **valeur par défaut** appliquée à toutes ses instances.

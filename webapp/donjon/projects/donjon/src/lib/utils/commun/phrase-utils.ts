@@ -570,6 +570,23 @@ export class PhraseUtils {
 
     let retVal: ProprieteJeu = null;
 
+    // 0) Locateur spatial sur l’élément cible (« la description du sol situé dans la cuisine »).
+    // On décompose la base (« la description du sol ») normalement, puis on réattache le locateur
+    // à l’épithète de l’élément pour que la résolution runtime cible la bonne instance (cf.
+    // InstructionsUtils.trouverProprieteCible). La récursion est sûre : la base ne contient plus de locateur.
+    const loc = PhraseUtils.extraireLocalisationReference(intitule);
+    if (loc && (loc.cible || loc.ici)) {
+      const base = PhraseUtils.trouverPropriete(loc.base);
+      if (base && base.intituleElement) {
+        const suffixe = loc.ici ? "situé ici" : ("situé " + loc.preposition + " " + loc.cible);
+        base.intituleElement.epithete = base.intituleElement.epithete
+          ? (base.intituleElement.epithete + " " + suffixe)
+          : suffixe;
+        return base;
+      }
+      // sinon : pas une propriété d’élément → poursuivre la décomposition normale.
+    }
+
     // A) vérifier si la propriété correspond au type « nombre de propriété d’un élément » :
     const intituleEstUnNombreDePropriete = ExprReg.xNombreDeProprieteElement.exec(intitule);
     if (intituleEstUnNombreDePropriete) {
