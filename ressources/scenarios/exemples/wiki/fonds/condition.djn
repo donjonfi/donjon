@@ -1,0 +1,17 @@
+-- Tester l'état d'une instance précise d'un fond propre dans une condition, avec « situé dans ».
+La cuisine est un lieu.
+Le salon est un lieu au nord de la cuisine.
+
+Le sol est un fond propre. Il est propre à chaque lieu.
+La description du sol est "Un carrelage.".
+
+action salir:
+  phase épilogue:
+    changer le sol est sale.
+    dire "Vous renversez un seau : le sol de la pièce est maintenant sale.".
+fin action
+
+règle après examiner le sol:
+  si le sol situé dans la cuisine est sale, dire "(Le sol de la cuisine est sale.)".
+  si le sol situé dans le salon est sale, dire "(Le sol du salon est sale.)".
+fin règle

@@ -468,12 +468,14 @@ La description du sol situé dans la cuisine est "Un carrelage gras.". -- surcha
 La description du sol situé ici est "Un parquet ciré.".              -- « ici » = dernier lieu défini
 ```
 
-**Dans une condition** (singulier) — préférez la forme `situé` (la forme `qui se trouve` est réservée au test de position) :
+**Dans une condition** (singulier) — utilisez **uniquement** la forme `situé` : la forme `qui se trouve` n’y est pas reconnue (conflit avec le verbe « se trouver » du test de position) et la condition serait silencieusement fausse. Le locateur choisit l’instance, puis `est` teste son état :
 
 ```
 si le sol situé dans la cuisine est sale, dire "Le carrelage est gras.".
 si la clé située sur la table est rouge, ...
 ```
+
+Note : l’état d’une instance d’un fond `propre` ne se fixe pas par lieu en définition (`Le sol situé dans X est sale.` est sans effet) ; donnez l’état par défaut à la classe puis faites diverger une instance au runtime avec `changer le sol est …` (instance du lieu courant).
 
 **Dans une instruction `déplacer` / `copier`** (pluriel : agit sur tous les objets qui correspondent) :
 
