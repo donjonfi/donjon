@@ -1,3 +1,4 @@
+import { AnalyseurCommunUtils } from "../utils/compilation/analyseur/analyseur-commun-utils";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { EClasseRacine } from "../models/commun/constantes";
 import { ClasseUtils } from "../utils/commun/classe-utils";
@@ -12,7 +13,7 @@ describe('F059 — Type « fond »', () => {
 Le salon est un lieu.
 Le ciel est un fond.
 `;
-    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     ctxPartie.com.executerCommande("commencer le jeu", true);
@@ -35,7 +36,7 @@ La mer est un fond. Elle est commune dans les lieux côtiers.
 Le sol est un fond. Il est propre à chaque lieu.
 Le plafond est un fond. Il est propre aux lieux couverts.
 `;
-    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
 
     const ciel = rc.monde.objets.find(o => o.nom === "ciel");
     expect(ciel.presenceFond).withContext("ciel a une présence").toBeTruthy();
@@ -63,7 +64,7 @@ Le salon est un lieu.
 Le jardin est un lieu au nord du salon.
 Le ciel est un fond. Il est commun à tous les lieux.
 `;
-    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
     const jeu = Generateur.genererJeu(rc);
     const ctxPartie = new ContextePartie(jeu);
     ctxPartie.com.executerCommande("commencer le jeu", true);
@@ -265,12 +266,81 @@ Le ciel est un fond inaccessible. Il est commun à tous les lieux.
     expect(r.sortie).withContext("examiner le ciel réussit").toContain("ciel");
   });
 
+  it('[F059-T013] décomposition : « déplacer <sujet localisé> vers Y »', () => {
+    const result = AnalyseurCommunUtils.decomposerInstructionSimple("déplacer les objets qui se trouvent dans le coffre vers l'inventaire");
+    expect(result).withContext("instruction décomposée").toBeTruthy();
+    expect(result.sujet?.nomEpithete).withContext("sujet = locateur conservé").toEqual("objets qui se trouvent dans le coffre");
+    expect(result.preposition1).toEqual("vers");
+    expect(result.sujetComplement1?.nom).withContext("destination").toContain("inventaire");
+  });
+
+  it('[F059-T014] runtime : déplacer les objets qui se trouvent dans X vers l’inventaire', () => {
+    const scenario = `
+Le salon est un lieu.
+Le coffre est un contenant ici. Il est ouvert.
+La clé est un objet dans le coffre.
+Le caillou est un objet dans le coffre.
+
+action vider:
+phase exécution:
+déplacer les objets qui se trouvent dans le coffre vers l'inventaire.
+fin action
+`;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    ctxPartie.com.executerCommande("commencer le jeu", true);
+    ctxPartie.com.executerCommande("vider", false);
+    const cle = ctxPartie.jeu.objets.find(o => o.nom === "cle"); // nom normalisé (sans accent)
+    const caillou = ctxPartie.jeu.objets.find(o => o.nom === "caillou");
+    expect(cle.etats).withContext("clé déplacée vers l'inventaire").toContain(ctxPartie.jeu.etats.possedeID);
+    expect(caillou.etats).withContext("caillou déplacé vers l'inventaire").toContain(ctxPartie.jeu.etats.possedeID);
+  });
+
+  it('[F059-T015] instruction : déplacer X vers le joueur (déterminant)', () => {
+    const scenario = `
+Le salon est un lieu.
+Le coffre est un contenant ici. Il est ouvert.
+Le caillou est un objet dans le coffre.
+action ranger:
+phase exécution:
+déplacer le caillou vers le joueur.
+fin action
+`;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    ctxPartie.com.executerCommande("commencer le jeu", true);
+    ctxPartie.com.executerCommande("ranger", false);
+    const caillou = ctxPartie.jeu.objets.find(o => o.nom === "caillou");
+    expect(caillou.etats).withContext("caillou possédé (déplacer vers le joueur)").toContain(ctxPartie.jeu.etats.possedeID);
+  });
+
+  it('[F059-T016] instruction : déplacer X vers l’inventaire (déterminant)', () => {
+    const scenario = `
+Le salon est un lieu.
+Le coffre est un contenant ici. Il est ouvert.
+Le caillou est un objet dans le coffre.
+action ranger:
+phase exécution:
+déplacer le caillou vers l'inventaire.
+fin action
+`;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    ctxPartie.com.executerCommande("commencer le jeu", true);
+    ctxPartie.com.executerCommande("ranger", false);
+    const caillou = ctxPartie.jeu.objets.find(o => o.nom === "caillou");
+    expect(caillou.etats).withContext("caillou possédé (déplacer vers l'inventaire)").toContain(ctxPartie.jeu.etats.possedeID);
+  });
+
   it('[F059-T003] « est propre » nu reste un attribut/état (pas une portée)', () => {
     const scenario = `
 Le salon est un lieu.
 Le tapis est un objet ici. Il est propre.
 `;
-    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
     const tapis = rc.monde.objets.find(o => o.nom === "tapis");
     expect(tapis.presenceFond).withContext("pas de portée sur un attribut nu").toBeFalsy();
     expect(tapis.attributs).toContain("propre");

@@ -269,7 +269,7 @@ export class ExprReg {
    *   - Par rapport à la cabane, la forêt se trouve au nord, au sud et à l’ouest.
    *   - Il se trouve ici.
    */
-  static readonly xDefinirPositionElement = /^(?!(?:changer|si|(?:le joueur peut)) )(.+) se trouve(?:nt)? (.+)$/i;
+  static readonly xDefinirPositionElement = /^(?!(?:changer|si|déplacer|deplacer|copier|(?:le joueur peut)) )(.+) se trouve(?:nt)? (.+)$/i;
 
   /**
    * position relative d’un élément du jeu
@@ -337,6 +337,14 @@ export class ExprReg {
    * (test de position d’une condition : « la clé se trouve dans le coffre »).
    */
   static readonly xQualifieurLocalisation = /^(.+?) (?:qui se trouvent?|situé(?:e|s|es)?) (?:(dans|sur|sous) (.+)|(ici))$/i;
+
+  /** Instruction de déplacement/copie avec SUJET LOCALISÉ + destination :
+   * « <sujet qui se trouve(nt)/situé(e)(s) (dans|sur|sous) X> (vers|dans|sur|sous|à) <destination> ».
+   * - (1) sujet (avec le locateur), (2) préposition de destination, (3) destination
+   * - Ex: « les objets qui se trouvent dans le coffre vers l'inventaire »
+   * Nécessaire car le « dans » interne du locateur casse le découpage standard sujet/complément.
+   */
+  static readonly xInstructionLocateurDestination = /^(.+? (?:qui se trouvent?|situé(?:e|s|es)?) (?:dans|sur|sous) .+?) (vers|dans|sur|sous|à|au|aux) (.+)$/i;
 
   /**  
    * Pronom personnel + contenu

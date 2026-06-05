@@ -475,5 +475,14 @@ si le sol situé dans la cuisine est sale, dire "Le carrelage est gras.".
 si la clé située sur la table est rouge, ...
 ```
 
+**Dans une instruction `déplacer` / `copier`** (pluriel : agit sur tous les objets qui correspondent) :
+
+```
+déplacer les objets qui se trouvent dans le coffre vers l'inventaire.
+déplacer les clés situées sur la table vers le joueur.
+```
+
+(La destination peut être `le joueur` / `l'inventaire` / `ici` / un contenant ou support.)
+
 - `est` est réservé aux **états** ; les positions/locateurs utilisent `situé` / `se trouve`.
 - En définition, sans locateur, une propriété d’un fond `propre` est la **valeur par défaut** appliquée à toutes ses instances.
