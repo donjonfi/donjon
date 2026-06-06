@@ -337,6 +337,12 @@ export class InstructionsUtils {
           console.error("trouverProprieteCible > nombreDeClasseAttributsPosition > la classe n’hérite pas de « objet »: ", recherche.classe.intitule);
         }
 
+        // 1bis) FILTRER LE CONTENU SUR LA CLASSE RECHERCHÉE
+        // (sinon « nombre de X dans/sur/sous Y » compterait TOUT le contenu de Y, pas seulement les X)
+        if (elementsOkEtapePrecedente) {
+          elementsOkEtapePrecedente = elementsOkEtapePrecedente.filter(x => ClasseUtils.heriteDe(x.classe, recherche.classe.nom));
+        }
+
         // 2) FILTRER SUR LES ÉTATS ÉVENTUELS
         elementsOkEtapePrecedente = InstructionsUtils.filtrerElementsSurEtats(elementsOkEtapePrecedente, recherche.nomsEtats, jeu);
 
