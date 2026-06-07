@@ -56,5 +56,5 @@ fin règle
 Le joueur est dans la roulotte de Mucia.
 
 règle avant commencer le jeu:
-  dire "Mucia est triste. Quelque part dans la description, un détail brille. Essayez :{n}— ''regarder'' (relire la description){n}— ''examiner la feuille brillante''{n}— ''prendre la marionnette''{n}— ''donner la marionnette à Mucia''.".
+  dire "Mucia est triste. Quelque part dans la description, un détail brille.".
 fin règle

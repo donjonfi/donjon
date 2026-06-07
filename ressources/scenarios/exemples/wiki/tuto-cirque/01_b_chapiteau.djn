@@ -1,9 +1,11 @@
--- Tutoriel « Le Cirque Étoile » — Chapitre 1, étape C
--- État final du chapitre : 5 lieux extérieurs articulés autour de la place.
--- Le chapiteau ferme le carré au sud ; l’arrière-piste prolonge le chapiteau.
+-- Tutoriel « Le Cirque Étoile » — Chapitre 1, état final.
+-- 5 lieux extérieurs articulés autour de la place.
+-- Les noms des lieux non encore visités sont affichés dans les sorties.
 
 Le titre du jeu est "Le Cirque Étoile".
 L’auteur du jeu est "Apprenti·e magicien·ne".
+
+activer affichage des lieux inconnus.
 
 La place du cirque est un lieu.
 Sa description est "La place du Cirque Étoile, écrasée par un soleil d’après-midi. Un drapeau bigarré claque au vent au-dessus de la billetterie, et l’air sent le caramel chaud et la sciure neuve.".

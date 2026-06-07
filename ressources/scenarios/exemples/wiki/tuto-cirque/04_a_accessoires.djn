@@ -31,5 +31,5 @@ Sa description est "Un petit miroir ovale serti d’étain, à peine plus grand 
 Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
-  dire "Les quatre accessoires de Aurélien vous attendent. Essayez :{n}— ''prendre le chapeau''{n}— ''prendre la baguette''{n}— ''prendre le foulard''{n}— ''prendre le miroir''{n}— ''inventaire'' pour faire le compte.".
+  dire "Les quatre accessoires de Aurélien vous attendent.".
 fin règle

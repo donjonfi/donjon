@@ -74,5 +74,5 @@ fin règle
 Le joueur est dans la place ternie.
 
 règle avant commencer le jeu:
-  dire "Anatolette pleurniche dans la tente, au sud. Son hochet est ici, mais le vent va l’emporter à chaque action. Essayez :{n}— ''prendre le hochet'' (vite !){n}— Si trop tard : suivez le bruit (''est'' ou ''sud'').{n}— Une fois en main, ''sud'' jusqu’à la chatonne, puis ''donner le hochet à la chatonne''.".
+  dire "Anatolette pleurniche dans la tente, au sud. Son hochet est ici, mais le vent va l’emporter à chaque action.".
 fin règle

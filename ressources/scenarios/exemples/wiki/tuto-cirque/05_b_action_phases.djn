@@ -63,5 +63,5 @@ fin règle
 Le joueur est dans la roulotte du maître Aurélien.
 
 règle avant commencer le jeu:
-  dire "Pour réaliser le tour, vous devez avoir les quatre accessoires en main ET le foulard déployé.{n}Essayez :{n}— ''réaliser le tour'' tout de suite (doit être refusé : il manque tout){n}— Prenez les quatre accessoires, puis ''réaliser le tour'' (refusé : foulard plié){n}— ''secouer le foulard'', puis ''réaliser le tour'' (accepté).".
+  dire "Pour réaliser le tour, vous devez avoir les quatre accessoires en main ET le foulard déployé.".
 fin règle

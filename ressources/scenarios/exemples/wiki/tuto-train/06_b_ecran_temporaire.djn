@@ -31,6 +31,3 @@ action faire ceci:
     fin si
 fin action
 
-règle avant commencer le jeu:
-  dire "Tapez ''faire une pause'' pour basculer sur l’écran temporaire et revenir ensuite.".
-fin règle

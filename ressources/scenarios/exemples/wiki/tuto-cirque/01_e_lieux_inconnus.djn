@@ -1,7 +1,6 @@
 -- Tutoriel « Le Cirque Étoile » — Chapitre 1, mini-exemple
--- Démontre la syntaxe « se trouve à <dir> du X et à <dir> du Y » :
--- l'arrière-piste est accessible à la fois depuis le chapiteau (ouest)
--- et depuis la place du cirque (sud-ouest).
+-- Démontre « activer affichage des lieux inconnus. » :
+-- les noms des sorties non encore visitées apparaissent dès le départ.
 
 Le titre du jeu est "Le Cirque Étoile".
 L'auteur du jeu est "Apprenti·e magicien·ne".
@@ -23,6 +22,5 @@ Sa description est "La roulotte du maître, ordonnée jusqu'à l'absurde. Tout e
 Le chapiteau est un lieu au sud de la place du cirque.
 Sa description est "L'immense tente de toile écarlate et or, vide entre deux représentations. La sciure feutrée étouffe les pas. Le rideau de coulisses, à l'ouest, est légèrement entrouvert.".
 
-L'arrière-piste est un lieu.
-L'arrière-piste se trouve à l'ouest du chapiteau et au sud-ouest de la place du cirque.
+L'arrière-piste est un lieu à l'ouest du chapiteau.
 Sa description est "Les coulisses du chapiteau : cordes enroulées, caisses de costumes, deux miroirs ovales appuyés contre les piquets. C'est ici que les artistes attendent leur tour.".

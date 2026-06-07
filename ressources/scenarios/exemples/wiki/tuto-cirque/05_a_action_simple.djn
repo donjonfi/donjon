@@ -21,6 +21,3 @@ fin action
 -- DÉPART
 Le joueur est dans la roulotte du maître Aurélien.
 
-règle avant commencer le jeu:
-  dire "Essayez : ''réaliser le tour'' (l’action s’exécute, mais elle ne vérifie rien).".
-fin règle

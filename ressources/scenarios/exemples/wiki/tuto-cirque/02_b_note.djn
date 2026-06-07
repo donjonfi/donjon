@@ -70,6 +70,3 @@ Sa description est "L’établi de travail du maître, en bois ciré. Tout y est
 -- DÉPART
 -- ======================================================
 
-règle avant commencer le jeu:
-  dire "Essayez :{n}— ''est'' pour entrer dans la roulotte de Pétunia, puis ''parler à Pétunia''{n}— ''nord'' depuis la place, puis ''lire la note''{n}— ''examiner Lucia'' depuis sa roulotte.".
-fin règle
