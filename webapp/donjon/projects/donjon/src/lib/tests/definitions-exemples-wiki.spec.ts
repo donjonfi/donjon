@@ -32,16 +32,19 @@ règle avant commencer le jeu:
 fin règle`;
 
 const ETATS = `
-La cuisine est un lieu.
-La pomme est un objet mangeable dans la cuisine.
-La potion est un objet buvable dans la cuisine.
-Le grimoire est un objet lisible dans la cuisine.
+La réserve est un lieu.
+La pomme est un objet mangeable dans la réserve.
+La potion est un objet buvable dans la réserve.
+Le grimoire est un objet lisible dans la réserve.
 Son texte est "Page 1 : la formule secrète.".
-Le coffre est un contenant ouvrable et fermé dans la cuisine.
-Le joueur est dans la cuisine.
+Le coffre est un contenant ouvrable et fermé dans la réserve.
+Le manteau est un objet enfilable dans la réserve.
+La statue est un objet fixé dans la réserve.
+Le perroquet est un animal parlant dans la réserve.
+Le joueur est dans la réserve.
 
 règle avant commencer le jeu:
-  dire "Essayez : {/manger la pomme/}, {/boire la potion/}, {/lire le grimoire/}, {/ouvrir le coffre/}.".
+  dire "Essayez : {/manger la pomme/}, {/lire le grimoire/}, {/ouvrir le coffre/}, {/mettre le manteau/}, {/prendre la statue/}, {/parler avec le perroquet/}.".
 fin règle`;
 
 describe('Exemples wiki — définitions', () => {
@@ -58,13 +61,16 @@ describe('Exemples wiki — définitions', () => {
     expect(s).toContain('Le minou est affamé (défaut hérité en chaîne).');
   });
 
-  it('[F064-T002] états intégrés posables : mangeable/buvable/lisible/ouvrable activent les actions', () => {
+  it('[F064-T002] états intégrés posables activent les actions par défaut', () => {
     const ctx = TestUtils.genererEtCommencerLeJeu(actions + ETATS);
     ctx.com.executerCommande('regarder', false);
     expect(ctx.com.executerCommande('manger la pomme', false).sortie).toContain('mangée');
     expect(ctx.com.executerCommande('boire la potion', false).sortie).toContain('bue');
     expect(ctx.com.executerCommande('lire le grimoire', false).sortie).toContain('la formule secrète');
     expect(ctx.com.executerCommande('ouvrir le coffre', false).sortie).toContain('ouvert');
+    expect(ctx.com.executerCommande('mettre le manteau', false).sortie).toContain('enfilé');
+    expect(ctx.com.executerCommande('prendre la statue', false).sortie).toContain('fixée');
+    expect(ctx.com.executerCommande('parler avec le perroquet', false).sortie).toContain('conversation');
     expect(ctx.jeu.tamponErreurs).toEqual([]);
   });
 

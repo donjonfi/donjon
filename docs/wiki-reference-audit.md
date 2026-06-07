@@ -207,15 +207,16 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
   défaut de type + surcharge). Exemple `wiki_definitions_classe_personnalisee`, spec
   `definitions-exemples-wiki.spec.ts` F064-T001 (cf. calibration #11 pour la syntaxe correcte).
 - ✅ **Catalogue des états INTÉGRÉS posables** (critique #1) : nouvelle page
-  `definitions/etats_integres` (états qui activent une action par défaut : mangeable→manger,
-  buvable→boire, lisible→lire (→lu), ouvrable→ouvrir/fermer ; + section « posables sans action
-  par défaut » : allumé/éteint, portable/enfilable/chaussable/équipable→enfilé/…, actionné/arrêté,
-  fixé/transportable, opaque/transparent, parlant/muet). Exemple `wiki_definitions_etats_interactions`,
-  spec F064-T002. Cross-links depuis `memoire/etats/etats_de_base` (liste complète, déjà existante)
-  et vers `visibilite` (états de visibilité, déjà existante).
+  `definitions/etats_integres`. États qui **activent une action par défaut** (vérifiés) :
+  mangeable→manger, buvable→boire, lisible→lire (→lu), ouvrable→ouvrir/fermer,
+  portable/enfilable/chaussable/équipable→**mettre/enlever** (→porté/enfilé/chaussé/équipé),
+  transportable→**prendre/poser** (fixé bloque : « Elle est fixée. »), parlant→**parler avec**
+  (muet bloque). Section « posables sans action par défaut » réduite à : allumé/éteint,
+  actionné/arrêté, opaque/transparent. Exemple `wiki_definitions_etats_interactions` (manger/lire/
+  ouvrir/mettre/prendre-fixé/parler), spec F064-T002. Cross-links `etats_de_base` + `visibilite`.
 - ❌ **Capacités** (« Il permet de … ») = **TODO moteur non implémenté** → hors LOT 4.
-- Note : pas de page « lampe/vêtement » dédiée car allumé/enfilé n'ont **pas** d'action par défaut
-  (démonstration = action perso) → regroupés en section « posables sans action par défaut ».
+- Calibration : `ouvrir` exige `ouvrable` ET un état `ouvert`/`fermé` ; `mettre`/`enlever` couvrent
+  les vêtements/équipement ; `prendre` bloqué par `fixé` ; `parler avec` exige parlant (≠ muet).
 
 ### LOT 5 — Mémoire (HAUTE)
 - `memoire/historique` : prose OK mais AUCUN djnc → exemple (définir/ajouter/tester ; **attention** :
