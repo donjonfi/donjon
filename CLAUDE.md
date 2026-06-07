@@ -220,6 +220,8 @@ Pages pertinentes pour le moteur :
 
 Quand on modifie une feature visible côté auteur, vérifier si la page wiki correspondante doit être mise à jour. Les captures d'écran (`data/media/...`) doivent être régénérées manuellement — les signaler dans le commit/PR mais ne pas les éditer programmatiquement.
 
+**Chantier en cours — audit de couverture de la référence** : `docs/wiki-reference-audit.md` (état, reste à faire par lots, conventions, boucle de validation, découvertes de calibration dont un bug moteur `réussit` corrigé) + `docs/wiki-reference-audit-findings.json` (188 lacunes, données brutes exhaustives). Point de reprise du travail wiki ; les exemples testables vivent sous `ressources/scenarios/exemples/wiki/<thème>/`.
+
 ## Testing
 
 Library tests live in `webapp/donjon/projects/donjon/src/lib/tests/`. Naming convention : `[F0XX-TNNN]` IDs (F = feature group, T = sequence within the group). Run a single spec file with `ng test donjon --include="**/<file>.spec.ts" --watch=false --browsers=ChromeHeadless` — beaucoup plus rapide que la suite complète.

@@ -1,0 +1,20 @@
+-- Mini-jeu d'illustration — page wiki « Choisir » (choix prédéfinis).
+-- L'action pose une question ; le joueur choisit une réponse, qui déclenche son bloc.
+
+La taverne est un lieu.
+
+action commander:
+  dire "Que voulez-vous boire ?".
+  choisir:
+    choix "De l’eau":
+      dire "Vous buvez de l’eau fraîche.".
+    choix "Une bière":
+      dire "Vous savourez une bière locale.".
+    choix "Rien, merci":
+      dire "Vous restez sobre.".
+  fin choisir
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/commander/}.".
+fin règle

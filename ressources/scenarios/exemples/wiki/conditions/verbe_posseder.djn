@@ -1,0 +1,15 @@
+-- Mini-jeu d'illustration — page wiki « Conditions » (verbe « possède »).
+-- Le sujet de « possède » est toujours le joueur. Démontre aussi la négation.
+
+Le vestiaire est un lieu.
+La carte magnétique est un objet dans l'inventaire.
+Le badge est un objet dans le vestiaire.
+
+action contrôler:
+  si le joueur possède la carte magnétique, dire "Vous avez la carte magnétique.".
+  si le joueur ne possède pas le badge, dire "Il vous manque le badge.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/contrôler/}.".
+fin règle

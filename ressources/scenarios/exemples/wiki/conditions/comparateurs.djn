@@ -1,0 +1,19 @@
+-- Mini-jeu d'illustration — page wiki « Conditions » (comparateurs).
+-- Démontre les verbes de comparaison d'un compteur : atteint (>=), dépasse (>),
+-- n'atteint pas (<), ne dépasse pas (<=) et vaut (==).
+
+Le stand de tir est un lieu.
+Le score est un compteur initialisé à 5.
+
+action évaluer:
+  dire "Score : [c score].".
+  si le score atteint 5, dire "Vous atteignez la cible.".
+  si le score dépasse 5, dire "Vous dépassez la cible.".
+  si le score n'atteint pas 5, dire "Vous restez sous la cible.".
+  si le score ne dépasse pas 5, dire "Vous ne franchissez pas la cible.".
+  si le score vaut 5, dire "Le score vaut exactement cinq.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/évaluer/}.".
+fin règle

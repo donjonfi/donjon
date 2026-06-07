@@ -1,0 +1,22 @@
+-- Mini-jeu d'illustration — page wiki « Conditions » (combiner des conditions).
+-- Démontre : et si / ou si, les parenthèses, soit … soit (exactement un),
+-- ni … ni …, et « mais pas ».
+
+L'atelier est un lieu.
+La lampe est un objet allumé dans l'atelier.
+La trappe est une porte ouverte ici.
+Le diamant est un objet dans l'atelier.
+La couronne est un objet dans l'atelier.
+
+action vérifier:
+  si la lampe est allumée et si la trappe est ouverte, dire "ET : les deux conditions tiennent.".
+  si la lampe est éteinte ou si la trappe est ouverte, dire "OU : au moins une condition tient.".
+  si (la lampe est éteinte ou si la lampe est allumée) et si la trappe est ouverte, dire "PARENTHESES : groupe vrai et trappe ouverte.".
+  si la lampe est soit allumée soit éteinte, dire "SOIT : exactement un des deux états.".
+  si le joueur ne possède ni le diamant ni la couronne, dire "NI : aucun des deux objets.".
+  si la trappe est ouverte mais pas fermée, dire "MAISPAS : ouverte mais pas fermée.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/vérifier/}.".
+fin règle
