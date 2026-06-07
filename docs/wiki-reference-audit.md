@@ -135,6 +135,17 @@ Exclusion : `inclure` (volontairement non testable via djnc).
     l'objet (`Sa description est "… [v … ceci] …"`) ; jouer `regarder` puis `examiner` (cf. modèle
     `ressource-grammaire.spec.ts` + exemple grimoire). Pour remplacer un comportement : `règle
     remplacer examiner ceci` (mais l'exemple devient moins « standalone » côté djnc).
+11. **Classes personnalisées (LOT 4, probe + correction utilisateur)** : la **bonne syntaxe** est
+    `Un X est un <type>` (PAS `une sorte de`). Elle hérite correctement et **se chaîne** :
+    `Un familier est un animal.` + `Un chaton est un familier.` → un chaton est familier + animal
+    + objet (vérifié : `nombre de familiers` = 3 dont le chaton, `minou est un familier/animal` OK).
+    `Un X est <état>` pose un défaut de type hérité (surchargeable par instance : `Le chien est
+    repu.`), et on peut poser le défaut inline dans le sous-type : `Un chaton est un familier
+    affamé.`. ⚠️ `une sorte de` (que j'avais utilisé) compile mais **ne chaîne pas** custom→custom
+    → ne pas l'employer. Formes invalides : `Un X peut être A ou B` (états → forme standalone
+    `A et B forment une bascule`) ; `La description d'un X est "…"` (pas de description par défaut
+    de type, non prévu). **Capacités (« Il permet de … ») = TODO moteur non implémenté** → ne pas
+    documenter en LOT 4.
 
 **Leçon transversale** : le bucket `not_covered` confond « existe dans le moteur » et
 « marche pour l'auteur ». → **probe-vérifier chaque `not_covered`** avant d'écrire.
@@ -190,11 +201,13 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
 - (déjà fait LOT 0 : `[e X]`/`[es X]`/`[accord X]`).
 - Reste (moyenne, JSON) : autres balises `texte/*` non couvertes/partielles.
 
-### LOT 4 — Définitions du monde (HAUTE)
-- **Classes personnalisées & héritage** (« Un familier est un animal ») — page/section dédiée.
-- **Capacités** (« Il permet de le cueillir ») — section + djnc.
-- `definitions/classes` : stub (titre+image) → documenter la hiérarchie des types.
-- **(critique #1) Catalogue des états INTÉGRÉS posables** : allumé/éteint, actionné/arrêté,
+### LOT 4 — Définitions du monde (HAUTE) — 🚧 en cours
+- ✅ **Classes personnalisées & héritage** + **`definitions/classes`** (stub → page complète :
+  hiérarchie des types intégrés, `Un X est un <type>`, héritage chaîné `Un chaton est un familier`,
+  défaut de type + surcharge). Exemple `wiki_definitions_classe_personnalisee`, spec
+  `definitions-exemples-wiki.spec.ts` F064-T001 (cf. calibration #11 pour la syntaxe correcte).
+- ❌ **Capacités** (« Il permet de … ») = **TODO moteur non implémenté** → hors LOT 4, ne pas documenter.
+- Reste : **(critique #1) Catalogue des états INTÉGRÉS posables** : allumé/éteint, actionné/arrêté,
   mangeable/buvable, portable/enfilable/chaussable/équipable → enfilé/chaussé/équipé, lisible/lu,
   vide, décoratif (`constantes.ts` EEtatsBase). 2-3 pages + djnc (lampe, pomme, vêtement).
 
