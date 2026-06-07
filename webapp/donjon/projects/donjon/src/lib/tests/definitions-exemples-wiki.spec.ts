@@ -31,6 +31,19 @@ règle avant commencer le jeu:
   dire "Essayez : {/recenser/}.".
 fin règle`;
 
+const ETATS = `
+La cuisine est un lieu.
+La pomme est un objet mangeable dans la cuisine.
+La potion est un objet buvable dans la cuisine.
+Le grimoire est un objet lisible dans la cuisine.
+Son texte est "Page 1 : la formule secrète.".
+Le coffre est un contenant ouvrable et fermé dans la cuisine.
+Le joueur est dans la cuisine.
+
+règle avant commencer le jeu:
+  dire "Essayez : {/manger la pomme/}, {/boire la potion/}, {/lire le grimoire/}, {/ouvrir le coffre/}.".
+fin règle`;
+
 describe('Exemples wiki — définitions', () => {
 
   it('[F064-T001] classe personnalisée : héritage (chaîné), défaut de type, surcharge', () => {
@@ -43,6 +56,16 @@ describe('Exemples wiki — définitions', () => {
     expect(s).toContain('Le chien est repu (défini sur l\'instance).');
     expect(s).toContain('Le minou (chaton) est aussi un familier.');
     expect(s).toContain('Le minou est affamé (défaut hérité en chaîne).');
+  });
+
+  it('[F064-T002] états intégrés posables : mangeable/buvable/lisible/ouvrable activent les actions', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + ETATS);
+    ctx.com.executerCommande('regarder', false);
+    expect(ctx.com.executerCommande('manger la pomme', false).sortie).toContain('mangée');
+    expect(ctx.com.executerCommande('boire la potion', false).sortie).toContain('bue');
+    expect(ctx.com.executerCommande('lire le grimoire', false).sortie).toContain('la formule secrète');
+    expect(ctx.com.executerCommande('ouvrir le coffre', false).sortie).toContain('ouvert');
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
   });
 
 });

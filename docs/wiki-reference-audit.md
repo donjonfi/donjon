@@ -201,15 +201,21 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
 - (déjà fait LOT 0 : `[e X]`/`[es X]`/`[accord X]`).
 - Reste (moyenne, JSON) : autres balises `texte/*` non couvertes/partielles.
 
-### LOT 4 — Définitions du monde (HAUTE) — 🚧 en cours
+### LOT 4 — Définitions du monde (HAUTE) — ✅ livré
 - ✅ **Classes personnalisées & héritage** + **`definitions/classes`** (stub → page complète :
   hiérarchie des types intégrés, `Un X est un <type>`, héritage chaîné `Un chaton est un familier`,
   défaut de type + surcharge). Exemple `wiki_definitions_classe_personnalisee`, spec
   `definitions-exemples-wiki.spec.ts` F064-T001 (cf. calibration #11 pour la syntaxe correcte).
-- ❌ **Capacités** (« Il permet de … ») = **TODO moteur non implémenté** → hors LOT 4, ne pas documenter.
-- Reste : **(critique #1) Catalogue des états INTÉGRÉS posables** : allumé/éteint, actionné/arrêté,
-  mangeable/buvable, portable/enfilable/chaussable/équipable → enfilé/chaussé/équipé, lisible/lu,
-  vide, décoratif (`constantes.ts` EEtatsBase). 2-3 pages + djnc (lampe, pomme, vêtement).
+- ✅ **Catalogue des états INTÉGRÉS posables** (critique #1) : nouvelle page
+  `definitions/etats_integres` (états qui activent une action par défaut : mangeable→manger,
+  buvable→boire, lisible→lire (→lu), ouvrable→ouvrir/fermer ; + section « posables sans action
+  par défaut » : allumé/éteint, portable/enfilable/chaussable/équipable→enfilé/…, actionné/arrêté,
+  fixé/transportable, opaque/transparent, parlant/muet). Exemple `wiki_definitions_etats_interactions`,
+  spec F064-T002. Cross-links depuis `memoire/etats/etats_de_base` (liste complète, déjà existante)
+  et vers `visibilite` (états de visibilité, déjà existante).
+- ❌ **Capacités** (« Il permet de … ») = **TODO moteur non implémenté** → hors LOT 4.
+- Note : pas de page « lampe/vêtement » dédiée car allumé/enfilé n'ont **pas** d'action par défaut
+  (démonstration = action perso) → regroupés en section « posables sans action par défaut ».
 
 ### LOT 5 — Mémoire (HAUTE)
 - `memoire/historique` : prose OK mais AUCUN djnc → exemple (définir/ajouter/tester ; **attention** :

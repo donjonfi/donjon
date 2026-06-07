@@ -1,0 +1,15 @@
+-- Mini-jeu d'illustration — page wiki « États intégrés : interactions ».
+-- Des états intégrés posés sur un objet activent les actions par défaut du moteur :
+-- mangeable → manger, buvable → boire, lisible → lire, ouvrable → ouvrir / fermer.
+
+La cuisine est un lieu.
+La pomme est un objet mangeable dans la cuisine.
+La potion est un objet buvable dans la cuisine.
+Le grimoire est un objet lisible dans la cuisine.
+Son texte est "Page 1 : la formule secrète.".
+Le coffre est un contenant ouvrable et fermé dans la cuisine.
+Le joueur est dans la cuisine.
+
+règle avant commencer le jeu:
+  dire "Essayez : {/manger la pomme/}, {/boire la potion/}, {/lire le grimoire/}, {/ouvrir le coffre/}.".
+fin règle
