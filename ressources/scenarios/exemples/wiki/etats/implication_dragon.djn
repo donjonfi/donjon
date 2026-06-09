@@ -1,8 +1,11 @@
 -- Mini-exemple : état avec implication (enragé implique éveillé).
+-- Le dragon endormi se réveille tout seul quand on l'enrage : « enragé » entraîne
+-- « éveillé », qui chasse « endormi » (les trois états du sommeil se contredisent).
 
 Le donjon est un lieu.
 Le dragon est un animal endormi ici.
 
+enragé est un état.
 éveillé, endormi et hiverné se contredisent.
 enragé implique éveillé.
 
@@ -12,5 +15,5 @@ action enrager ceci:
 fin action
 
 règle avant commencer le jeu:
-  dire "Le dragon est endormi. Essayez : {/enrager le dragon/} (il s'éveille automatiquement).".
+  dire "Le dragon dort. Essayez : {/enrager le dragon/} — il s'éveille automatiquement.".
 fin règle

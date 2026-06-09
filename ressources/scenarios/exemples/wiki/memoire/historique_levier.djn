@@ -1,0 +1,24 @@
+-- Mini-exemple : l'historique pour retenir des événements globaux.
+
+Le hall est un lieu.
+Le levier est un objet ici.
+Sa description est "Un gros levier de fer. [si l'historique contient "levier actionné"]Il est à présent abaissé.[sinon]Il est en position haute.[fin si]".
+
+L'historique est une liste.
+
+action actionner le levier:
+  changer l'historique contient "levier actionné".
+  dire "Le levier bascule avec un grincement.".
+fin action
+
+action vérifier:
+  si l'historique contient "levier actionné":
+    dire "Le mécanisme est enclenché.".
+  sinon
+    dire "Aucun événement enregistré pour le moment.".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/examiner le levier/}, {/actionner le levier/}, puis {/vérifier/}.".
+fin règle
