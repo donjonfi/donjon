@@ -1,0 +1,19 @@
+La buvette est un lieu.
+La table est un support dans la buvette.
+
+-- Deux nouveaux types : un liquide ne se prend pas en main, une boisson se boit.
+Un liquide est un objet liquide et indénombrable.
+Une boisson est un liquide buvable.
+
+Le jus est une boisson vu sur la table.
+
+règle avant boire le jus:
+  si le jus n'est pas bu:
+    dire "Glou glou glou… J'avais soif !".
+    changer le jus est bu.
+    stopper l'action.
+  sinon
+    dire "J'ai déjà tout bu.".
+    stopper l'action.
+  fin si
+fin règle

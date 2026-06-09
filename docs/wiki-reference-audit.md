@@ -61,8 +61,8 @@ Exclusion : `inclure` (volontairement non testable via djnc).
   des occurrences éparpillées (`balises_dynamiques` table des mentions, `memoire/etats/start`,
   `memoire/etats/etats_de_base`).
 - `controle/si/verbes/atteindre` + `depasser` : copier-coller corrigé (atteint = `≥`, dépasse = `>`).
-- **Reporté** : `routines/simple` affirme à tort que les appels différés ne prennent pas
-  d'arguments → à corriger en LOT 6 (avec `programmer_routine`).
+- ✅ **(traité en LOT 6)** : `routines/simple` affirmait à tort que les appels différés ne prennent
+  pas d'arguments → corrigé (section « Appels différés avec arguments »).
 
 **LOT 1 — Conditions (pilote) :**
 - 7 exemples testables : `ressources/scenarios/exemples/wiki/conditions/{comparateurs, combiner,
@@ -225,15 +225,38 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
 - Relations entre états (bascule ↔ / implication → / exclusion ≠) : djnc (les `.djn`
   `etats/bascule_linge.djn`, `etats/implication_dragon.djn` existent déjà → relier).
 
-### LOT 6 — Temps (HAUTE/MOYENNE)
-- Routine programmée **avec arguments** (`exécuter la routine X avec <args> dans N s`) :
-  section + djnc sur `programmer_routine`. **+ corriger `routines/simple`** (claim « pas d'args »).
-- Balises `[heure]/[date]/[horloge]/[jour]/[mois]/[année]` + conditions sur l'heure → djnc.
+### LOT 6 — Temps (HAUTE/MOYENNE) — ✅ livré (2026-06-09)
+- ✅ Routine programmée **avec arguments** : section « Programmer une routine avec des arguments »
+  + djnc sur `temps/programmer_routine` (exemple `wiki_temps_routine_avec_args`). **`routines/simple`
+  corrigé** : la section « Limitation des appels différés » (claim « pas d'args ») est remplacée par
+  « Appels différés avec arguments » (args résolus au déclenchement, surcharge re-résolue).
+- ✅ Balises horloge/calendrier + conditions : djnc `wiki_temps_horloge_jour_nuit` (`[horloge]/[heure]/
+  [minute]/[seconde]` + `si l'heure dépasse …`) sur `temps/horloge` ; `wiki_temps_calendrier_fetes`
+  (`[jour]/[date]/[mois]/[année]` + `si le mois est décembre` / `dépasse` / `si le jour est dimanche`)
+  sur `temps/calendrier`. Spec `temps-exemples-wiki.spec.ts` F068-T001→T007 (clock rejoué via
+  `HorlogeUtils`, cf. F058). **Bug moteur corrigé** : faute `jeurdi`→`jeudi` (balise `[jour]` +
+  condition `si le jour est jeudi`), 2 sites actifs, garde F068-T007 (cf. `docs/TODO.md`).
+- Calibration : la regex balise horloge accepte le pluriel (`[heures]/[minutes]/[secondes]`, `s*` hors
+  capture) ; la regex calendrier non (`[jour]` au singulier). `mois` compteur = 1→12 ; `jour` compteur
+  = 1 (lundi) → 7 (dimanche) ; valeur textuelle via `être` (`le mois est décembre`, `le jour est dimanche`).
 
-### LOT 7 — Divers & configuration (HAUTE)
-- **(critique)** `désactiver les actions/commandes de base` (jeu 100 % custom — `analyseur.divers.ts:80`).
-- `activerAudio`, `activerRemplacementDestinationDeplacements`, `activerChoixNumeriques`.
-- `divers/liquides` → `<file>` + djnc ; `commencer_le_jeu` → djnc.
+### LOT 7 — Divers & configuration (HAUTE) — ✅ livré (2026-06-09)
+- ✅ **(critique)** `Désactiver les commandes de base.` documenté + djnc `wiki_divers_jeu_custom`.
+  Détection sur le scénario brut (`compilateur-v8.ts:34`, regex littérale terminée par `.`/`;`).
+  **Calibration** : désactiver enlève AUSSI `commencer le jeu` (= action de base `commencer ceci`,
+  actions.djn:247) et `regarder` ; le boot du lecteur (`lecteur.component.ts:431`) ne déclenche
+  `commencer le jeu` **que si l'action existe**. Solution documentée : l'auteur définit sa propre
+  `action commencer le jeu:` (vérifié : acceptée, déclenchée au démarrage). `chanter` EST une action
+  de base (actions.djn:240) → ne pas l'utiliser comme exemple custom.
+- ✅ `activerAudio` (défaut **off**), `activerRemplacementDestinationDeplacements` (défaut **on**),
+  `activerChoixNumeriques` (défaut off, **UI-only** `lecteur.component.ts` → pas de test unitaire),
+  + synonymes auto / attendre / création auto états : catalogue (formulations + défauts + effet)
+  dans `divers/configurations`. Cross-links jouer / choisir / etats_personnalises.
+- ✅ `divers/liquides` → `<file>` djnc `wiki_divers_liquides` (liquide+buvable+`bu`) + typos corrigés
+  (« J'avais », « une bouteille ») ; `divers/commencer_le_jeu` → djnc `wiki_divers_commencer`.
+- Spec `divers-exemples-wiki.spec.ts` F069-T001→T004 (preparer `analyserScenarioEtActions` AVEC
+  les `actions` de base — TestUtils.genererEtCommencerLeJeu ne les inclut pas, donc inapte à tester
+  la directive). T002 = contrôle (sans directive, `regarder` marche).
 
 ### LOT 8 — Routines / actions prédéfinies (HAUTE)
 - `routines/actions_predefinies/start` : remplir la section conversation vide
