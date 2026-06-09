@@ -48,8 +48,8 @@
     </div>
   </div>
   <div class="rl-2" [hidden]="enregistrementActif">
-    <!-- entrée utilisateur -->
-    <div class="input-group mt-2 px-1">
+    <!-- entrée utilisateur (masquée en mode tactile, sauf si une saisie libre est attendue) -->
+    <div class="input-group mt-2 px-1" [hidden]="tactileActif && !saisieTactileRequise">
       <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
         (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
         (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);"
@@ -60,9 +60,29 @@
       <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
       id="btExecuter">↑</button> -->
     </div>
+    <!-- barre tactile : commandes courantes + constructeur global -->
+    @if (tactileActif && !saisieTactileRequise && !interruptionAttendreChoixEnCours) {
+      <div class="djn-barre-tactile px-1 mt-2">
+        <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('regarder')">👁 Regarder</button>
+        <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('afficher inventaire')">🎒 Inventaire</button>
+        <button type="button" class="btn btn-primary djn-barre-tactile-bouton" (click)="ouvrirConstructeurTactile()">⚡ Actions…</button>
+      </div>
+    }
+    @if (tactileActif && interruptionAttendreChoixEnCours && choixPossibles.length) {
+      <div class="djn-choix-tactile px-1">
+        @for (choix of choixPossibles; track $index) {
+          <button type="button" class="btn btn-outline-primary djn-choix-tactile-bouton" (click)="choisirChoixTactile(choix)">{{ choix }}</button>
+        }
+      </div>
+    }
     <small class="row m-0 p-0 pb-1">
       <div class="col p-1 astuce">
-        @if (!interruptionEnCours && dernieresCommandesDistinctes.length % 10 < 5) {
+        @if (tactileActif && !interruptionEnCours) {
+          <p class="mb-0">
+            Touchez un mot souligné pour interagir, ou le bouton « ⚡ Actions… » pour toutes les actions.
+          </p>
+        }
+        @if (!tactileActif && !interruptionEnCours && dernieresCommandesDistinctes.length % 10 < 5) {
           <p class="mb-0">
             Tapez « <span class="t-commande">aide</span> » suivi de [<small>ENTER</small>] pour afficher les actions les
             plus courantes.
@@ -72,7 +92,7 @@
             }
           </p>
         }
-        @if (!interruptionEnCours && dernieresCommandesDistinctes.length % 10 >= 5) {
+        @if (!tactileActif && !interruptionEnCours && dernieresCommandesDistinctes.length % 10 >= 5) {
           <p class="mb-0">
             Naviguez dans l'historique de vos commandes avec les touches <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2 160 448c0 17.7 14.3 32 32 32s32-14.3 32-32l0-306.7L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg> et <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>.
             @if (debogueur) {
@@ -81,7 +101,7 @@
             }
           </p>
         }
-        @if (interruptionAttendreChoixEnCours) {
+        @if (interruptionAttendreChoixEnCours && !tactileActif) {
           <p class="mb-0">
             Naviguez entre les proposition avec les touches <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2 160 448c0 17.7 14.3 32 32 32s32-14.3 32-32l0-306.7L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg> et <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>.
             @if (debogueur) {
@@ -91,7 +111,7 @@
           }
           @if (interruptionAttendreToucheEnCours) {
             <p class="mb-0">
-              Appuyez sur n’importe quelle touche pour continuer.
+              {{ tactileActif ? 'Touchez le texte pour continuer.' : 'Appuyez sur n’importe quelle touche pour continuer.' }}
               @if (debogueur) {
                 <br>&nbsp;
                 }
@@ -119,6 +139,14 @@
               <small class="mx-1">Marges</small>
               <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="augmenterMarge()" title="Agrandir les marges">▷</button>
             </div>
+            @if (interfaceTactile !== 'desactive') {
+              <div class="col-auto p-1 pb-0">
+                <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="basculerInterfaceTactile()"
+                  [title]="tactileActif ? 'Basculer vers l’interface clavier' : 'Basculer vers l’interface tactile'">
+                  {{ tactileActif ? '⌨' : '👆' }}
+                </button>
+              </div>
+            }
           </small>
         </div>
 
@@ -296,6 +324,12 @@
         }
       </div>
     </div>
+  }
+
+  @if (menuTactileOuvert) {
+    <djn-menu-tactile [cible]="menuTactileCible" [jeu]="jeuPartie" [eju]="ejuPartie"
+      (commandeChoisie)="executerCommandeTactile($event)" (fermer)="fermerMenuTactile()">
+    </djn-menu-tactile>
   }
 
 </div>

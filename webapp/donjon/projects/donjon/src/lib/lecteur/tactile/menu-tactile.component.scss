@@ -1,0 +1,86 @@
+// Fond semi-transparent : un tap en dehors du menu le ferme.
+.djn-menu-tactile-fond {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1049;
+}
+
+// Bottom-sheet.
+.djn-menu-tactile {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1050;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+  padding: 0.75rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.djn-menu-tactile-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.djn-menu-tactile-titre {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.djn-menu-tactile-boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+// cibles de tap confortables (≥ 44 px)
+.djn-menu-tactile-bouton {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.djn-menu-tactile-suite {
+  opacity: 0.6;
+}
+
+// action que les prérequis refuseraient probablement (ex. parler avec une table)
+.djn-menu-tactile-douteux {
+  opacity: 0.5;
+}
+
+.djn-menu-tactile-vide {
+  margin: 0.25rem 0;
+  font-style: italic;
+  color: #666;
+}
+
+.djn-menu-tactile-apercu {
+  margin: 0.25rem 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.djn-menu-tactile-prepositions {
+  .btn {
+    min-height: 44px;
+    min-width: 60px;
+  }
+}
+
+.djn-menu-tactile-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+
+  .btn {
+    min-height: 44px;
+  }
+}

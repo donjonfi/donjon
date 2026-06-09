@@ -19,6 +19,9 @@ import * as FileSaver from 'file-saver-es';
 import { QuestionCommande } from '../models/jouer/questions-commande';
 import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 import { ProgrammationTemps } from '../models/jeu/programmation-temps';
+import { ElementJeu } from '../models/jeu/element-jeu';
+import { ELocalisation, Localisation } from '../models/jeu/localisation';
+import { LiensElementsUtils } from '../utils/jeu/tactile/liens-elements-utils';
 
 /** Segment de texte issu de la comparaison de deux sorties dans le magnéto. */
 export interface SegmentDiff {
@@ -42,6 +45,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   @Input() debogueur = false;
   /** Si true, le tag {L}NNN{L} est rendu en lien cliquable et le clic émet `referenceLigne`. */
   @Input() supportLiensLignes = false;
+  /**
+   * Interface tactile (liens cliquables sur les éléments du jeu + menu des verbes).
+   * - auto : activée si l’appareil est tactile (pointer: coarse) ;
+   * - active / desactive : forcer l’état.
+   * Le joueur peut basculer manuellement entre clavier et tactile (sauf si desactive).
+   */
+  @Input() interfaceTactile: 'auto' | 'active' | 'desactive' = 'auto';
   /** Annuler un certain nombre de tours */
   @Output() nouvellePartieOuAnnulerTour = new EventEmitter();
   /** Émet le numéro de ligne lorsqu’un lien `{L}NNN{L}` est cliqué dans la sortie. */
@@ -179,6 +189,110 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (idx > 0) this.margeInterface = paliers[idx - 1];
   }
 
+  // -- Interface tactile -----------------------------------------------------
+
+  /** L’appareil est-il tactile (pointeur principal peu précis) ? */
+  private appareilTactile = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
+
+  /** Bascule manuelle clavier ⇄ tactile (undefined: suivre la détection automatique). */
+  private basculeTactileManuelle: boolean | undefined;
+
+  /** Le menu tactile est-il ouvert ? */
+  public menuTactileOuvert = false;
+
+  /** Élément du jeu sur lequel le menu tactile est ouvert (null: constructeur global). */
+  public menuTactileCible: ElementJeu | null = null;
+
+  /** L’interface tactile est-elle actuellement active ? */
+  public get tactileActif(): boolean {
+    switch (this.interfaceTactile) {
+      case 'desactive':
+        return false;
+      case 'active':
+        return this.basculeTactileManuelle ?? true;
+      default:
+        return this.basculeTactileManuelle ?? this.appareilTactile;
+    }
+  }
+
+  /** Basculer manuellement entre l’interface clavier et l’interface tactile. */
+  public basculerInterfaceTactile(): void {
+    this.basculeTactileManuelle = !this.tactileActif;
+    this.fermerMenuTactile();
+    if (!this.tactileActif) {
+      this.focusCommande();
+    }
+  }
+
+  /** La saisie clavier est-elle indispensable malgré le mode tactile (texte libre attendu) ? */
+  public get saisieTactileRequise(): boolean {
+    return this.interruptionAttendreChoixLibreEnCours || this.interruptionQuestionCommande;
+  }
+
+  /** Accès au jeu de la partie pour le menu tactile. */
+  public get jeuPartie(): Jeu | undefined {
+    return this.partie?.jeu;
+  }
+
+  /** Accès aux utilitaires éléments du jeu de la partie pour le menu tactile. */
+  public get ejuPartie(): ElementsJeuUtils | undefined {
+    return this.partie?.eju;
+  }
+
+  /** Clic sur un lien tactile de la sortie (`#E<id>`: objet, `#D-<loc>`: sortie). */
+  private onClicLienTactile(href: string): void {
+    // ignorer pendant une commande, une interruption ou un texte en attente
+    if (!this.partie || this.commandeEnCours || this.interruptionEnCours || this.resteDeLaSortie?.length || this.enregistrementActif) {
+      return;
+    }
+    const matchElement = href.match(/^#E(\d+)$/);
+    if (matchElement) {
+      const element = this.partie.jeu.objets.find(x => x.id === parseInt(matchElement[1], 10));
+      if (element) {
+        this.menuTactileCible = element;
+        this.menuTactileOuvert = true;
+      }
+      return;
+    }
+    const matchDirection = href.match(/^#D-(\w+)$/);
+    if (matchDirection) {
+      const localisation = Localisation.getLocalisation(matchDirection[1] as ELocalisation);
+      this.executerCommandeTactile('aller vers ' + localisation.intitule.determinant + localisation.intitule.nom);
+    }
+  }
+
+  /** Exécuter une commande issue de l’interface tactile (même chemin que la saisie clavier). */
+  public executerCommandeTactile(commande: string): void {
+    this.fermerMenuTactile();
+    if (!this.partie || this.commandeEnCours || this.interruptionEnCours || this.resteDeLaSortie?.length || this.enregistrementActif) {
+      return;
+    }
+    this.commande = commande;
+    this.validationCommande();
+  }
+
+  /** Ouvrir le constructeur de commande global (toutes les actions lançables). */
+  public ouvrirConstructeurTactile(): void {
+    if (!this.partie || this.commandeEnCours || this.interruptionEnCours || this.resteDeLaSortie?.length || this.enregistrementActif) {
+      return;
+    }
+    this.menuTactileCible = null;
+    this.menuTactileOuvert = true;
+  }
+
+  /** Fermer le menu tactile. */
+  public fermerMenuTactile(): void {
+    this.menuTactileOuvert = false;
+    this.menuTactileCible = null;
+  }
+
+  /** Sélection tactile d’un choix proposé au joueur (attendre choix). */
+  public choisirChoixTactile(choix: string): void {
+    this.commande = choix;
+    // même routage que la touche ENTRÉE (choix statique / choix libre / question)
+    this.onKeyDownEnter(new Event('click'));
+  }
+
   @ViewChild('txCommande') commandeInputRef: ElementRef;
   @ViewChild('taResultat') resultatInputRef: ElementRef;
 
@@ -213,12 +327,35 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // La ligne est encodée dans le href (`#LNNN`) car le sanitizer Angular retire les data-attributes.
     this.resultatInputRef.nativeElement.addEventListener('click', (event: Event) => {
       const lien = (event.target as HTMLElement).closest('.t-lien-ligne') as HTMLAnchorElement | null;
-      if (!lien) return;
-      event.preventDefault();
-      const match = (lien.getAttribute('href') ?? '').match(/^#L(\d+)$/);
-      if (match) {
-        const ligne = parseInt(match[1], 10);
-        if (!isNaN(ligne)) this.referenceLigne.emit(ligne);
+      if (lien) {
+        event.preventDefault();
+        const match = (lien.getAttribute('href') ?? '').match(/^#L(\d+)$/);
+        if (match) {
+          const ligne = parseInt(match[1], 10);
+          if (!isNaN(ligne)) this.referenceLigne.emit(ligne);
+        }
+        return;
+      }
+      // mode tactile : un tap sur la sortie remplace « appuyez sur une touche »
+      // (suite du texte paginé ou interruption attendre touche)
+      if (this.tactileActif && !this.commandeEnCours) {
+        if (this.resteDeLaSortie?.length) {
+          this.afficherSuiteSortie();
+          if (!this.manuTricheActif) {
+            this.commande = "";
+          }
+          return;
+        } else if (this.interruptionAttendreToucheEnCours) {
+          this.terminerInterruption(undefined);
+          return;
+        }
+      }
+      // lien tactile (élément du jeu ou sortie) — la cible est encodée dans le
+      // href (`#E12`, `#D-n`) car le sanitizer Angular retire les data-attributes
+      const lienTactile = (event.target as HTMLElement).closest('.djn-lien-tactile') as HTMLAnchorElement | null;
+      if (lienTactile) {
+        event.preventDefault();
+        this.onClicLienTactile(lienTactile.getAttribute('href') ?? '');
       }
     });
   }
@@ -258,6 +395,15 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // initialiser le contexte de la partie
     this.partie = new ContextePartie(this.jeu, this.htmlDocument, this.verbeux, this.debogueur);
     this.partie.ecran.supportLiensLignes = this.supportLiensLignes;
+    this.menuTactileOuvert = false;
+    this.menuTactileCible = null;
+    // enrichir la sortie avec des liens cliquables sur les éléments du jeu
+    // (toujours, sauf si désactivé : ainsi la bascule clavier ⇄ tactile ne
+    // laisse pas de texte ancien sans liens)
+    if (this.interfaceTactile !== 'desactive') {
+      this.partie.ecran.enrichisseurLiens = (html: string) =>
+        LiensElementsUtils.enrichirLiens(html, LiensElementsUtils.construireCibles(this.partie.jeu, this.partie.eju));
+    }
 
     // Si le magnéto est actif (cas typique : reload après annuler), restaurer le flag
     // qui supprime les programmations de routines. Sinon, le replay auto-triche
@@ -1060,7 +1206,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       // scroll 1
       setTimeout(() => {
         this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
-        this.commandeInputRef.nativeElement.focus();
+        // en mode tactile, ne pas voler le focus (ouvrirait le clavier virtuel)
+        if (!this.tactileActif) {
+          this.commandeInputRef.nativeElement.focus();
+        }
 
         // activer le lien tester l’audio au besoin
         if (this.audioActif) {
@@ -1070,7 +1219,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         // scroll 2 (afin de prendre en compte temps chargement images)
         setTimeout(() => {
           this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
-          this.commandeInputRef.nativeElement.focus();
+          if (!this.tactileActif) {
+            this.commandeInputRef.nativeElement.focus();
+          }
         }, 500);
       }, 100);
     }
@@ -1167,6 +1318,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
   /** Définir le focus sur l’entrée commande utilisateur. */
   public focusCommande() {
+    // en mode tactile, ne pas voler le focus (ouvrirait le clavier virtuel)
+    if (this.tactileActif) {
+      return;
+    }
     setTimeout(() => {
       this.commandeInputRef.nativeElement.focus();
       this.commandeInputRef.nativeElement.selectionStart = this.commandeInputRef.nativeElement.selectionEnd = this.commande?.length ?? 0;

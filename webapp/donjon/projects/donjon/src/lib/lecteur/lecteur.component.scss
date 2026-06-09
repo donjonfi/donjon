@@ -717,3 +717,49 @@
 .t-lien-ligne:hover {
   text-decoration: underline;
 }
+
+// Lien tactile sur un élément du jeu ou une sortie, généré par l’enrichisseur
+// de liens (interface tactile). ::ng-deep nécessaire : le contenu provient
+// d’un [innerHTML], il n’est pas couvert par l’encapsulation du composant.
+:host ::ng-deep .djn-lien-tactile {
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: rgba(13, 110, 253, 0.6);
+  text-underline-offset: 0.15em;
+}
+:host ::ng-deep .djn-lien-tactile:hover {
+  color: var(--bs-link-color, #0d6efd);
+  text-decoration: underline;
+}
+
+// Barre tactile : commandes courantes + constructeur global.
+.djn-barre-tactile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.djn-barre-tactile-bouton {
+  min-height: 44px;
+  flex: 1 1 auto;
+}
+
+// Choix (attendre choix) proposés sous forme de boutons en mode tactile.
+.djn-choix-tactile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.djn-choix-tactile-bouton {
+  min-height: 44px;
+}
+
+// Confort tactile : zones de tap suffisantes et police ≥ 16px
+// (en dessous, iOS zoome sur le champ lorsqu’il reçoit le focus).
+@media (pointer: coarse) {
+  #txtCommande {
+    font-size: 16px;
+    min-height: 44px;
+  }
+}

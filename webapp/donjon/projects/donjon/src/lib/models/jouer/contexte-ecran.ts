@@ -20,6 +20,12 @@ export class ContexteEcran {
   /** Si true, le tag {L}NNN{L} est rendu en lien cliquable (réservé à l’éditeur). */
   public supportLiensLignes = false;
 
+  /**
+   * Post-traitement optionnel appliqué à chaque contenu HTML ajouté à l’écran.
+   * Utilisé par l’interface tactile pour rendre cliquables les éléments du jeu.
+   */
+  public enrichisseurLiens: ((html: string) => string) | undefined;
+
   constructor(
     private dossierRessourcesComplet: string
   ) { }
@@ -169,6 +175,9 @@ export class ContexteEcran {
   }
 
   private ajouterHtml(contenuHtml: string) {
+    if (this.enrichisseurLiens) {
+      contenuHtml = this.enrichisseurLiens(contenuHtml);
+    }
     // écran temporaire
     if (this.ecranTemporaireAffiche) {
       this._ecranTemporaire += contenuHtml;
@@ -182,6 +191,9 @@ export class ContexteEcran {
   }
 
   private remplacerHtml(contenuHtml: string) {
+    if (this.enrichisseurLiens && contenuHtml.length) {
+      contenuHtml = this.enrichisseurLiens(contenuHtml);
+    }
     // écran temporaire
     if (this.ecranTemporaireAffiche) {
       this._ecranTemporaire = contenuHtml;
