@@ -1270,7 +1270,7 @@ export class ConditionsUtils {
             retVal = new Compteur('jour', jours[indexJour]);
             // valeur textuelle (lundi => dimanche)
           } else {
-            const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
+            const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
             retVal = new Intitule(jours[indexJour], new GroupeNominal(null, jours[indexJour], null), ClassesRacines.Intitule);
           }
           break;

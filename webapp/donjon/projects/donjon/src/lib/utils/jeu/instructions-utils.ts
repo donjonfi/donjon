@@ -155,7 +155,7 @@ export class InstructionsUtils {
         // case 'calendrier':
         //   let calendrier = new Objet(-1, 'calendrier', new GroupeNominal('le', 'calendrier'), ClassesRacines.Element, 1, Genre.m, Nombre.s);
         //   let dateCalendrier = new Date();
-        //   const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
+        //   const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
         //   calendrier.proprietes.push(new ProprieteElement(horloge, 'jour', TypeValeur.mots, jours[dateCalendrier.getDay()]));
         //   const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
         //   calendrier.proprietes.push(new ProprieteElement(horloge, 'date', TypeValeur.nombre, dateCalendrier.getDate().toString()));

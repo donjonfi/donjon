@@ -63,7 +63,7 @@ export class InstructionDireNumerique {
       maintenant ??= lire();
       const unite = InstructionsUtils.normaliserAccents(decoupe[1]?.toLocaleLowerCase() ?? '');
       switch (unite) {
-        case 'jour': return ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'][maintenant.getDay()];
+        case 'jour': return ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'][maintenant.getDay()];
         case 'date': return maintenant.getDate().toString();
         case 'mois': return ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][maintenant.getMonth()];
         case 'annee': return maintenant.getFullYear().toString();

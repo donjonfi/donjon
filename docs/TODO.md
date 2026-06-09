@@ -29,6 +29,13 @@
 
 ## Corrigé
 
+- [x] **Faute d'orthographe « jeurdi » sur le jeudi** (LOT 6, 2026-06-09). Le tableau des jours
+  de la semaine contenait `'jeurdi'` au lieu de `'jeudi'` à deux endroits actifs :
+  `instruction-dire-numerique.ts:66` (balise d'affichage `[jour]`) et `conditions-utils.ts:1273`
+  (condition `si le jour est <jour>`). Conséquence : un jeudi, `[jour]` affichait « jeurdi » et
+  `si le jour est jeudi` était toujours faux. Corrigé (+ commentaire mort `instructions-utils.ts:158`).
+  Garde : `temps-exemples-wiki.spec.ts` F068-T007.
+
 - [x] **Implication / exclusion : états sujet/cible non pré-existants + cascade incomplète** (LOT 5, 2026-06-09).
   Deux correctifs liés (`liste-etats.ts`, `generateur.ts`, `parametres.ts`, `analyseur.divers.ts`) :
   - **Fix 1 — création automatique des états** : nouveau paramètre `activerCreationAutomatiqueEtats`
