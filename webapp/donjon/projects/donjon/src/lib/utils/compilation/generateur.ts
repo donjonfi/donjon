@@ -48,6 +48,9 @@ export class Generateur {
 
     // APPLIQUER LES DÉCLARATIONS D'ÉTATS PERSONNALISÉS
     // *************************************************
+    // Propager le paramètre de création automatique des états (actif par défaut) sur la liste
+    // des états AVANT d’appliquer les déclarations et de traiter les éléments.
+    jeu.etats.creationAutomatiqueEtats = rc.parametres?.activerCreationAutomatiqueEtats ?? true;
     // Doit être fait AVANT le traitement des éléments (qui s’appuient sur la liste des états).
     Generateur.appliquerDeclarationsEtats(rc.declarationsEtats, jeu.etats, ctx);
 
@@ -1163,13 +1166,17 @@ export class Generateur {
             break;
           }
           case TypeDeclarationEtat.implication: {
+            if (!Generateur.assurerEtatPourRelation(etats, decl.sujet, ctx, decl)) break;
             for (const cible of decl.cibles) {
+              if (!Generateur.assurerEtatPourRelation(etats, cible, ctx, decl)) continue;
               etats.ajouterImplication(decl.sujet, cible);
             }
             break;
           }
           case TypeDeclarationEtat.exclusion: {
+            if (!Generateur.assurerEtatPourRelation(etats, decl.sujet, ctx, decl)) break;
             for (const cible of decl.cibles) {
+              if (!Generateur.assurerEtatPourRelation(etats, cible, ctx, decl)) continue;
               etats.ajouterContradiction(decl.sujet, cible);
             }
             break;
@@ -1177,6 +1184,23 @@ export class Generateur {
         }
       }
     }
+  }
+
+  /**
+   * S’assurer qu’un état utilisé dans une relation (implication / exclusion) existe.
+   * Si la création automatique des états est active, le crée à la volée ; sinon signale une erreur.
+   * @returns true si l’état existe (ou vient d’être créé), false sinon.
+   */
+  private static assurerEtatPourRelation(etats: ListeEtats, nom: string, ctx: ContexteGeneration, decl: DeclarationEtat): boolean {
+    if (etats.trouverEtatSilencieux(nom)) {
+      return true;
+    }
+    if (etats.creationAutomatiqueEtats) {
+      etats.creerEtat(nom);
+      return true;
+    }
+    ctx.ajouterErreur(`L’état « ${nom} » utilisé dans une relation entre états n’existe pas et la création automatique des états est désactivée. Déclarez-le (« ${nom} est un état. ») avant la relation.`, decl.ligne);
+    return false;
   }
 
   /**

@@ -14,7 +14,18 @@ import { ClasseUtils } from '../commun/classe-utils';
 import { ElementsJeuUtils } from '../commun/elements-jeu-utils';
 import { MotUtils } from '../commun/mot-utils';
 
+/** Suivi d'une cascade d'application d'état : états ajoutés/retirés + erreurs de cohérence. */
+interface SuiviCascadeEtats {
+  ajoutes: Set<number>;
+  retires: Set<number>;
+  erreurs: string[];
+}
+
 export class ListeEtats {
+
+  /** Créer automatiquement les états inconnus à la volée (paramètre moteur, actif par défaut).
+   *  Hors conditions (qui utilisent {@link trouverEtat} et ne créent jamais d'état). */
+  public creationAutomatiqueEtats = true;
 
   public mentionneID = -1;
   public vuID = -1;
@@ -362,11 +373,15 @@ export class ListeEtats {
    * Si l'état n'a pas été trouvé, en créer un nouveau.
    * /!\ Les états interdits ne sont pas contrôlés ici : visible, accessible, possédé et porté.
    */
-  private trouverOuCreerEtat(nomEtat: string, genre: Genre, nombre: Nombre): Etat {
-    let etat = this.trouverEtat(nomEtat);
-    // si l'état n'a pas été trouvé, l'ajouter à la liste
+  private trouverOuCreerEtat(nomEtat: string, genre: Genre, nombre: Nombre): Etat | null {
+    let etat = this.trouverEtat(nomEtat, true);
+    // si l'état n'a pas été trouvé, l'ajouter à la liste — sauf si la création automatique est désactivée
     if (!etat) {
-      etat = this.creerEtat(nomEtat, genre, nombre);
+      if (this.creationAutomatiqueEtats) {
+        etat = this.creerEtat(nomEtat, genre, nombre);
+      } else {
+        return null;
+      }
     }
     return etat;
   }
@@ -378,53 +393,92 @@ export class ListeEtats {
     }
   }
 
-  /** Ajouter un état à l'élément (contrôle des doublons, des états calculés, des bascules, des groupes et des contradictions). */
+  /** Ajouter un état à l'élément (contrôle des doublons, des états calculés, des bascules, des groupes, des contradictions et des implications en cascade). */
   ajouterEtatElement(conceptCible: Concept, nomEtat: string, ejuOuCtxGen: ElementsJeuUtils | ContexteGeneration, forcerCalcul: boolean = false) {
 
     const etatAjoute = this.trouverOuCreerEtat(nomEtat, conceptCible.genre, conceptCible.nombre);
 
+    // Fix 1 — création automatique désactivée : l’état n’existe pas → erreur.
+    if (!etatAjoute) {
+      ejuOuCtxGen.ajouterErreur("ajouterEtatElement >> L’état « " + nomEtat + " » n’existe pas et la création automatique des états est désactivée. Déclarez-le (« " + nomEtat + " est un état. ») avant de l’utiliser.");
+      return;
+    }
+
     if (etatAjoute.calcule && !forcerCalcul) {
       ejuOuCtxGen.ajouterErreur("ajouterEtatElement >> L’état « " + etatAjoute.nom + " » est un état calculé. Cela signifie qu’on ne peut pas le modifier directement.");
-      // état classique
-    } else {
-      // s'il s'agit d'un état faisant partie d'un groupe
-      if (etatAjoute.groupe !== null) {
-        // retirer tous les états existants pour ce groupe
-        const idsEtatsDuGroupe = this.etats.filter(x => x.groupe === etatAjoute.groupe).map(x => x.id);
-        conceptCible.etats = conceptCible.etats.filter(x => !idsEtatsDuGroupe.includes(x));
-        // ajouter le nouvel état
+      return;
+    }
+
+    // Fix 2 — appliquer l’état puis cascader ses relations (un état impliqué applique À SON TOUR
+    // ses propres bascules/groupes/contradictions), en suivant les ajouts/retraits pour éviter les
+    // boucles et signaler les incohérences (ajouter un état précédemment retiré, ou l’inverse).
+    const suivi: SuiviCascadeEtats = { ajoutes: new Set<number>(), retires: new Set<number>(), erreurs: [] };
+    this.appliquerAjoutEtatCascade(conceptCible, etatAjoute, suivi);
+    suivi.erreurs.forEach(e => ejuOuCtxGen.ajouterErreur(e));
+  }
+
+  /** Appliquer l’ajout d’un état et cascader ses relations (groupe, bascule, contradictions, implications). */
+  private appliquerAjoutEtatCascade(conceptCible: Concept, etatAjoute: Etat, suivi: SuiviCascadeEtats) {
+    // garde anti-boucle : état déjà ajouté dans cette cascade
+    if (suivi.ajoutes.has(etatAjoute.id)) {
+      return;
+    }
+    // incohérence : on a retiré cet état plus tôt dans la même cascade
+    if (suivi.retires.has(etatAjoute.id)) {
+      suivi.erreurs.push("Conflit d’états : « " + etatAjoute.nom + " » est à la fois ajouté et retiré par des relations en cascade (bascule / contradiction / implication incohérentes).");
+      return;
+    }
+    suivi.ajoutes.add(etatAjoute.id);
+
+    // s'il s'agit d'un état faisant partie d'un groupe : retirer les autres états du groupe
+    if (etatAjoute.groupe !== null) {
+      const idsAutresDuGroupe = this.etats.filter(x => x.groupe === etatAjoute.groupe && x.id !== etatAjoute.id).map(x => x.id);
+      idsAutresDuGroupe.forEach(id => this.retirerEtatCascade(conceptCible, id, suivi));
+      if (!conceptCible.etats.includes(etatAjoute.id)) {
         conceptCible.etats.push(etatAjoute.id);
-        // sinon, ajouter l'état s'il n'y est pas encore
-      } else {
-        if (!conceptCible.etats.includes(etatAjoute.id)) {
-          conceptCible.etats.push(etatAjoute.id);
-          // s’il s’agit d’une bascule, enlever l’autre état
-          if (etatAjoute.bascule) {
-            // ne garder que les autres états
-            conceptCible.etats = conceptCible.etats.filter(x => x !== etatAjoute.bascule);
-          }
+      }
+      // sinon ajouter l'état (et, si bascule, retirer l'opposé)
+    } else {
+      if (!conceptCible.etats.includes(etatAjoute.id)) {
+        conceptCible.etats.push(etatAjoute.id);
+      }
+      if (etatAjoute.bascule) {
+        this.retirerEtatCascade(conceptCible, etatAjoute.bascule, suivi);
+      }
+    }
+
+    // retirer les contradictions (présentes sur l'élément ou ajoutées plus tôt dans la cascade)
+    if (etatAjoute.contradictions?.length) {
+      etatAjoute.contradictions.forEach(id => {
+        if (conceptCible.etats.includes(id) || suivi.ajoutes.has(id)) {
+          this.retirerEtatCascade(conceptCible, id, suivi);
         }
-      }
-      // si le nouvel état a des implications
-      if (etatAjoute.implications?.length) {
-        this.appliquerImplications(conceptCible, etatAjoute.implications)
-      }
-      // si le nouvel état a des contradictions
-      if (etatAjoute.contradictions?.length) {
-        // retirer les contradictions
-        conceptCible.etats = conceptCible.etats.filter(x => !etatAjoute.contradictions.includes(x));
-      }
+      });
+    }
+
+    // cascader les implications : chaque état impliqué applique à son tour ses propres relations
+    if (etatAjoute.implications?.length) {
+      etatAjoute.implications.forEach(id => {
+        const etatImplique = this.obtenirEtat(id);
+        if (etatImplique) {
+          this.appliquerAjoutEtatCascade(conceptCible, etatImplique, suivi);
+        }
+      });
     }
   }
 
-  /**
-   * Ajouter les nouvelles implications à l’état cible s’il ne les a pas encore
-   * @param etatCible 
-   * @param implicationsNouvelEtat 
-   */
-  private appliquerImplications(conceptCible: Concept, implicationsNouvelEtat: number[]) {
-    let implicationsManquantes = implicationsNouvelEtat.filter(x => !conceptCible.etats.includes(x));
-    conceptCible.etats.push(...implicationsManquantes);
+  /** Retirer un état dans le cadre d’une cascade d’ajout (sans ré-introduire de bascule). */
+  private retirerEtatCascade(conceptCible: Concept, etatId: number, suivi: SuiviCascadeEtats) {
+    // incohérence : on a ajouté cet état plus tôt dans la même cascade
+    if (suivi.ajoutes.has(etatId)) {
+      suivi.erreurs.push("Conflit d’états : « " + (this.obtenirEtat(etatId)?.nom ?? etatId) + " » est à la fois ajouté et retiré par des relations en cascade (bascule / contradiction / implication incohérentes).");
+      return;
+    }
+    if (suivi.retires.has(etatId)) {
+      return; // déjà retiré dans cette cascade
+    }
+    suivi.retires.add(etatId);
+    conceptCible.etats = conceptCible.etats.filter(x => x !== etatId);
   }
 
   /** Retirer un état à un élément */

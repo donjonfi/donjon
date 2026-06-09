@@ -20,6 +20,7 @@
 - [ ] *(mineur)* **Condition `si l'intitulé de <X> vaut "…"` → erreur (`Cannot read properties of null`).**
   L'intitulé comme sujet de condition n'est pas géré. Contournement : afficher `[intitulé <nom>]`.
 
+
 ## Idées de fonctionnalités
 
 - [ ] **`déplacer le joueur vers <direction>`** (nord/sud/est/ouest/haut/bas) — faire avancer le joueur
@@ -27,6 +28,22 @@
   (`déplacer le joueur dans <lieu>` ou `… vers <lieu>`). Confirmé non encore supporté.
 
 ## Corrigé
+
+- [x] **Implication / exclusion : états sujet/cible non pré-existants + cascade incomplète** (LOT 5, 2026-06-09).
+  Deux correctifs liés (`liste-etats.ts`, `generateur.ts`, `parametres.ts`, `analyseur.divers.ts`) :
+  - **Fix 1 — création automatique des états** : nouveau paramètre `activerCreationAutomatiqueEtats`
+    (actif par défaut ; DSL `activer/désactiver création automatique des états.`). Si actif, les états
+    inconnus utilisés dans une définition / `changer` / une relation (implication/exclusion) sont créés
+    à la volée (les phases implication/exclusion appellent `assurerEtatPourRelation`). Si inactif, un
+    état non déclaré → erreur (hors **conditions**, qui n'ont jamais créé d'état via `trouverEtat`).
+    `trouverOuCreerEtat` respecte le flag (renvoie `null` si désactivé).
+  - **Fix 2 — cascade des implications** : `ajouterEtatElement` applique désormais l'état impliqué via
+    `appliquerAjoutEtatCascade` (récursif) → l'état impliqué applique À SON TOUR ses bascules/groupes/
+    contradictions (ex. `enragé ⟹ éveillé` réveille un dragon `endormi`). Un suivi `{ajoutes, retires}`
+    évite les boucles et lève une « Conflit d'états » si on ajoute un état précédemment retiré (ou
+    l'inverse) dans la même cascade.
+  Tests : `etats-creation-cascade.spec.ts` (F067-T001→T004). Suite complète verte (1223). Exemples wiki
+  `etats/{implication_dragon,dragon_endormi}.djn` rétablis (réveil par implication) + doc mise à jour.
 
 - [x] **`si un tirage … réussit` était inversé** (coquille regex `/résussi/` → `/réussi/`),
   `analyseur.condition.ts:361` — corrigé le 2026-06-05 (commit `91562107`) + garde
