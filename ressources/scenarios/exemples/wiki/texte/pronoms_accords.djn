@@ -1,0 +1,21 @@
+-- Mini-jeu d'illustration — page wiki « Balises dynamiques » (pronoms et accords).
+-- Démontre [Cest ceci], [lui ceci], [Singulier ceci], [Pluriel ceci] et [quantité ceci],
+-- avec un objet féminin singulier (la pomme) et un objet féminin pluriel (les cerises).
+
+Le verger est un lieu.
+La pomme est un objet mangeable dans le verger.
+Les cerises (f) sont un objet dans le verger.
+
+règle après prendre la pomme:
+  dire "[Cest ceci] dans le panier ! Vous ne partirez pas sans [lui ceci].".
+  dire "Au singulier : [Singulier ceci] — au pluriel : [Pluriel ceci] — quantité : [quantité ceci].".
+fin règle
+
+règle après prendre les cerises:
+  dire "[Cest ceci] dans le panier ! Vous ne partirez pas sans [lui ceci].".
+  dire "Au singulier : [Singulier ceci] — au pluriel : [Pluriel ceci] — quantité : [quantité ceci].".
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/prendre la pomme/} puis {/prendre les cerises/}.".
+fin règle

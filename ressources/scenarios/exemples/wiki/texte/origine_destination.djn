@@ -1,0 +1,21 @@
+-- Mini-jeu d'illustration — page wiki « Balises dynamiques » (cibles spéciales).
+-- Démontre [intitulé origine], [intitulé destination] et [intitulé orientation]
+-- lors d'un déplacement du joueur, et [préposition cela] dans une règle.
+
+Le salon est un lieu.
+Sa description est "Le jardin est au nord. Une étagère est fixée au mur.".
+Le jardin est un lieu au nord du salon.
+L'étagère est un support dans le salon.
+La bille est un objet dans le salon.
+
+règle après aller dans le jardin:
+  dire "Vous quittez [intitulé origine] et arrivez dans [intitulé destination] (direction : [intitulé orientation]).".
+fin règle
+
+règle après poser la bille sur l'étagère:
+  dire "Vous l’avez posée [préposition cela] [intitulé cela].".
+fin règle
+
+règle avant commencer le jeu:
+  dire "Essayez : {/regarder/}, {/prendre la bille/}, {/poser la bille sur l’étagère/}, {/aller au nord/}.".
+fin règle

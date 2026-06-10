@@ -286,6 +286,31 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
   personnalisés multi-mots et avec chiffres OK (`dé1`, `petit dé` — sondés) ; le moteur
   remplace l'espace avant « ! » par une insécable dans la sortie (assertions sans « ! »).
 
+### LOT 3bis — Texte / balises restantes (MOYENNE) — ✅ livré 2026-06-10
+- ✅ `balises_dynamiques` : nouvelles sous-sections `[lui X]`, `[Cest X]/[cest X]`,
+  `[Singulier X]/[Pluriel X]`, `[quantité X]` (+ djnc `wiki_texte_pronoms_accords`, pomme f sing /
+  cerises f pl) ; nouvelle section « Cibles spéciales » (tableau ceci/cela/ici/origine/destination/
+  orientation/réponse + `[ceci]/[cela]` brut + `[préposition ceci/cela]` + djnc
+  `wiki_texte_origine_destination`) ; snippet listes (`[énumérer/lister/décrire maListe]`, guillemets
+  sur les items texte) ; `[mémoire X]` ; section « Fiche d'aide » `[aide ceci/cela]` (snippet
+  `règle remplacer afficher ceci pour cela` validé par test).
+- ✅ `mise_en_forme` : « Couleur 4 (code) » `{@…@}` (span `t-code-couleur`, `balises-html.ts:54`).
+- Spec `texte-balises-exemples-wiki.spec.ts` F073-T001→T005 (verte).
+- **Calibrations LOT 3bis** (sondées) :
+  - Les balises propriété (`[Cest]`, `[lui]`, `[Singulier]`, `[pronom]`, `[le]`, `[accord]`…)
+    n'acceptent QUE les cibles spéciales (regex `instruction-dire-propriete.ts:32`) — un élément
+    nommé (`[lui pomme]`) → « problème balise ». Documenté comme limitation.
+  - Le féminin sur un pluriel marche avec le **marqueur `(f)`** (`Les cerises (f) sont…`) —
+    la calibration #9 ne vaut que pour l'épithète (`des objets féminins`).
+  - `origine/destination/orientation` remplis au déplacement (`instruction-systeme.ts:103+`) ;
+    formulation qui déclenche : `règle après aller dans le jardin` (`aller vers le nord` ne tire pas).
+  - `[préposition ceci]` est vide pour `poser ceci sur cela` (pas de préposition devant ceci) ;
+    `[préposition cela]` → « sur ».
+  - `règle remplacer` : la signature inclut la phase `définitions` — sans elle (deux intitulés ici)
+    l'action de base coexiste et répond à la place du remplacement (garde F073-T005).
+  - `aide danser` est une abréviation côté lecteur ; la commande moteur complète est
+    `afficher aide pour danser`.
+
 ### LOT 10 — Débogage (BASSE) — ✅ livré 2026-06-10
 - ✅ Exemple `wiki_debogage_terrain_essai` (cabane/jardin/pomme/coffre) relié aux DEUX pages
   `deboguer_element_jeu` (file + djnc) et `modifier_etat_jeu_et_position_joueur` (djnc + renvoi) —
