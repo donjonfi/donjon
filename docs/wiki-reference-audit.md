@@ -181,17 +181,62 @@ Items **haute priorité** détaillés ci-dessous (recommandation courte). Pour l
 **moyenne/basse** : voir le JSON (filtrer par domaine + bucket + priority). Les doublons
 inter-domaines sont assignés à un seul lot (balises heure/date → LOT 6 ; locateur `situé` → LOT 1).
 
-### LOT 1 — Conditions (reste, après pilote)
-- (moyen) `choisir` statique : djnc dédié (l'exemple actuel est un `djnb`, ne compte pas).
-- (moyen) `exister` : sortir l'exit-testing (faux positif) ; documenter `une propriété existe`.
-- (moyen) sujets spéciaux qui MARCHENT : `le jeu est commencé/terminé`, `réponse`, `infinitif
-  de l'action` (à re-probe-vérifier un par un) ; `commence par` / `termine par`.
-- `reussir` → **LOT 9** (dépend du bug moteur).
+### LOT 1 — Conditions (reste, après pilote) — ✅ livré (2026-06-10, « LOT 1bis »)
+- ✅ `exister` : page réécrite (propriété / aperçu / sortie & porte vers une direction /
+  préposition pour ceci-cela) + djnc `wiki_conditions_existe_prix` et `wiki_conditions_existe_sortie`.
+  **2 bugs moteur corrigés** (`conditions-utils.ts`, détails `docs/TODO.md`) : la résolution du
+  sujet ignorait `Correspondance.localisation` (→ `sortie existe vers le sud` faux + « Sujet de la
+  condition pas trouvé » dans les erreurs de tour ; les formes `aucune …` ne marchaient que par
+  double négation — d'où des probes **instables selon l'ordre des tests**, l'origine du
+  « faux positif » noté ici) ; et null-check inversé branches PORTE/OBSTACLE de
+  `verifierConditionExiste` (→ `porte existe vers` ne marchait jamais). Gardes F060-T010/T014
+  (tamponErreurs vide inclus).
+- ✅ sujets spéciaux re-probés un par un et CONFIRMÉS : `le jeu est commencé` / `terminé`
+  (T011/T015), `la réponse` (est / commence par / termine par, T013), `l'infinitif de l'action`
+  (T012, + forme `n'est ni X ni Y`). Nouvelle section « Sujets spéciaux » (tableau + djnc
+  `wiki_conditions_sujets_speciaux`) sur `si/start`.
+- ✅ `commence par` / `termine par` : nouvelle page `si/verbes/commencer_terminer` (compléments
+  entre guillemets, sensible casse/accents) + djnc `wiki_conditions_reponse_libre` (choisir
+  librement + autre choix + aiguillage sur la réponse). Les tests pilotent le choix libre au
+  niveau moteur (helper `repondreLibrement` qui mime `traiterChoixLibreJoueur` +
+  `terminerInterruption` du lecteur : `tour.reponse` + `continuerLeTourInterrompu`).
+- ✅ `choisir` : le statique avait déjà son djnc (`wiki_instructions_choisir`, LOT 2) — le résidu
+  réel était le **choix libre** : djnc `wiki_conditions_reponse_libre` ajouté + section « Tester
+  la réponse dans une condition » + Voir aussi + typos ; le `[[djnb>ex_choix_sage]]` reste en
+  lien complémentaire. Doublon éditorial `instructions/choisir` (sous-ensemble de
+  `instructions/controle/choisir`) réduit à un renvoi (pattern LOT 10 mode_triche).
+- Spec `conditions-exemples-wiki.spec.ts` F060-T008→T016 (16 verts). Calibration : espace
+  insécable inséré par le moteur avant « ? »/« ! » → asserter sans la ponctuation (cf. LOT 9).
+- (cosmétique) slugs `<file donjon>` recalés sur les djnc : `listes.txt` (`ex_listes_courses` →
+  `wiki_memoire_liste_courses`), `compteurs.txt` (`ex_compteurs_score` → `wiki_memoire_score_points_vie`).
+- `reussir` → **LOT 9** ✅ (déjà livré).
 
 ### LOT 2 — Instructions (HAUTE) — ✅ livré (dire, changer, déplacer, choisir)
-Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `créer` /
-`déplacer … depuis … vers` (page instruction dédiée) ; `exécuter l'action/la commande/la réaction` ;
-`afficher` image/écran ; `jouer` son/musique ; `attendre` (touche / N s) ; `sélectionner un nombre`.
+Résidus moyens — ✅ livrés (2026-06-10, « LOT 2bis », spec F062-T005→T011) :
+- ✅ `copier X dans/sur/sous Y` : nouvelle page `instructions/copier` + djnc
+  `wiki_instructions_copier`. Calibration : les copies identiques sont regroupées à l'affichage
+  (« Dedans, il y a 3 médailles. »).
+- ✅ verbes ressources (`consommer`/`créer`/`déplacer … depuis … vers`) : **findings obsolètes** —
+  couverts depuis le chantier #161 par `definitions/ressources` (sections + djnc
+  `wiki_ressources_instructions`). Rien à faire.
+- ✅ `exécuter` : page `instructions/executer` enrichie — `la commande "…"` (accepte les balises
+  dynamiques), **nouvelle section `la dernière commande`** (= la commande précédente du joueur),
+  `l'action` (⚠️ calibration : échoue « Plusieurs actions compatibles » si le verbe a des
+  surcharges, ex. examiner — contournement documenté via `exécuter la commande`, bug noté
+  `docs/TODO.md`, garde F062-T007), renvoi réaction → LOT 8 ; djnc `wiki_instructions_executer`.
+- ✅ `afficher` image : djnc `wiki_instructions_image` (l'instruction émet `@@image:X@@`) +
+  balise `[image X]` ajoutée à `texte/balises_dynamiques` (finding « partial »).
+- ✅ `afficher l'écran …` : djnc `wiki_instructions_ecrans`. Calibration : chaque changement
+  d'écran crée une interruption (`TypeInterruption.changerEcran = 'e'`) — en test, drainer les
+  interruptions (`executerEnDrainant`).
+- ✅ `jouer`/`arrêter` : djnc `wiki_instructions_audio` + note synonyme `stopper`.
+  **Calibration test** : ne JAMAIS exécuter `jouer …` en spec — l'audio démarre réellement et
+  Chrome headless rejette `play()` (NotAllowedError, unhandled rejection → DISCONNECTED Karma) ;
+  la spec compile + n'exécute que `arrêter`.
+- ✅ `attendre` : djnc `wiki_instructions_attendre` + **plafond 10 s documenté** (« Attendre: 10
+  secondes maximum. », `instruction-systeme.ts:66`) + typo. Interruptions `'t'`/`'s'`
+  (`nbSecondesAttendre`), reprise testée.
+- `sélectionner un nombre` → déjà livré au LOT 9 (`instructions/selectionner`).
 
 ### LOT 3 — Texte / balises (HAUTE) — ✅ livré (compter éléments, verbes conjugués)
 - ✅ `[nombre de <classe>]` + `<état>` + `[nombre de <classe> dans/sur/sous X]` documentés + djnc.
@@ -199,7 +244,30 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
   `[nombre de <prop> de X]` ne marche pas comme balise (#8) → non documenté comme tel.
 - ✅ Conjugaison `[v …]` : exemple jouable + djnc ajoutés.
 - (déjà fait LOT 0 : `[e X]`/`[es X]`/`[accord X]`).
-- Reste (moyenne, JSON) : autres balises `texte/*` non couvertes/partielles.
+- Résidus moyens — ✅ livrés (2026-06-10, « LOT 3ter », spec F073-T006→T008) :
+  - ✅ filtres `sauf cachés / sauf mentionnés / sauf cachés et mentionnés` documentés
+    (`balises_dynamiques` § Contenu). **Calibration** : un objet caché déjà affiché/mentionné
+    n'est plus filtré par `sauf cachés` (révélé = plus à cacher — le 1er probe semblait montrer
+    un filtre inopérant, c'était l'ordre des balises dans l'action) ; `sauf mentionnés` = pas
+    encore mentionnés au cours du tour.
+  - ✅ `[obstacle vers ceci]` (exemple, sortie accordée « La grille est fermée. ») et
+    `[statut ceci]` (sorties réelles accordées en genre) documentés. **Calibration** : ces deux
+    balises n'acceptent QUE les cibles spéciales — élément/direction nommés → balise brute ou
+    « problème balise » (la levée de limitation F074 ne couvre pas ces handlers).
+  - ✅ verbes pronominaux `[v s'ouvrir ipr ceci]` → « s'ouvre » / « ne s'ouvre pas » :
+    paragraphe + note sur `conjugaison` ; même restriction cibles spéciales pour `[v …]`
+    (élément nommé → balise laissée telle quelle).
+  - ✅ alias `[il X]/[Il X]` (= `[pronom X]/[Pronom X]`) noté ; `[infinitif action]` documenté
+    sur `balises_dynamiques` (vérifié T008) ; cross-links Voir aussi → temps/horloge+calendrier.
+  - ✅ `[énumérer la liste L]` ajouté sur `memoire/listes` (+ tableau comparatif
+    lister/décrire/énumérer ; la section « Énumérer » montrait en fait `[lister]`).
+  - ✅ `mise_en_forme` : section « Typographie automatique » (apostrophe courbe auto,
+    insécables avant !?:).
+  - **Findings obsolètes** (déjà couverts avant) : `[c taille de liste]` (memoire/listes l.133),
+    djnc conjugaison (LOT 3, `wiki_texte_verbes_conjugues`), et tout le bloc pronoms/cibles/
+    quantité/mémoire/aide/nombre/Cest/Singulier-Pluriel (LOT 3bis), `[image X]` (LOT 2bis).
+  - **Décisions « ne pas documenter »** : alias `{l}`/`{t}` (volontairement non documentés
+    côté moteur) ; `@@tester audio@@` (mécanique interne du lecteur, pas une balise auteur).
 
 ### LOT 4 — Définitions du monde (HAUTE) — ✅ livré
 - ✅ **Classes personnalisées & héritage** + **`definitions/classes`** (stub → page complète :
@@ -218,12 +286,17 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
 - Calibration : `ouvrir` exige `ouvrable` ET un état `ouvert`/`fermé` ; `mettre`/`enlever` couvrent
   les vêtements/équipement ; `prendre` bloqué par `fixé` ; `parler avec` exige parlant (≠ muet).
 
-### LOT 5 — Mémoire (HAUTE)
-- `memoire/historique` : prose OK mais AUCUN djnc → exemple (définir/ajouter/tester ; **attention** :
-  l'historique n'est pas une liste qu'on déclare via `L'historique est une liste` — re-probe-vérifier
-  la vraie syntaxe d'alimentation, mes essais `changer/ajouter` n'ont pas déclenché).
-- Relations entre états (bascule ↔ / implication → / exclusion ≠) : djnc (les `.djn`
-  `etats/bascule_linge.djn`, `etats/implication_dragon.djn` existent déjà → relier).
+### LOT 5 — Mémoire (HAUTE) — ✅ livré (2026-06-09, commit 8e987c18)
+- ✅ `memoire/historique` : page réécrite + exemple complet `wiki_memoire_historique_levier`
+  (file + djnc) + spec `memoire-exemples-wiki.spec.ts` F065-T001→T003. **Syntaxe résolue**
+  (le doute du re-probe est levé) : l'historique EST une liste déclarée (`L'historique est une
+  liste.`), alimentée par `changer l'historique contient "…"` / retirée par `ne contient plus`,
+  testée par `si l'historique contient "…"` (condition et balise dynamique).
+- ✅ Relations entre états (bascule ↔ / implication → / exclusion ≠) : spec
+  `etats-exemples-wiki.spec.ts` F066 (bascule, implication **en cascade** — enragé ⟹ éveillé
+  chasse endormi du groupe de contradiction —, exclusion, + gros exemple dragon) ; exemples
+  `etats/bascule_linge.djn`, `implication_dragon.djn`, `dragon_endormi.djn` reliés par djnc
+  sur `memoire/etats/start` et `definitions/etats_personnalises`.
 
 ### LOT 6 — Temps (HAUTE/MOYENNE) — ✅ livré (2026-06-09)
 - ✅ Routine programmée **avec arguments** : section « Programmer une routine avec des arguments »
@@ -297,17 +370,26 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
 - ✅ `mise_en_forme` : « Couleur 4 (code) » `{@…@}` (span `t-code-couleur`, `balises-html.ts:54`).
 - Spec `texte-balises-exemples-wiki.spec.ts` F073-T001→T005 (verte).
 - **Calibrations LOT 3bis** (sondées) :
-  - Les balises propriété (`[Cest]`, `[lui]`, `[Singulier]`, `[pronom]`, `[le]`, `[accord]`…)
-    n'acceptent QUE les cibles spéciales (regex `instruction-dire-propriete.ts:32`) — un élément
-    nommé (`[lui pomme]`) → « problème balise ». Documenté comme limitation.
+  - ~~Les balises propriété n'acceptent QUE les cibles spéciales~~ — **limitation LEVÉE**
+    (2026-06-10) : la regex `instruction-dire-propriete.ts:32` accepte aussi un élément nommé
+    (`[lui pomme]`, `[Cest cerises]`, `[le balai]`…), résolu par intitulé ; balise laissée
+    intacte si non résolu (protège `[s score]` compteur & co). Spec F074
+    `balises-cibles-nommees.spec.ts` ; wiki `balises_dynamiques` § Cibles spéciales reformulé.
   - Le féminin sur un pluriel marche avec le **marqueur `(f)`** (`Les cerises (f) sont…`) —
-    la calibration #9 ne vaut que pour l'épithète (`des objets féminins`).
+    la calibration #9 ne vaut que pour l'épithète (`des objets féminins`). Voulu, pas de changement.
   - `origine/destination/orientation` remplis au déplacement (`instruction-systeme.ts:103+`) ;
-    formulation qui déclenche : `règle après aller dans le jardin` (`aller vers le nord` ne tire pas).
+    ~~`aller vers le nord` ne tire pas~~ — **limitation LEVÉE** (2026-06-10) :
+    `Evenement.orientationDeplacement` mémorise la direction et le `Declencheur` matche dessus ;
+    `règle après aller vers le nord` déclenche (aussi via raccourcis `nord`/`n`), cumulable avec
+    la règle « lieu ». Spec F075 `regles-direction-deplacement.spec.ts` ; wiki
+    `routines/regle/start` § Déclencheurs.
   - `[préposition ceci]` est vide pour `poser ceci sur cela` (pas de préposition devant ceci) ;
     `[préposition cela]` → « sur ».
   - `règle remplacer` : la signature inclut la phase `définitions` — sans elle (deux intitulés ici)
     l'action de base coexiste et répond à la place du remplacement (garde F073-T005).
+    **Conseil à l'analyse ajouté** (2026-06-10, `generateur.ts` passe 3) : forme non remplacée
+    restante → `tamponConseils`. Spec F076 `regle-remplacer-conseil-partiel.spec.ts` ; wiki
+    `routines/regle/remplacer` ⚠️ définitions = signature.
   - `aide danser` est une abréviation côté lecteur ; la commande moteur complète est
     `afficher aide pour danser`.
 

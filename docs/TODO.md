@@ -16,12 +16,24 @@
   `actions-exemples-wiki.spec.ts` F070-T011. Piste : dispatch `exécuter (la) réaction de …` dans
   `instructions.ts` / `instruction-executer.ts` (parsing de l'article + du trailer `concernant`).
 
-- [ ] **`si une sortie / porte / obstacle existe vers <direction>` ne s'évalue plus correctement.**
-  `si une sortie existe vers le nord` devrait être vrai s'il existe un lieu voisin au nord, mais le
-  moteur ne le résout pas (il cherche un élément nommé « nord » → condition fausse). Confirmé bug
-  (devait fonctionner). Piste : `webapp/donjon/projects/donjon/src/lib/utils/jeu/conditions-utils.ts`
-  ~230-262 (branche `(sortie|obstacle|porte) vers`, résolution via épithète / `trouverLocalisation`).
-  Découvert en LOT 1 (page `controle/si/verbes/exister`) — non documenté tant que non corrigé.
+- [x] **`si une sortie / porte / obstacle existe vers <direction>` ne s'évalue plus correctement.**
+  **CORRIGÉ (2026-06-10, LOT 1bis)** — deux causes dans `conditions-utils.ts` : (1) la résolution du
+  sujet ignorait la `Correspondance.localisation` (le sujet « le sud » tombait dans « Sujet de la
+  condition pas trouvé » → faux + erreur de tour ; les formes `aucune … n'existe` ne « marchaient »
+  que par double négation accidentelle, d'où des résultats instables selon l'ordre des tests) →
+  nouvel embranchement `correspondances.localisation` dans `trouverSujetCondition` ; (2) branches
+  PORTE et OBSTACLE de `verifierConditionExiste` : null-check inversé (`if (loc != null)` → erreur)
+  → `porte/obstacle existe vers` ne marchait jamais. Gardes : `conditions-exemples-wiki.spec.ts`
+  F060-T010 (sortie + accessible + aucune, tamponErreurs vide) et F060-T014 (porte + aucune).
+  Documenté sur `controle/si/verbes/exister`.
+
+- [ ] **`exécuter l'action <verbe> ceci` échoue si le verbe a des surcharges** (LOT 2bis, 2026-06-10).
+  « Plusieurs actions compatibles trouvées pour : examiner » dès que le verbe existe sous plusieurs
+  formes (examiner avec/sans complément dans actions.djn) — la résolution ne désambiguïse pas par
+  le nombre de compléments fournis, contrairement aux routines (`lierAppelRoutine` rejoue la
+  surcharge). Contournement documenté (executer.txt) : `exécuter la commande "examiner [intitulé
+  ceci]".`. Garde : `instructions-exemples-wiki.spec.ts` F062-T007. Piste :
+  `instruction-executer.ts` `executerAction` (sélection de l'action candidate).
 
 - [ ] **Balise `[intitulé le <nom>]` (article défini masculin) → « problème balise ».**
   `[intitulé coffre]` (sans article) et `[intitulé la pomme]` fonctionnent ; `[intitulé le coffre]`
