@@ -5,9 +5,9 @@ import { actions } from "./scenario_actions";
 // cibles spéciales, listes) compilent et se comportent comme documenté. Les corps sont
 // IDENTIQUES aux .djn de ressources/scenarios/exemples/wiki/texte/.
 //
-// Calibration : ces balises de propriété ([Cest], [lui], [Singulier]…) n'acceptent que les
-// cibles spéciales (ceci, cela, ici, origine, destination, orientation, réponse) — avec un
-// élément nommé ([lui pomme]) la balise n'est pas résolue (« problème balise »).
+// Ces balises de propriété ([Cest], [lui], [Singulier]…) acceptent les cibles spéciales
+// (ceci, cela, ici, origine, destination, orientation, réponse) ET, depuis F074, un élément
+// nommé ([lui pomme]) — voir balises-cibles-nommees.spec.ts.
 
 const PRONOMS_ACCORDS = `
 Le verger est un lieu.
@@ -88,6 +88,76 @@ action réciter:
 fin action`);
     const sortie = ctx.com.executerCommande('réciter', false).sortie;
     expect(sortie).withContext(sortie).toContain('Il vous faut : "du pain" et "du lait".');
+  });
+
+  // Calibration : un objet caché déjà affiché/mentionné n'est plus filtré par « sauf cachés »
+  // (révélé = plus à cacher) — d'où l'ordre : le filtre s'évalue avant tout affichage du contenu.
+  it('[F073-T006] [décrire objets dans X sauf cachés / sauf mentionnés]', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + `
+Le débarras est un lieu.
+Le coffre est un contenant ouvert ici.
+La lanterne est un objet dans le coffre.
+Le rubis est un objet caché dans le coffre.
+La corde est un objet dans le coffre.
+
+action inspecter:
+  dire "Sauf cachés : [décrire objets dans le coffre sauf cachés]".
+  dire "Tout : [décrire objets dans le coffre]".
+  dire "Sauf mentionnés : [décrire objets dans le coffre sauf mentionnés]RIEN".
+fin action`);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    ctx.com.executerCommande('regarder', false);
+    const s = ctx.com.executerCommande('inspecter', false).sortie;
+    expect(s).withContext(s).toContain('Sauf cachés :  Dedans, il y a une lanterne et une corde.');
+    expect(s).withContext(s).toContain('Tout :  Dedans, il y a une lanterne, un rubis et une corde.');
+    // tout a déjà été mentionné dans ce tour → « sauf mentionnés » ne liste plus rien
+    expect(s).withContext(s).toContain('Sauf mentionnés : RIEN');
+  });
+
+  it('[F073-T007] [obstacle vers ceci] et [statut ceci] (cibles spéciales uniquement)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + `
+La cave est un lieu.
+Le cellier est un lieu au nord de la cave.
+La grille (f) est une porte fermée et verrouillée au nord de la cave.
+
+action sonder ceci:
+  définitions:
+    ceci est un intitulé.
+  phase exécution:
+    dire "Obstacle : [obstacle vers ceci]".
+fin action
+
+action ausculter ceci:
+  dire "Statut : [statut ceci]".
+fin action`);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    ctx.com.executerCommande('regarder', false);
+    // l'obstacle dans une direction : description accordée en genre
+    expect(ctx.com.executerCommande('sonder le nord', false).sortie).toContain('Obstacle : La grille est fermée.');
+    expect(ctx.com.executerCommande('ausculter la grille', false).sortie).toContain('Statut : Elle est fermée.');
+  });
+
+  it('[F073-T008] [v s’ouvrir ipr ceci] (pronominal + négation) et alias [Il X]', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + `
+Le hall est un lieu.
+Le coffre est un contenant fermé ici.
+La pomme est un objet ici.
+
+action tester ceci:
+  dire "[Intitulé ceci] [v s'ouvrir ipr ceci] facilement.".
+  dire "[Intitulé ceci] [v s'ouvrir ipr pas ceci].".
+  dire "[Il la pomme] est rouge. [Il le coffre] est lourd.".
+  dire "Vous venez de [infinitif action] [intitulé ceci].".
+fin action`);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    ctx.com.executerCommande('regarder', false);
+    const s = ctx.com.executerCommande('tester le coffre', false).sortie;
+    expect(s).withContext(s).toContain('Le coffre s’ouvre facilement.');
+    expect(s).withContext(s).toContain('Le coffre ne s’ouvre pas.');
+    // [il X]/[Il X] : alias de [pronom X]/[Pronom X], accordé en genre
+    expect(s).withContext(s).toContain('Elle est rouge. Il est lourd.');
+    // [infinitif action] : le verbe de l'action en cours
+    expect(s).withContext(s).toContain('Vous venez de tester le coffre.');
   });
 
   it('[F073-T005] [aide cela] — fiche d’aide dans une commande d’aide personnalisée', () => {
