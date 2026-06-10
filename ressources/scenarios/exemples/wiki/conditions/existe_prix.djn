@@ -1,0 +1,25 @@
+La boutique est un lieu.
+La potion est un objet ici.
+Son prix est 8.
+Le caillou est un objet ici.
+Son aperçu est "Un caillou gris traîne sur le comptoir.".
+
+action estimer ceci:
+  si un prix existe pour ceci:
+    dire "[Intitulé ceci] vaut [prix ceci] pièces.".
+  sinon
+    dire "[Intitulé ceci] n’a pas de prix affiché.".
+  fin si
+fin action
+
+action jauger ceci:
+  si un aperçu existe pour ceci:
+    dire "Quelque chose attire l’œil.".
+  sinon
+    dire "Rien de spécial.".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/estimer la potion/}, {/jauger le caillou/}.".
+fin règle

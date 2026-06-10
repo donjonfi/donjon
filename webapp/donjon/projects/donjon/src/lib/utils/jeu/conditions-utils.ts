@@ -315,6 +315,9 @@ export class ConditionsUtils {
             sujet = correspondances.compteurs[0];
           } else if (correspondances.listes.length === 1) {
             sujet = correspondances.listes[0];
+          } else if (correspondances.localisation) {
+            // direction (ex. « si une sortie existe vers le sud ») : le sujet est la localisation
+            sujet = correspondances.localisation;
           } else {
             // chercher dans les propriétés
             const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
@@ -1149,10 +1152,9 @@ export class ConditionsUtils {
       }
       // B) PORTE
     } else if (condition.sujetComplement.nom === 'porte') {
-      console.warn("Test des portes", condition, sujet);
       // trouver direction
       const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
-      if (loc != null) {
+      if (loc == null) {
         console.error("siEstVraiSansLien: porte vers '", sujet.intitule.nom, "' : direction inconnue.");
         // regarder s'il y a une porte dans la direction indiquée
       } else {
@@ -1168,12 +1170,11 @@ export class ConditionsUtils {
       }
       // C) OBSTACLE (AUTRE QUE PORTE)
     } else if (condition.sujetComplement.nom === 'obstacle') {
-      console.warn("Test des obstacles", condition, sujet);
       // trouver direction
       const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
-      if (loc != null) {
+      if (loc == null) {
         console.error("siEstVraiSansLien: obstacle vers '", sujet.intitule.nom, "' : direction inconnue.");
-        // regarder s'il y a une porte dans la direction indiquée
+        // regarder s'il y a un obstacle dans la direction indiquée
       } else {
         const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
         // aucun obstacle
