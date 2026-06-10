@@ -155,7 +155,7 @@ export class InstructionsUtils {
         // case 'calendrier':
         //   let calendrier = new Objet(-1, 'calendrier', new GroupeNominal('le', 'calendrier'), ClassesRacines.Element, 1, Genre.m, Nombre.s);
         //   let dateCalendrier = new Date();
-        //   const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
+        //   const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
         //   calendrier.proprietes.push(new ProprieteElement(horloge, 'jour', TypeValeur.mots, jours[dateCalendrier.getDay()]));
         //   const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
         //   calendrier.proprietes.push(new ProprieteElement(horloge, 'date', TypeValeur.nombre, dateCalendrier.getDate().toString()));
@@ -265,8 +265,18 @@ export class InstructionsUtils {
 
     // retrouver l’élément cible
     if (recherche.intituleElement) {
-      // rechercher parmi les éléments
-      recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, contexteTour, eju, jeu, false);
+      // LOCATEUR : élément/instance de fond ciblé par sa position, p.ex.
+      // « changer la description du sol situé dans la cuisine est "…" ».
+      const locElement = PhraseUtils.extraireLocalisationReference(recherche.intituleElement.nomEpithete);
+      if (locElement && (locElement.cible || locElement.ici)) {
+        const baseGN = PhraseUtils.getGroupeNominalDefiniOuIndefini(locElement.base, true) ?? recherche.intituleElement;
+        const cibleGN = locElement.cible ? PhraseUtils.getGroupeNominalDefiniOuIndefini(locElement.cible, true) : null;
+        const trouves = eju.resoudreReferenceLocalisee(baseGN, locElement.preposition ?? null, !!locElement.ici, cibleGN);
+        recherche.element = trouves.length > 0 ? trouves[0] : null;
+      } else {
+        // rechercher parmi les éléments
+        recherche.element = InstructionsUtils.trouverElementCible(recherche.intituleElement, contexteTour, eju, jeu, false);
+      }
       // rechercher parmi les listes
       if (!recherche.element) {
         recherche.liste = InstructionsUtils.trouverListe(recherche.intituleElement, eju, jeu, false);
@@ -325,6 +335,12 @@ export class InstructionsUtils {
           // si la classe recherchée n’hérite pas de objet
         } else {
           console.error("trouverProprieteCible > nombreDeClasseAttributsPosition > la classe n’hérite pas de « objet »: ", recherche.classe.intitule);
+        }
+
+        // 1bis) FILTRER LE CONTENU SUR LA CLASSE RECHERCHÉE
+        // (sinon « nombre de X dans/sur/sous Y » compterait TOUT le contenu de Y, pas seulement les X)
+        if (elementsOkEtapePrecedente) {
+          elementsOkEtapePrecedente = elementsOkEtapePrecedente.filter(x => ClasseUtils.heriteDe(x.classe, recherche.classe.nom));
         }
 
         // 2) FILTRER SUR LES ÉTATS ÉVENTUELS

@@ -1,0 +1,16 @@
+-- Mini-jeu d'illustration — page wiki « Verbes conjugués ».
+-- Le verbe [v …] s'accorde avec le sujet (ceci) : présent, passé composé, imparfait, négation.
+
+La crypte est un lieu.
+
+La statue est un objet féminin dans la crypte.
+Sa description est "[Intitulé ceci] [v sembler ipr ceci] figé[accord ceci]. [Pronom ceci] [v être ipac ceci] sculpté[accord ceci] jadis et [v bouger ipr plus ceci].".
+
+Les veilleurs sont des objets dans la crypte.
+Sa description est "[Intitulé ceci] vous [v fixer ipr ceci]. Autrefois, [pronom ceci] [v murmurer iimp ceci] des prières.".
+
+Le joueur est dans la crypte.
+
+règle avant commencer le jeu:
+  dire "Essayez : {/examiner la statue/}, {/examiner les veilleurs/}.".
+fin règle

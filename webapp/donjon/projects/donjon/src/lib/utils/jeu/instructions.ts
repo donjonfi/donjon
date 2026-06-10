@@ -24,6 +24,7 @@ import { InstructionSysteme } from './instruction-systeme';
 import { InstructionsUtils } from './instructions-utils';
 import { InterruptionsUtils } from './interruptions-utils';
 import { Intitule } from '../../models/jeu/intitule';
+import { ParamRoutine } from '../../models/compilateur/param-routine';
 import { Jeu } from '../../models/jeu/jeu';
 import { Localisation, ELocalisation } from '../../models/jeu/localisation';
 import { MotUtils } from '../commun/mot-utils';
@@ -97,6 +98,21 @@ export class Instructions {
   }
 
   public restaurationPartieEnCours = false;
+
+  /** Sépare une valeur d’étape 'd' en nom de routine + arguments canoniques (cf. InstructionExecuter). */
+  public parseDeclenchement(valeur: string) {
+    return this.insExecuter.parseDeclenchement(valeur);
+  }
+
+  /** Lie un appel de routine (nom + args) à une routine concrète via résolution de surcharge. */
+  public lierAppelRoutine(nom: string, args: string[]) {
+    return this.insExecuter.lierAppelRoutine(nom, args);
+  }
+
+  /** Forme canonique d’un argument lié, pour sérialisation dans une étape 'd'. */
+  public canoniserArg(val: Intitule, param: ParamRoutine): string {
+    return this.insExecuter.canoniserArg(val, param);
+  }
 
   /** Exécuter une liste d’instructions */
   public executerInstructions(instructions: Instruction[], contexteTour: ContexteTour, evenement: Evenement | undefined, declenchements: number | undefined): Resultat {

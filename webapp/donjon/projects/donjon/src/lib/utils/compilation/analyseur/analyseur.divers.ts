@@ -146,6 +146,12 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerInterfaceTactile = isActiver;
           break;
 
+        case 'creation automatique des etats':
+        case 'creation auto des etats':
+        case 'creation des etats automatique':
+          ctxAnalyse.parametres.activerCreationAutomatiqueEtats = isActiver;
+          break;
+
         default:
           ctxAnalyse.probleme(phrase, undefined,
             CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,

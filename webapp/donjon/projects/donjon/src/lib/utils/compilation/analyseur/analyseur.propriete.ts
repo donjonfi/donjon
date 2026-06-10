@@ -1,6 +1,7 @@
 import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 
 import { AnalyseurCommunUtils } from "./analyseur-commun-utils";
+import { AnalyseurFond } from "./analyseur.fond";
 import { AnalyseurUtils } from "./analyseur.utils";
 import { AnalyseurV8Instructions } from "./analyseur-v8.instructions";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
@@ -39,6 +40,26 @@ export class AnalyseurPropriete {
       } else {
         nomProprieteCible = result[2];
         const elementConcerneBrut = result[3];
+
+        // FOND : surcharge d'une propriété PAR LIEU via locateur
+        //  (« La description du sol situé dans la cuisine est "…" » / « … situé ici … »).
+        const locFond = PhraseUtils.extraireLocalisationReference(elementConcerneBrut);
+        if (locFond && (locFond.cible || locFond.ici)) {
+          // extraire la valeur (même logique que le cas « propriété » plus bas)
+          let valeurSurcharge = result[7] ?? '';
+          if (phrase.morceaux.length > 1) {
+            let v = "";
+            for (let i = 1; i < phrase.morceaux.length; i++) {
+              v += TexteUtils.retrouverTexteOriginal(phrase.morceaux[i]);
+            }
+            valeurSurcharge = v.trim().replace(/^\"|\"$/g, '');
+          }
+          if (AnalyseurFond.enregistrerSurchargeParLieu(locFond, nomProprieteCible, valeurSurcharge, ctxAnalyse)) {
+            return ResultatAnalysePhrase.propriete;
+          }
+          // sinon (base ≠ fond propre) : on laisse le flux normal (qui signalera « élément pas trouvé »).
+        }
+
         const elementConcerneIntitule = ExprReg.xGroupeNominalArticleDefini.exec(elementConcerneBrut);
         if (elementConcerneIntitule) {
           const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();

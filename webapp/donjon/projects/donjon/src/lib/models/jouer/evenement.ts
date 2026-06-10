@@ -30,6 +30,13 @@ export class Evenement {
     public commandeComprise: string | undefined = undefined,
   ) { }
 
+  /**
+   * Orientation du déplacement (nom de la direction : nord, sud, haut, …) lorsque l’évènement
+   * est un déplacement du joueur. Permet aux règles ciblant une direction (« après aller vers
+   * le nord ») de se déclencher même quand ceci a été remplacé par le lieu de destination.
+   */
+  public orientationDeplacement: string | null = null;
+
   toString(): string {
     return this.infinitif + (this.isCeci ? (" " + (this.prepositionCeci ? this.prepositionCeci + " " : "") + this.ceci) : "") + (this.isCela ? (" " + (this.prepositionCela ? this.prepositionCela + " " : "") + this.cela) : "")
   }

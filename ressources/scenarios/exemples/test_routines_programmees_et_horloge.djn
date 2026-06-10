@@ -1,0 +1,28 @@
+Le titre du jeu est "Test - Routines programmées + Horloge".
+L'auteur du jeu est "Donjon FI".
+
+-- Combine les deux fonctionnalités : une routine PROGRAMMÉE et PARAMÉTRÉE qui lit
+-- l'HORLOGE au moment de son déclenchement.
+--
+-- Tapez « horodater » : 3 secondes plus tard, la routine « consigner » s'exécute
+-- avec l'argument fourni ET l'heure de déclenchement. Comme l'argument est résolu
+-- au déclenchement (fire-time) et que l'heure lue est mémorisée, le rejeu
+-- (sauvegarde / triche / magnétoscope) reproduit exactement la même ligne.
+
+Le poste est un lieu.
+
+règle après commencer le jeu:
+  dire "Tapez « horodater » : dans 3 secondes, une routine programmée consignera un événement avec l'heure de déclenchement.".
+fin règle
+
+routine consigner:
+  définitions:
+    ceci est un texte.
+  exécution:
+    dire "{N}[horloge] — événement « [ceci] » consigné.".
+fin routine
+
+action horodater:
+  dire "Consignation programmée dans 3 secondes...".
+  exécuter la routine consigner avec "ouverture de la porte" dans 3 secondes.
+fin action

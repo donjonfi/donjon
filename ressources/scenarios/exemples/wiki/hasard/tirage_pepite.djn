@@ -1,0 +1,25 @@
+-- Mini-jeu d'illustration — pages wiki « Hasard » et « Réussir/Échouer (tirage au sort) ».
+-- Démontre la condition « si un tirage à X chance(s) sur Y réussit » et sa forme « échoue ».
+
+La berge est un lieu.
+Sa description est "Une rivière boueuse longe la berge. Vous pourriez tamiser la vase ou pêcher.".
+
+action tamiser:
+  si un tirage à 1 chance sur 3 réussit:
+    dire "Vous trouvez une pépite d’or !".
+  sinon
+    dire "Vous ne trouvez qu’un peu de vase.".
+  fin si
+fin action
+
+action pêcher:
+  si un tirage à 2 chances sur 3 échoue:
+    dire "Ça ne mord pas.".
+  sinon
+    dire "Un poisson mord à l’hameçon !".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez plusieurs fois : {/tamiser/} et {/pêcher/}.".
+fin règle

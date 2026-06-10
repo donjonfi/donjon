@@ -1,0 +1,12 @@
+-- Modifier une instance précise d'un fond en cours de partie avec « changer ».
+La cuisine est un lieu.
+
+Le sol est un fond. Il est propre à chaque lieu.
+La description du sol est "Un carrelage sec.".
+
+action arroser:
+  phase exécution:
+    changer la description du sol situé dans la cuisine est "Le carrelage est trempé.".
+  phase épilogue:
+    dire "Vous arrosez le sol : le carrelage est maintenant trempé.".
+fin action

@@ -1,0 +1,29 @@
+-- Mini-jeu d'illustration — page wiki « Déplacer ».
+-- Déplace un objet (dans un contenant, sur un support, dans l'inventaire) et le joueur (vers un lieu).
+
+L'entrepôt est un lieu.
+Le quai est un lieu. Il est au nord de l'entrepôt.
+La caisse est un contenant ouvert dans l'entrepôt.
+L'établi est un support dans l'entrepôt.
+La clé est un objet dans l'entrepôt.
+La lampe est un objet dans l'entrepôt.
+Le colis est un objet dans l'entrepôt.
+Le joueur est dans l'entrepôt.
+
+action ranger:
+  déplacer la clé dans la caisse.
+  déplacer la lampe sur l'établi.
+  déplacer le colis dans l'inventaire.
+  si la clé se trouve dans la caisse, dire "Clé rangée dans la caisse.".
+  si la lampe se trouve sur l'établi, dire "Lampe posée sur l’établi.".
+  si le joueur possède le colis, dire "Colis emporté.".
+fin action
+
+action embarquer:
+  déplacer le joueur dans le quai.
+  si le joueur se trouve dans le quai, dire "Vous êtes sur le quai.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/ranger/} puis {/embarquer/}.".
+fin règle

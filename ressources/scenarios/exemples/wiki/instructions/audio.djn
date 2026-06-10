@@ -1,0 +1,22 @@
+activer l'audio.
+
+La scène est un lieu.
+
+action sonner:
+  jouer le son bulle.mp3.
+  dire "Un tintement résonne.".
+fin action
+
+action ambiancer:
+  jouer la musique musique_classique.mp3 en boucle.
+  dire "La musique s’installe.".
+fin action
+
+action couper:
+  arrêter la musique progressivement.
+  dire "La musique s’éteint.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/sonner/}, {/ambiancer/}, {/couper/}.".
+fin règle

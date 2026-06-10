@@ -1,0 +1,7 @@
+-- Un fond « commun » : une seule entité présente dans tous les lieux.
+La plage est un lieu.
+La forêt est un lieu au nord de la plage.
+
+Le ciel est un fond. Il est commun à tous les lieux.
+L'aperçu du ciel est "Un grand ciel bleu se déploie au-dessus de vous.".
+La description du ciel est "Le ciel est limpide, sans un nuage.".

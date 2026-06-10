@@ -1,0 +1,15 @@
+-- Mini-jeu d'illustration — page wiki « Conditions » (verbe « se trouve »).
+-- Teste la position d'un objet (dans un contenant) et celle du joueur (dans un lieu).
+
+La cuisine est un lieu.
+Le buffet est un contenant ouvert dans la cuisine.
+La cuillère est un objet dans le buffet.
+
+action localiser:
+  si la cuillère se trouve dans le buffet, dire "La cuillère est dans le buffet.".
+  si le joueur se trouve dans la cuisine, dire "Vous êtes dans la cuisine.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/localiser/}.".
+fin règle

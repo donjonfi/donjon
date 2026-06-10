@@ -1,0 +1,30 @@
+-- Mini-jeu d'illustration — page wiki « Les classes (types) ».
+-- Un type personnalisé « familier » hérite du type intégré « animal ».
+-- Un type « chaton » hérite à son tour de « familier » (héritage en chaîne).
+-- Chaque familier est « affamé » par défaut ; une instance peut surcharger ce défaut.
+
+affamé et repu forment une bascule.
+
+Un familier est un animal.
+Un familier est affamé.
+
+Un chaton est un familier.
+
+La maison est un lieu.
+Le chat est un familier dans la maison.
+Le chien est un familier dans la maison.
+Le chien est repu.
+Le minou est un chaton dans la maison.
+Le joueur est dans la maison.
+
+action recenser:
+  dire "Familiers : [nombre de familiers].".
+  si le chat est affamé, dire "Le chat est affamé (défaut du type).".
+  si le chien est repu, dire "Le chien est repu (défini sur l'instance).".
+  si le minou est un familier, dire "Le minou (chaton) est aussi un familier.".
+  si le minou est affamé, dire "Le minou est affamé (défaut hérité en chaîne).".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/recenser/}.".
+fin règle

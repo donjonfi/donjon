@@ -119,9 +119,10 @@ terminer le jeu.
 [Pronom ceci]            -- majuscule
 [le ceci]                -- "le", "la", "l'", "les"
 [l' ceci]                -- "l'" si possible, sinon "le"/"la"
-[es ceci]                -- "e" ou "es" selon genre/nombre
+[es ceci]                -- "e"/"s"/"es" selon genre ET nombre
 [s ceci]                 -- "s" si pluriel
-[accord ceci]            -- "e" si féminin
+[e ceci]                 -- "e" si féminin (SANS "s" au pluriel)
+[accord ceci]            -- identique à [es ceci] ("e" féminin + "s" pluriel)
 [Cest ceci]              -- "C'est" ou "Ce sont" selon le compte (majuscule)
 [cest ceci]              -- "c'est" / "ce sont" (minuscule)
 

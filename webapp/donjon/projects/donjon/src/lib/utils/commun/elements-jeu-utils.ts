@@ -17,7 +17,7 @@ import { Liste } from '../../models/jeu/liste';
 import { MotUtils } from './mot-utils';
 import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
-import { PrepositionSpatiale } from '../../models/jeu/position-objet';
+import { PositionObjet, PrepositionSpatiale } from '../../models/jeu/position-objet';
 import { ProprieteConcept } from '../../models/commun/propriete-element';
 import { RechercheUtils } from './recherche-utils';
 import { Voisin } from '../../models/jeu/voisin';
@@ -356,6 +356,16 @@ export class ElementsJeuUtils {
     // les objets possédés sont présents
     if (this.jeu.etats.possedeEtatIdElement(obj, this.jeu.etats.possedeID)) {
       this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, this, true);
+      // FOND « commun » (partagé) : pas de position de lieu, présence résolue par prédicat et
+      //  ré-évaluée à chaque déplacement (tous les lieux, ou le lieu courant possède l'état du domaine).
+    } else if (obj.presenceFond && ClasseUtils.heriteDe(obj.classe, EClasseRacine.fond)) {
+      const present = obj.presenceFond.tousLesLieux
+        || (!!obj.presenceFond.etatDomaine && this.curLieu && this.jeu.etats.possedeEtatElement(this.curLieu, obj.presenceFond.etatDomaine, this));
+      if (present) {
+        this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, this, true);
+      } else {
+        this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, this, true);
+      }
       // les objets non possedes peuvent être visibles seulement si positionnés dans le lieu actuel
     } else if (obj.position && this.getLieuObjet(obj) === this.curLieu.id) {
       this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.present, this, true);
@@ -369,6 +379,12 @@ export class ElementsJeuUtils {
     } else {
       // les autres objets ne sont pas présents
       this.jeu.etats.retirerEtatElement(obj, EEtatsBase.present, this, true);
+    }
+
+    // un FOND présent et visible est perçu (le joueur voit le ciel, la mer, le sol…) : on le marque
+    //  « vu » pour qu'il soit examinable / interactif, car il n'est jamais listé dans la description.
+    if (ClasseUtils.heriteDe(obj.classe, EClasseRacine.fond) && this.jeu.etats.estVisible(obj, this)) {
+      this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this, false);
     }
   }
 
@@ -706,6 +722,43 @@ export class ElementsJeuUtils {
   /**
    * Retrouver un compteur parmi tous les compteurs sur base de son nom.
    */
+  /**
+   * LOCATEUR SPATIAL — résoudre une référence localisée : les objets correspondant à `baseGN`
+   * situés `prepositionStr` (dans|sur|sous) la cible (`cibleGN`, ou le lieu courant si `ici`).
+   * Pluriel par nature (singulier = prendre le 1er). Sert au locateur
+   * « qui se trouve / situé (dans|sur|sous) X | ici » (instructions, conditions, instances de fond).
+   */
+  public resoudreReferenceLocalisee(baseGN: GroupeNominal, prepositionStr: string | null, ici: boolean, cibleGN: GroupeNominal | null): Objet[] {
+    // 1. résoudre la cible (lieu ou objet)
+    let cible: ElementJeu | null = null;
+    if (ici) {
+      cible = this.curLieu;
+    } else if (cibleGN) {
+      const corCible = this.trouverCorrespondance(cibleGN, TypeSujet.SujetEstIntitule, true, true);
+      cible = corCible.elements.length > 0 ? corCible.elements[0] : null;
+    }
+    if (!cible) { return []; }
+
+    const prep = prepositionStr ? PositionObjet.getPrepositionSpatiale(prepositionStr) : PrepositionSpatiale.inconnu;
+
+    // 2. résoudre les candidats : « objets/choses/éléments » (génériques) = tous ; sinon par intitulé
+    const baseNom = (baseGN.nom ?? '').toLowerCase();
+    const estGenerique = !baseGN.epithete
+      && ['objet', 'objets', 'chose', 'choses', 'element', 'elements', 'élément', 'éléments'].includes(baseNom);
+    let candidats: Objet[];
+    if (estGenerique) {
+      candidats = this.jeu.objets.filter(o => ClasseUtils.heriteDe(o.classe, EClasseRacine.objet) && o.id !== this.jeu.joueur.id);
+    } else {
+      const corBase = this.trouverCorrespondance(baseGN, TypeSujet.SujetEstIntitule, false, false);
+      candidats = corBase.objets ?? [];
+    }
+
+    // 3. filtrer par position (cible + préposition si précisée)
+    return candidats.filter(o => o.position
+      && o.position.cibleId === cible.id
+      && (prep === PrepositionSpatiale.inconnu || o.position.pre === prep));
+  }
+
   trouverCompteurAvecNom(recherche: string): Compteur | undefined {
     let compteurTrouve: Compteur | undefined;
     if (recherche) {
@@ -1256,8 +1309,10 @@ export class ElementsJeuUtils {
         // console.warn("objets contenus dans ceci:", objets, "ceci objet=", ceci);
         // lieu
       } else if (ClasseUtils.heriteDe(ceci.classe, EClasseRacine.lieu)) {
-        // retrouver les objets présents dans le lieu
-        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id);
+        // retrouver les objets présents dans le lieu (hors FONDS : un fond n'est jamais listé
+        //  parmi le contenu du lieu ; son aperçu est affiché à part par executerDecrireContenu).
+        objets = this.jeu.objets.filter(x => x.position && x.position.cibleType === EClasseRacine.lieu && x.position.cibleId === ceci.id
+          && !ClasseUtils.heriteDe(x.classe, EClasseRacine.fond));
 
         // si on ne doit pas lister les objets non visibles, garder uniquement les objets visibles.
         if (!inclureObjetsNonVisibles) {

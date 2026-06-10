@@ -179,8 +179,29 @@ export class AnalyseurCommunUtils {
             // si le sujet n’est pas une propriété à changer
             if (!restChangerPropriete || !els.proprieteSujet) {
 
-              // tester si le complément est une phrase simple
-              // ex: le joueur ne se trouve plus dans la piscine.
+              // LOCATEUR (déplacer/copier) : « déplacer les objets qui se trouvent dans le coffre
+              //  vers l'inventaire ». Le « dans » interne du locateur casserait le découpage standard
+              //  (et « se trouvent » serait pris pour un verbe) → on isole ici le sujet (locateur
+              //  conservé dans son intitulé) et la destination ; le sujet localisé est résolu au
+              //  runtime (InstructionDeplacerCopier.trouverObjetsDeplacementCopie).
+              const estDeplacementCopie = els.infinitif === 'déplacer' || els.infinitif === 'deplacer' || els.infinitif === 'copier';
+              const resLoc = estDeplacementCopie ? ExprReg.xInstructionLocateurDestination.exec(els.complement1) : null;
+              if (resLoc) {
+                const sujetTexte = resLoc[1].trim();
+                const mDet = /^(le |la |les |l'|l’|du |de la |de l'|de l’|des |un |une )/i.exec(sujetTexte);
+                const det = mDet ? mDet[0] : null;
+                const reste = det ? sujetTexte.slice(det.length) : sujetTexte;
+                els.verbe = null;
+                els.negation = null;
+                // nomEpithete du sujet = l'intitulé complet avec le locateur (résolu au runtime)
+                els.sujet = new GroupeNominal(det, reste, null);
+                els.preposition1 = resLoc[2].trim();
+                els.sujetComplement1 = PhraseUtils.getGroupeNominalDefiniOuIndefini(resLoc[3].trim(), true);
+                els.complement1 = null;
+
+                // tester si le complément est une phrase simple
+                // ex: le joueur ne se trouve plus dans la piscine.
+              } else {
               const resSuite = ExprReg.xSuiteInstructionPhraseAvecVerbeConjugue.exec(els.complement1);
               if (resSuite) {
                 let sujDet = resSuite[1] ?? null;
@@ -222,6 +243,7 @@ export class AnalyseurCommunUtils {
                     els.complement1 = null;
                   }
                 }
+              }
               }
             }
           }

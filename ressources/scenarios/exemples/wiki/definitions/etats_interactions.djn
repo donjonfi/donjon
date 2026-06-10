@@ -1,0 +1,19 @@
+-- Mini-jeu d'illustration — page wiki « États intégrés : interactions ».
+-- Des états intégrés posés sur un objet activent les actions par défaut du moteur :
+-- mangeable → manger, buvable → boire, lisible → lire, ouvrable → ouvrir / fermer,
+-- enfilable → mettre / enlever, fixé → bloque prendre, parlant → parler avec.
+
+La réserve est un lieu.
+La pomme est un objet mangeable dans la réserve.
+La potion est un objet buvable dans la réserve.
+Le grimoire est un objet lisible dans la réserve.
+Son texte est "Page 1 : la formule secrète.".
+Le coffre est un contenant ouvrable et fermé dans la réserve.
+Le manteau est un objet enfilable dans la réserve.
+La statue est un objet fixé dans la réserve.
+Le perroquet est un animal parlant dans la réserve.
+Le joueur est dans la réserve.
+
+règle avant commencer le jeu:
+  dire "Essayez : {/manger la pomme/}, {/lire le grimoire/}, {/ouvrir le coffre/}, {/mettre le manteau/}, {/prendre la statue/}, {/parler avec le perroquet/}.".
+fin règle

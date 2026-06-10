@@ -1,0 +1,20 @@
+-- Mini-jeu d'illustration — page wiki « Conditions » (si / sinonsi / sinon).
+-- Démontre la chaîne multi-branches en bloc et la forme courte « en ligne ».
+
+Le bureau est un lieu.
+Le niveau est un compteur initialisé à 2.
+
+action classer:
+  si le niveau vaut 1:
+    dire "Niveau 1 : débutant.".
+  sinonsi le niveau vaut 2:
+    dire "Niveau 2 : confirmé.".
+  sinon
+    dire "Niveau 3 ou plus : expert.".
+  fin si
+  si le niveau atteint 2, dire "Forme en ligne : le niveau atteint au moins 2.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/classer/}.".
+fin règle

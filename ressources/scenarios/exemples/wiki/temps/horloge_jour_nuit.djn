@@ -1,0 +1,22 @@
+-- Exemple wiki : lire l'heure système et réagir selon le moment de la journée.
+-- L'heure provient de l'ordinateur qui exécute le jeu.
+-- Essayez : « consulter » (affiche l'heure) puis « saluer » (message selon l'heure).
+L'observatoire est un lieu.
+
+action consulter:
+  dire "Il est [horloge] (soit [heure] h [minute] min [seconde] s).".
+fin action
+
+action saluer:
+  si l'heure dépasse 17:
+    dire "Bonne soirée !".
+  sinonsi l'heure dépasse 11:
+    dire "Bon après-midi !".
+  sinon:
+    dire "Bonne matinée !".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/consulter/} ou {/saluer/}.".
+fin règle

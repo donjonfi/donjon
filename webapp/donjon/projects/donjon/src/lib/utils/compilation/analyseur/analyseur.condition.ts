@@ -358,7 +358,7 @@ export class AnalyseurCondition {
       }
       const nbChances = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[3], resConditionTirage[4], undefined);
       const totalTirage = StringUtils.getNombreEntierDepuisChiffresOuLettres(resConditionTirage[5], resConditionTirage[6], undefined);
-      const reussit = /résussi(?:ssen)?t/i.test(resConditionTirage[7]);
+      const reussit = /réussi(?:ssen)?t/i.test(resConditionTirage[7]);
       const sujet = new GroupeNominal("un ", "tirage");
       const verbe = "réussit";
       const negation = reussit ? null : "pas";

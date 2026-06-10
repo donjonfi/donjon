@@ -1,0 +1,14 @@
+-- Mini-jeu d'illustration — page wiki « Conditions » (verbe « être »).
+-- Démontre le test d'un état et le test d'appartenance à une classe.
+
+Le cellier est un lieu.
+Le coffre est un contenant fermé dans le cellier.
+
+action inspecter:
+  si le coffre est fermé, dire "Le coffre est bien fermé.".
+  si le coffre est un contenant, dire "C’est un contenant.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/inspecter/}.".
+fin règle

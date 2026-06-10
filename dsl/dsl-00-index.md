@@ -14,7 +14,7 @@
 | `dsl-02-elements.md` | États, Propriétés, Paramètres du jeu | Configurer des éléments, activer/désactiver des options |
 | `dsl-03-logique.md` | Synonymes, Actions personnalisées, Règles avant/après | Écrire la logique de jeu |
 | `dsl-04-texte.md` | Instructions courantes, Balises dynamiques, Balises de mise en forme | Rédiger les sorties texte |
-| `dsl-05-avance.md` | Positions, Routines, Réactions (PNJ), Compteurs, Listes, Temps, `inclure` (multi-fichiers), Interface tactile (mode mobile) | PNJ, mémoire, compteurs, temps, découper en plusieurs fichiers, actions principales/secondaires du menu tactile |
+| `dsl-05-avance.md` | Positions, Routines, Réactions (PNJ), Compteurs, Listes, Temps, `inclure` (multi-fichiers), Interface tactile (mode mobile), Fonds (décor multi-lieux), Locateur spatial | PNJ, mémoire, compteurs, temps, découper en plusieurs fichiers, actions principales/secondaires du menu tactile, décor présent dans plusieurs lieux (ciel/sol/mer), désigner par la position |
 | `dsl-06-exemple.md` | Exemple complet minimal | Voir un scénario fonctionnel de référence |
 
 ---
