@@ -258,15 +258,36 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
   les `actions` de base — TestUtils.genererEtCommencerLeJeu ne les inclut pas, donc inapte à tester
   la directive). T002 = contrôle (sans directive, `regarder` marche).
 
-### LOT 8 — Routines / actions prédéfinies (HAUTE)
-- `routines/actions_predefinies/start` : remplir la section conversation vide
-  (`parler/demander/interroger/montrer`) + compléter ~25 verbes manquants (casser, pousser,
-  tirer, toucher, secouer…).
+### LOT 8 — Routines / actions prédéfinies (HAUTE) — ✅ livré 2026-06-09
+- ✅ `routines/actions_predefinies/start` : sections conversation (parler/interroger/demander/
+  montrer/donner + variantes prépositionnelles), vivant, « Manipuler un objet », « Expressions
+  et divertissement » + Voir aussi ; djnc `wiki_actions_conversation` (vendeuse à réactions).
+- ✅ `routines/reaction/start` : section « Déclencher une réaction manuellement »
+  (`exécuter réaction de ceci` SANS article — bug article/`concernant` noté dans TODO.md).
+- Spec `actions-exemples-wiki.spec.ts` F070-T000→T011 (harness `analyserScenarioEtActions`
+  + actions de base, pattern F069).
 
-### LOT 9 — Hasard (HAUTE) — bug `réussit` corrigé, lot débloqué
-- `controle/si/verbes/reussir` : documenter `réussit` **et** `échoue` + djnc (la garde
-  F060-T008 couvre déjà `un tirage à 1 chance sur 1 réussit/échoue` — en faire un exemple wiki).
-- (moyen) tirage dans une liste, déterminisme via graine (PRNG).
+### LOT 9 — Hasard (HAUTE) — ✅ livré 2026-06-10
+- ✅ `controle/si/verbes/reussir` réécrit : sections `réussit` ET `échoue` (X chances sur Y /
+  Y−X sur Y) + exemple jouable `wiki_hasard_tirage_pepite` (tamiser 1/3 réussit, pêcher 2/3
+  échoue) + Voir aussi.
+- ✅ `instructions/selectionner` : intro corrigée (nombres uniquement, PAS de liste), bug
+  copier-coller `dé2`→`dé1` dans le sinon, exemple jouable `wiki_hasard_de_six`
+  (`[mémoire nombre]` + comparateur) + Voir aussi.
+- ✅ `hasard.txt` : djnc sur les 3 sections (de_six, tirage_pepite, texte_au_hasard déjà LOT 3),
+  typo « C'est est », + section « Le hasard est rejouable » (graine notée dans sauvegardes/
+  magnéto ; `annuler` régénère volontairement la graine — anti save-scumming).
+- Spec `hasard-exemples-wiki.spec.ts` F071-T001→T003 (40 tirages/issue, P(faux échec) < 1e-7 ;
+  cohérence valeur↔Gagné/Perdu sur 30 lancers).
+- **Calibrations LOT 9** : « tirage dans une liste » = **faux positif d'audit** (le moteur ne
+  supporte QUE `sélectionner un nombre compris entre X et Y`, cf. erreur explicite dans
+  `instruction-selectionner.ts`) ; la graine n'est PAS exposée au DSL (mécanisme interne
+  `.sol`/`.rec`) → documentée comme comportement, pas comme feature ; noms de nombres
+  personnalisés multi-mots et avec chiffres OK (`dé1`, `petit dé` — sondés) ; le moteur
+  remplace l'espace avant « ! » par une insécable dans la sortie (assertions sans « ! »).
+
+### LOT 10 — Débogage (BASSE)
+- Commande joueur `déboguer`/`deb` (la plupart non « exemplifiable » via djnc).
 
 ### LOT 10 — Débogage (BASSE)
 - Commande joueur `déboguer`/`deb` (la plupart non « exemplifiable » via djnc).
