@@ -92,6 +92,134 @@ règle avant commencer le jeu:
   dire "Essayez : {/commander/}.".
 fin règle`;
 
+const COPIER = `
+La forge est un lieu.
+Le moule est un contenant ouvert ici.
+La médaille est un objet dans le moule.
+
+action mouler:
+  copier la médaille dans le moule.
+  dire "Une médaille de plus dans le moule.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/mouler/}, puis {/examiner le moule/}.".
+fin règle`;
+
+const EXECUTER = `
+La crypte est un lieu.
+La stèle est un objet ici.
+Sa description est "Des runes anciennes y sont gravées.".
+
+action balayer:
+  dire "Vous époussetez la crypte du regard :".
+  exécuter l'action regarder.
+fin action
+
+action réciter:
+  exécuter la commande "examiner la stèle".
+fin action
+
+action répéter:
+  dire "(Vous recommencez.)".
+  exécuter la dernière commande.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/balayer/}, {/réciter/}, {/répéter/}.".
+fin règle`;
+
+const ECRANS = `
+Le bureau est un lieu.
+
+action consulter le journal:
+  afficher l'écran temporaire.
+  dire "— Journal de bord — Jour 12 : rien à signaler.".
+  attendre une touche.
+  afficher l'écran précédent.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/consulter le journal/}.".
+fin règle`;
+
+const AUDIO = `
+activer l'audio.
+
+La scène est un lieu.
+
+action sonner:
+  jouer le son bulle.mp3.
+  dire "Un tintement résonne.".
+fin action
+
+action ambiancer:
+  jouer la musique musique_classique.mp3 en boucle.
+  dire "La musique s’installe.".
+fin action
+
+action couper:
+  arrêter la musique progressivement.
+  dire "La musique s’éteint.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/sonner/}, {/ambiancer/}, {/couper/}.".
+fin règle`;
+
+const ATTENDRE = `
+L'observatoire est un lieu.
+
+action contempler:
+  dire "Première vision.".
+  attendre une touche.
+  dire "Seconde vision.".
+fin action
+
+action patienter:
+  dire "Pssssht…".
+  attendre 1 seconde.
+  dire "KABOOM !".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/contempler/}, {/patienter/}.".
+fin règle`;
+
+const IMAGE = `
+Le musée est un lieu.
+La statue est un objet ici.
+Sa description est "Une réplique de la tour du logo : [image logo.png] Impressionnant.".
+
+action admirer:
+  afficher l'image affiche.png.
+  dire "L’affiche du musée apparaît à l’écran.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/admirer/}, {/examiner la statue/}.".
+fin règle`;
+
+/** Reprend le tour interrompu (mime terminerInterruption du lecteur, sans choix). */
+const continuerApresInterruption = (ctx: any): string => {
+  const interruption = ctx.jeu.tamponInterruptions.shift();
+  expect(interruption).toBeDefined();
+  return ctx.com.continuerLeTourInterrompu(interruption.tour);
+};
+
+/** Exécute une commande puis reprend le tour après chaque interruption (écran, touche, délai)
+ *  jusqu'à épuisement ; renvoie la sortie concaténée et les types d'interruption rencontrés. */
+const executerEnDrainant = (ctx: any, commande: string): { sortie: string, types: string[] } => {
+  let sortie = ctx.com.executerCommande(commande, false).sortie ?? '';
+  const types: string[] = [];
+  let garde = 10;
+  while (ctx.jeu.tamponInterruptions.length && garde-- > 0) {
+    types.push(ctx.jeu.tamponInterruptions[0].typeInterruption);
+    sortie += continuerApresInterruption(ctx) ?? '';
+  }
+  return { sortie, types };
+};
+
 describe('Exemples wiki — instructions', () => {
 
   it('[F062-T001] dire : texte simple + balise dynamique', () => {
@@ -125,6 +253,93 @@ describe('Exemples wiki — instructions', () => {
     expect(interruption).toBeDefined();
     expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
     expect(interruption.choix.length).toEqual(3);
+  });
+
+  it('[F062-T005] copier : duplication dans un contenant, piles regroupées au pluriel', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + COPIER);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    ctx.com.executerCommande('regarder', false);
+    expect(ctx.com.executerCommande('mouler', false).sortie).toContain('Une médaille de plus');
+    ctx.com.executerCommande('mouler', false);
+    expect(ctx.com.executerCommande('examiner le moule', false).sortie).toContain('il y a 3 médailles');
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+  });
+
+  it('[F062-T006] exécuter : l’action (unique) / la commande "…" / la dernière commande', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + EXECUTER);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    ctx.com.executerCommande('regarder', false);
+    // exécuter l'action regarder : saute prérequis et règle avant, va à la phase exécution
+    const sAction = ctx.com.executerCommande('balayer', false).sortie;
+    expect(sAction).toContain('Vous époussetez');
+    expect(sAction).toContain('Vous êtes dans la crypte');
+    // exécuter la commande "…" : comme si le joueur l'avait tapée
+    expect(ctx.com.executerCommande('réciter', false).sortie).toContain('runes anciennes');
+    // exécuter la dernière commande : rejoue la commande précédente (ici « réciter »)
+    const sDerniere = ctx.com.executerCommande('répéter', false).sortie;
+    expect(sDerniere).toContain('(Vous recommencez.)');
+    expect(sDerniere).toContain('runes anciennes');
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+  });
+
+  // garde de calibration : « exécuter l'action <verbe> ceci » échoue si le verbe a des
+  // surcharges (ex. examiner dans les actions de base) — « Plusieurs actions compatibles ».
+  // La doc wiki ne recommande donc cette forme que pour une action sans surcharge.
+  it('[F062-T007] exécuter l’action avec ceci : échec contrôlé si surcharges', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + EXECUTER + `
+action palper ceci:
+  dire "Vous palpez [intitulé ceci] :".
+  exécuter l'action examiner ceci.
+fin action`);
+    ctx.com.executerCommande('regarder', false);
+    expect(ctx.com.executerCommande('palper la stèle', false).sortie)
+      .toContain('Plusieurs actions compatibles');
+  });
+
+  it('[F062-T008] afficher l’écran temporaire / attendre une touche / écran précédent', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + ECRANS);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    const { sortie, types } = executerEnDrainant(ctx, 'consulter le journal');
+    expect(sortie).toContain('Journal de bord');
+    expect(types).toContain(TypeInterruption.changerEcran);
+    expect(types).toContain(TypeInterruption.attendreTouche);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+  });
+
+  // ATTENTION : ne PAS exécuter « jouer … » ici — l'instruction lance réellement l'audio,
+  // et Chrome headless rejette play() sans interaction utilisateur (NotAllowedError,
+  // unhandled rejection → ERROR/DISCONNECTED Karma). On vérifie compilation + arrêter.
+  it('[F062-T009] audio : le scénario compile (activer l’audio) et arrêter est sans danger', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + AUDIO);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    expect(ctx.jeu.parametres.activerAudio).toBeTrue();
+    expect(ctx.com.executerCommande('couper', false).sortie).toContain('La musique s’éteint');
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+  });
+
+  it('[F062-T011] afficher l’image + balise [image …] dans une description', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + IMAGE);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    const s1 = ctx.com.executerCommande('admirer', false).sortie;
+    expect(s1).toContain('@@image:affiche.png@@');
+    expect(s1).toContain('affiche du musée');
+    ctx.com.executerCommande('regarder', false);
+    const s2 = ctx.com.executerCommande('examiner la statue', false).sortie;
+    expect(s2).toContain('@@image:logo.png@@');
+    expect(s2).toContain('Impressionnant');
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+  });
+
+  it('[F062-T010] attendre une touche / attendre 1 seconde (interruptions + reprise)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(actions + ATTENDRE);
+    expect(ctx.jeu.tamponErreurs).toHaveSize(0);
+    expect(ctx.com.executerCommande('contempler', false).sortie).toContain('Première vision');
+    expect(ctx.jeu.tamponInterruptions[0]?.typeInterruption).toEqual(TypeInterruption.attendreTouche);
+    expect(continuerApresInterruption(ctx)).toContain('Seconde vision');
+    expect(ctx.com.executerCommande('patienter', false).sortie).toContain('Pssssht');
+    expect(ctx.jeu.tamponInterruptions[0]?.typeInterruption).toEqual(TypeInterruption.attendreSecondes);
+    expect(ctx.jeu.tamponInterruptions[0]?.nbSecondesAttendre).toEqual(1);
+    expect(continuerApresInterruption(ctx)).toContain('KABOOM');
   });
 
 });

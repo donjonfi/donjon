@@ -1,0 +1,12 @@
+Le bureau est un lieu.
+
+action consulter le journal:
+  afficher l'écran temporaire.
+  dire "— Journal de bord — Jour 12 : rien à signaler.".
+  attendre une touche.
+  afficher l'écran précédent.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/consulter le journal/}.".
+fin règle

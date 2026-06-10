@@ -1,0 +1,17 @@
+L'observatoire est un lieu.
+
+action contempler:
+  dire "Première vision.".
+  attendre une touche.
+  dire "Seconde vision.".
+fin action
+
+action patienter:
+  dire "Pssssht…".
+  attendre 1 seconde.
+  dire "KABOOM !".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/contempler/}, {/patienter/}.".
+fin règle

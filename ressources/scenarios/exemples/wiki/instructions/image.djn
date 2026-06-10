@@ -1,0 +1,12 @@
+Le musée est un lieu.
+La statue est un objet ici.
+Sa description est "Une réplique de la tour du logo : [image logo.png] Impressionnant.".
+
+action admirer:
+  afficher l'image affiche.png.
+  dire "L’affiche du musée apparaît à l’écran.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/admirer/}, {/examiner la statue/}.".
+fin règle
