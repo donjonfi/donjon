@@ -693,6 +693,19 @@ export class Generateur {
       }
     });
 
+    // Passe 3 : conseil si une « règle remplacer » d’un verbe laisse d’autres formes de ce verbe
+    // non remplacées (la phase « définitions: » fait partie de la signature). L’action de base
+    // reste alors active pour ces formes — parfois voulu, donc conseil (visible dans
+    // donjon-creer), pas erreur.
+    const infinitifsRemplaces = new Set(rc.actions.filter(a => a.remplace).map(a => a.infinitifSansAccent));
+    infinitifsRemplaces.forEach(infinitifSansAccent => {
+      jeu.actions
+        .filter(a => a.infinitifSansAccent === infinitifSansAccent && !a.remplace)
+        .forEach(reste => {
+          jeu.tamponConseils.push(`« règle remplacer ${reste.infinitif} » : la forme « ${signatureLisible(reste)} »${detailCibleLisible(reste)} n’est pas remplacée et reste active. Si ce n’est pas voulu, vérifiez la phase « définitions: » de votre règle : elle fait partie de la signature de l’action.`);
+        });
+    });
+
     // GÉNÉRER LES ROUTINES
     // ********************
     rc.routinesSimples.forEach(routineSimple => {

@@ -3,12 +3,13 @@ import { Concept } from "../../models/compilateur/concept";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementJeu } from "../../models/jeu/element-jeu";
-import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
+import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { Genre } from "../../models/commun/genre.enum";
 import { InstructionsUtils } from "./instructions-utils";
 import { Jeu } from "../../models/jeu/jeu";
 import { Nombre } from "../../models/commun/nombre.enum";
+import { PhraseUtils } from "../commun/phrase-utils";
 import { TypeValeur } from "../../models/compilateur/type-valeur";
 
 type CalcTexteFn = (
@@ -29,11 +30,25 @@ export class InstructionDirePropriete {
   ) { }
 
   calculerBalisePropriete(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined): string {
-    const balisePropriete = "(quantité|quantite|intitulé|intitule|Intitulé|Intitule|Singulier|singulier|Pluriel|pluriel|Cest|cest|accord|es|s|e|pronom|Pronom|il|Il|l'|l\u2019|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela)";
+    const balisePropriete = "(quantité|quantite|intitulé|intitule|Intitulé|Intitule|Singulier|singulier|Pluriel|pluriel|Cest|cest|accord|es|s|e|pronom|Pronom|il|Il|l'|l\u2019|le|lui|préposition|preposition) (ceci(?:\\?)?|cela(?:\\?)?|ici|origine|destination|orientation|réponse|quantitéCeci|quantitéCela|(?:le |la |les |l'|l\u2019)?[^\\]\\[]+?)";
     return InstructionsUtils.processBalises(texteDynamique, balisePropriete, decoupe => {
       const proprieteString = decoupe[1];
       const cibleString = decoupe[2];
-      const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
+      let cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
+      // cible NOMMÉE (élément du jeu désigné par son intitulé, ex: [lui pomme]) : si la cible
+      // n'est pas un mot-clé spécial, résoudre l'élément par son nom. Si rien n'est trouvé, la
+      // balise est laissée INTACTE pour les handlers suivants du pipeline ([s score] → compteur, …)
+      const estCibleSpeciale = /^(ceci\??|cela\??|ici|origine|destination|orientation|reponse|quantitececi|quantitecela)$/
+        .test(InstructionsUtils.normaliserAccents(cibleString).toLowerCase());
+      if (!cible && !estCibleSpeciale) {
+        const cibleGN = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleString, false);
+        const correspondance = cibleGN ? this.eju.trouverCorrespondance(cibleGN, TypeSujet.SujetEstNom, false, false) : undefined;
+        if (correspondance?.elements.length === 1 && ClasseUtils.heriteDe(correspondance.elements[0].classe, EClasseRacine.element)) {
+          cible = correspondance.elements[0];
+        } else {
+          return decoupe[0]; // balise inchangée
+        }
+      }
       let resultat = '';
         const propNorm = InstructionsUtils.normaliserAccents(proprieteString);
         if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.element)) {

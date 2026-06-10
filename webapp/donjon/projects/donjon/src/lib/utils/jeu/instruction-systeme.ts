@@ -133,6 +133,10 @@ export class InstructionSysteme implements InstructionHandler {
         ctxTour.ajouterErreurInstruction(undefined, "Cible destination joueur pas prise en charge:" + destination);
       }
 
+      // mémoriser l’orientation dans l’évènement pour que les règles ciblant une direction
+      // (« après aller vers le nord ») se déclenchent même après le remplacement ci-dessous.
+      ctxTour.commande.evenement.orientationDeplacement = ctxTour.orientation?.nom ?? null;
+
       // si l’option n’est pas désactivée, remplacer ceci/cela par le lieu destination
       // afin d’avoir toujours le lieu comme paramètre plutôt que parfois le lieu et parfois la direction.
       if (this.jeu.parametres.activerRemplacementDestinationDeplacements) {
