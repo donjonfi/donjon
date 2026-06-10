@@ -5,6 +5,17 @@
 
 ## Bugs
 
+- [ ] **`exécuter réaction de ceci` : article et `concernant` cassent la résolution** (LOT 8, 2026-06-09).
+  Forme qui marche : `exécuter réaction de <vivant>` (sans article) → déclenche la réaction //basique//.
+  Deux anomalies : (1) `exécuter **la** réaction de ceci` (avec article) ne déclenche RIEN (sortie vide,
+  aucune erreur de compil) ; (2) `exécuter réaction de ceci **concernant** <sujet>` ignore le sujet et
+  retombe sur la réaction basique au lieu de la réaction `concernant <sujet>`. Les actions de base
+  (`demander`/`interroger`/`montrer`) y arrivent pourtant via `exécuter réaction de … concernant …`
+  (`actions.djn`) — donc la résolution du sujet existe mais n'est pas atteinte depuis une action auteur.
+  Doc rédigée prudemment (forme sans article + basique uniquement, `routines/reaction/start`). Garde :
+  `actions-exemples-wiki.spec.ts` F070-T011. Piste : dispatch `exécuter (la) réaction de …` dans
+  `instructions.ts` / `instruction-executer.ts` (parsing de l'article + du trailer `concernant`).
+
 - [ ] **`si une sortie / porte / obstacle existe vers <direction>` ne s'évalue plus correctement.**
   `si une sortie existe vers le nord` devrait être vrai s'il existe un lieu voisin au nord, mais le
   moteur ne le résout pas (il cherche un élément nommé « nord » → condition fausse). Confirmé bug

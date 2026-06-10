@@ -1,0 +1,24 @@
+La boutique est un lieu.
+  "Une échoppe encombrée de babioles poussiéreuses."
+
+La vendeuse est une personne dans la boutique.
+
+L'amulette est un objet vu et possédé.
+La fiole est un objet vu dans la boutique.
+
+-- Les actions de conversation prédéfinies (parler, demander, interroger, montrer)
+-- déclenchent la réaction du personnage. On précise une réponse par sujet.
+réactions de la vendeuse:
+  basique:
+    dire "Bienvenue ! Que puis-je pour vous ?".
+  concernant l'amulette:
+    dire "Cette amulette… elle vaut une fortune !".
+  concernant la fiole:
+    dire "Une potion de soin. Prenez-en soin.".
+  concernant un sujet inconnu:
+    dire "Je ne connais rien à ce sujet.".
+fin réactions
+
+règle avant commencer le jeu:
+  dire "Essayez : parler avec la vendeuse / interroger la vendeuse concernant l'amulette / montrer l'amulette à la vendeuse / donner l'amulette à la vendeuse.".
+fin règle
