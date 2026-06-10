@@ -8,6 +8,22 @@ export const actions = `-- Titre: "Actions de base pour Donjon FI".
 
 désactiver les actions de base.
 
+-- ===================================================
+--   ACTIONS PRINCIPALES/SECONDAIRES (MODE MOBILE)
+-- ===================================================
+-- Actions proposées en premier par l’interface tactile (mode mobile).
+-- Le scénario peut remplacer ces listes (« Les actions principales pour
+-- les objets sont … ») ou les compléter (« Ajouter … aux actions
+-- principales du bandit. »).
+
+Les actions principales pour les objets sont examiner et prendre.
+Les actions principales pour les personnes sont parler, montrer et donner.
+Les actions principales supplémentaires pour les portes sont ouvrir et fermer.
+Les actions principales pour les directions sont aller et regarder.
+Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
+L'action principale supplémentaire pour les objets mangeables est manger.
+L'action principale supplémentaire pour les objets buvables est boire.
+
 -- =========================================
 --   AFFICHER (AIDE, INVENTAIRE et SORTIES)
 -- =========================================

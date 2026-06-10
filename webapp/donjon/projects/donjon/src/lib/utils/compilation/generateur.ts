@@ -33,7 +33,10 @@ import { ResultatCompilation } from '../../models/compilateur/resultat-compilati
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
-import { Commandeur, TypeEvenement } from 'donjon';
+// import relatif (pas l’alias « donjon ») : passer par public-api créerait un
+// cycle lecteur → menu-tactile → verbes-elements-utils → … → generateur → public-api
+import { Commandeur } from '../jeu/commandeur';
+import { TypeEvenement } from '../../models/jouer/type-evenement';
 import { Concept } from '../../models/compilateur/concept';
 
 export class Generateur {
@@ -72,6 +75,10 @@ export class Generateur {
     // DÉFINIR LES PARAMÈTRES
     // *************************
     jeu.parametres = rc.parametres;
+
+    // DÉFINIR LES ACTIONS PRINCIPALES/SECONDAIRES (INTERFACE TACTILE)
+    // *************************
+    jeu.actionsTactiles = rc.actionsTactiles;
 
     // DÉFINIR LES ABRÉVIATIONS
     // *************************
@@ -675,6 +682,19 @@ export class Generateur {
           jeu.actions.splice(indexMatches[0], 1, action);
         }
       }
+    });
+
+    // CONTRÔLER LES ACTIONS PRINCIPALES/SECONDAIRES (INTERFACE TACTILE)
+    // Un infinitif sans action correspondante donne un conseil (pas une erreur) :
+    // le bouton correspondant sera simplement absent du menu tactile.
+    jeu.actionsTactiles.forEach(regle => {
+      regle.infinitifs.forEach(infinitif => {
+        const existe = jeu.actions.some(action => action.infinitif === infinitif
+          || action.synonymes?.includes(infinitif));
+        if (!existe) {
+          jeu.tamponConseils.push(`Actions ${regle.typeListe} (interface tactile) : « ${infinitif} » ne correspond à aucune action du jeu — ce verbe ne sera pas proposé dans le menu.`);
+        }
+      });
     });
 
     // GÉNÉRER LES ROUTINES

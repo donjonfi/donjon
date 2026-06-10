@@ -212,6 +212,9 @@ désactiver attendre.
 activer audio.
 activer choix numériques.
 
+-- Interface tactile sur petits écrans (active par défaut, voir dsl-05 §23)
+désactiver le mode mobile.
+
 -- Actions de base (chargées par défaut, déclare si inclus dans le scénario)
 désactiver actions de base.
 ```

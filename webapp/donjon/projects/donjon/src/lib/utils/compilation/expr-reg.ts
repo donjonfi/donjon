@@ -391,6 +391,28 @@ export class ExprReg {
    */
   static readonly xActiverDesactiver = /^(activer|désactiver) (.+)$/i;
 
+  /**
+   * Actions principales/secondaires proposées par l’interface tactile, pour une
+   * classe d’éléments ou un élément précis.
+   * - Découpage :
+   *     - principales/secondaires(1) supplémentaires(2) cible(3) infinitifs(4)
+   * Ex :
+   *  - Les actions principales pour les objets sont examiner, prendre et utiliser.
+   *  - L’action principale pour les lieux est regarder.
+   *  - Les actions principales du bandit sont attaquer et parler.
+   *  - Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
+   */
+  static readonly xActionsTactiles = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?)( suppl[ée]mentaires?)? (?:pour |du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+?) (?:est|sont) (.+)$/i;
+
+  /**
+   * Ajout d’actions principales/secondaires à la liste héritée (définition ou instruction).
+   * - Découpage :
+   *     - infinitifs(1) principales/secondaires(2) cible(3)
+   * Ex :
+   *  - Ajouter attaquer et insulter aux actions principales du bandit.
+   */
+  static readonly xAjouterActionsTactiles = /^ajouter (.+?) aux actions (principales|secondaires) (?:du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+)$/i;
+
   // ================================================================================================
   //  DÉCLARATION D'ÉTATS PERSONNALISÉS
   // ================================================================================================

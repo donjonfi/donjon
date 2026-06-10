@@ -10,6 +10,7 @@ import { Jeu } from "../../models/jeu/jeu";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
 import { Resultat } from "../../models/jouer/resultat";
+import { TypeListeActionsTactiles } from "../../models/jeu/regle-actions-tactiles";
 
 /**
  * Instructions liées aux listes / synonymes / inventaire :
@@ -53,6 +54,13 @@ export class InstructionListes implements InstructionHandler {
     if (!instruction.complement1) {
       resultat.sortie = '{n}{+[ajouter : complément manquant.]+}';
       return resultat;
+    }
+
+    // A0) ajouter <infinitifs> aux actions principales/secondaires de <cible>
+    //  (même syntaxe qu’en définition : on réutilise la regex en reconstituant l’infinitif)
+    const matchActionsTactiles = ExprReg.xAjouterActionsTactiles.exec('ajouter ' + instruction.complement1);
+    if (matchActionsTactiles) {
+      return this.ajouterActionsTactiles(matchActionsTactiles, resultat, contexteTour);
     }
 
     // A) ajouter "x" aux synonymes de <élément>
@@ -112,6 +120,43 @@ export class InstructionListes implements InstructionHandler {
       }
     }
 
+    resultat.succes = true;
+    return resultat;
+  }
+
+  /**
+   * Ajouter des actions à la liste des actions principales/secondaires
+   * (interface tactile) d’une classe d’éléments ou d’un élément précis.
+   * Ex : ajouter attaquer et insulter aux actions principales du bandit.
+   * La cible n’est pas résolue ici : la règle est résolue dynamiquement à
+   * l’ouverture du menu tactile (voir ActionsTactilesUtils).
+   */
+  private ajouterActionsTactiles(match: RegExpExecArray, resultat: Resultat, contexteTour: ContexteTour): Resultat {
+    const typeListe: TypeListeActionsTactiles = match[2].toLowerCase() === 'principales' ? 'principales' : 'secondaires';
+    const cibleBrute = match[3].trim().toLowerCase();
+
+    let cible: GroupeNominal | undefined;
+    if (cibleBrute === 'ceci') {
+      cible = (contexteTour.ceci as ElementJeu)?.intitule;
+    } else if (cibleBrute === 'cela') {
+      cible = (contexteTour.cela as ElementJeu)?.intitule;
+    } else {
+      cible = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleBrute, true);
+    }
+    if (!cible?.nom) {
+      resultat.sortie = `{n}{+[ajouter aux actions ${typeListe} : cible pas comprise : « ${match[3].trim()} ».]+}`;
+      return resultat;
+    }
+
+    const infinitifs = PhraseUtils.separerListeIntitulesEtOu(match[1].trim(), true)
+      .map(item => item.trim().toLowerCase())
+      .filter(infinitif => infinitif && ExprReg.xVerbeInfinitif.test(infinitif));
+    if (!infinitifs.length) {
+      resultat.sortie = `{n}{+[ajouter aux actions ${typeListe} : aucun infinitif valide dans « ${match[1].trim()} ».]+}`;
+      return resultat;
+    }
+
+    this.jeu.actionsTactiles.push({ typeListe, cible, mode: 'ajouter', infinitifs });
     resultat.succes = true;
     return resultat;
   }

@@ -11,6 +11,7 @@ export enum ResultatAnalysePhrase {
   activerParametre,
   afficherCompteur,
   afficherLieu,
+  actionsTactiles,
   elementAvecPosition,
   elementSansPosition,
   pronomDemontratifTypeAttribut,

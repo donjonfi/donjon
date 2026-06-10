@@ -21,6 +21,7 @@ import { ProprieteConcept } from "../../models/commun/propriete-element";
 import { RechercheUtils } from "../commun/recherche-utils";
 import { RessourceAffichee } from "../../models/jeu/ressource-affichee";
 import { Resultat } from "../../models/jouer/resultat";
+import { TypeListeActionsTactiles } from "../../models/jeu/regle-actions-tactiles";
 import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
 import { InstructionDire } from "./instruction-dire";
 import { Concept } from "../../models/compilateur/concept";
@@ -67,6 +68,13 @@ export class InstructionChanger {
         // affichage du lieu dans le cartouche : « changer le lieu n'est plus affiché [dans le cartouche [du haut|du bas]] »
         case 'lieu':
           resultat = this.changerAffichageLieu(instruction);
+          break;
+
+        // actions principales/secondaires proposées par l’interface tactile
+        // ex: « changer les actions principales du bandit sont attaquer et fuir »
+        // (sujet marqueur posé à la décomposition — voir analyseur-commun-utils)
+        case 'actions tactiles':
+          resultat = this.changerActionsTactiles(instruction, contexteTour);
           break;
 
         // élément du jeu ou compteur (ceci)
@@ -505,6 +513,55 @@ export class InstructionChanger {
     }
     const position = match[1]?.toLowerCase();
     this.jeu.parametres.afficherTitreLieu = (position === 'bas') ? 'bas' : 'haut';
+    return resultat;
+  }
+
+  /**
+   * Remplacer la liste des actions principales/secondaires (interface tactile)
+   * d’une classe d’éléments ou d’un élément précis, en cours de partie.
+   * Ex : « changer les actions principales du bandit sont attaquer et fuir ».
+   * Le complément brut a été conservé tel quel à la décomposition ; la cible
+   * n’est pas résolue ici : la règle ajoutée est résolue dynamiquement à
+   * l’ouverture du menu tactile (voir ActionsTactilesUtils).
+   */
+  private changerActionsTactiles(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+    const resultat = new Resultat(false, '', 1);
+
+    const match = ExprReg.xActionsTactiles.exec(instruction.complement1 ?? '');
+    if (!match) {
+      resultat.sortie = `{n}{+[Instruction « changer » : actions tactiles : syntaxe pas comprise : « ${instruction.complement1} ».]+}`;
+      return resultat;
+    }
+
+    const typeListe: TypeListeActionsTactiles = match[1].toLowerCase().startsWith('principale') ? 'principales' : 'secondaires';
+    // « supplémentaires » : complète la liste au lieu de la remplacer
+    const supplementaires = !!match[2];
+    const cibleBrute = match[3].trim().toLowerCase();
+
+    let cible: GroupeNominal | undefined;
+    if (cibleBrute === 'ceci') {
+      cible = (contexteTour.ceci as ElementJeu)?.intitule;
+    } else if (cibleBrute === 'cela') {
+      cible = (contexteTour.cela as ElementJeu)?.intitule;
+    } else {
+      cible = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleBrute, true);
+    }
+    if (!cible?.nom) {
+      resultat.sortie = `{n}{+[Instruction « changer » : actions ${typeListe} : cible pas comprise : « ${match[3].trim()} ».]+}`;
+      return resultat;
+    }
+
+    const infinitifs = PhraseUtils.separerListeIntitulesEtOu(match[4].trim(), true)
+      .map(item => item.trim().toLowerCase())
+      .filter(infinitif => infinitif && ExprReg.xVerbeInfinitif.test(infinitif));
+    if (!infinitifs.length) {
+      resultat.sortie = `{n}{+[Instruction « changer » : actions ${typeListe} : aucun infinitif valide dans « ${match[4].trim()} ».]+}`;
+      return resultat;
+    }
+
+    // la résolution prend le dernier « remplacer » du niveau le plus précis : ajouter en fin de liste suffit
+    this.jeu.actionsTactiles.push({ typeListe, cible, mode: supplementaires ? 'ajouter' : 'remplacer', infinitifs });
+    resultat.succes = true;
     return resultat;
   }
 

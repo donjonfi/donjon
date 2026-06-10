@@ -48,8 +48,8 @@
     </div>
   </div>
   <div class="rl-2" [hidden]="enregistrementActif">
-    <!-- entrée utilisateur (masquée en mode tactile, sauf si une saisie libre est attendue) -->
-    <div class="input-group mt-2 px-1" [hidden]="tactileActif && !saisieTactileRequise">
+    <!-- entrée utilisateur (masquée en mode tactile, sauf saisie libre attendue ou demandée) -->
+    <div class="input-group mt-2 px-1" [hidden]="tactileActif && !saisieTactileRequise && !saisieManuelleTactile">
       <input #txCommande type="text" [(ngModel)]="commande" (keydown.enter)="onKeyDownEnter($event);"
         (keydown.tab)="onKeyDownTab($event);" (keydown.arrowup)="onKeyDownArrowUp($event);"
         (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);"
@@ -61,7 +61,7 @@
       id="btExecuter">↑</button> -->
     </div>
     <!-- barre tactile : commandes courantes + constructeur global -->
-    @if (tactileActif && !saisieTactileRequise && !interruptionAttendreChoixEnCours) {
+    @if (tactileActif && !saisieTactileRequise && !saisieManuelleTactile && !interruptionAttendreChoixEnCours) {
       <div class="djn-barre-tactile px-1 mt-2">
         <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('regarder')">👁 Regarder</button>
         <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('afficher inventaire')">🎒 Inventaire</button>
@@ -139,7 +139,7 @@
               <small class="mx-1">Marges</small>
               <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="augmenterMarge()" title="Agrandir les marges">▷</button>
             </div>
-            @if (interfaceTactile !== 'desactive') {
+            @if (interfaceTactile !== 'desactive' && !tactileDesactiveParLeJeu) {
               <div class="col-auto p-1 pb-0">
                 <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="basculerInterfaceTactile()"
                   [title]="tactileActif ? 'Basculer vers l’interface clavier' : 'Basculer vers l’interface tactile'">
@@ -327,8 +327,10 @@
   }
 
   @if (menuTactileOuvert) {
-    <djn-menu-tactile [cible]="menuTactileCible" [jeu]="jeuPartie" [eju]="ejuPartie"
-      (commandeChoisie)="executerCommandeTactile($event)" (fermer)="fermerMenuTactile()">
+    <djn-menu-tactile [cible]="menuTactileCible" [cibleDirection]="menuTactileDirection" [jeu]="jeuPartie" [eju]="ejuPartie"
+      [dernieresCommandes]="dernieresCommandesDistinctes"
+      (commandeChoisie)="executerCommandeTactile($event)" (fermer)="fermerMenuTactile()"
+      (saisieManuelle)="activerSaisieManuelle()">
     </djn-menu-tactile>
   }
 

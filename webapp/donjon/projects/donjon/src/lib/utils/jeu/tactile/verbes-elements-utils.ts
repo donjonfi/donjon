@@ -1,10 +1,13 @@
 import { Action } from '../../../models/compilateur/action';
+import { ActionsTactilesUtils } from './actions-tactiles-utils';
 import { AleatoireUtils } from '../aleatoire-utils';
 import { CibleAction } from '../../../models/compilateur/cible-action';
 import { ClasseUtils } from '../../commun/classe-utils';
 import { ConditionsUtils } from '../conditions-utils';
 import { ContexteTour } from '../../../models/jouer/contexte-tour';
 import { EClasseRacine } from '../../../models/commun/constantes';
+import { ELocalisation, Localisation } from '../../../models/jeu/localisation';
+
 import { ElementJeu } from '../../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../../commun/elements-jeu-utils';
 import { Instruction } from '../../../models/compilateur/instruction';
@@ -23,6 +26,10 @@ export interface SuggestionVerbe {
   commande: string;
   /** L’action attend-elle encore un premier complément (ceci) ? (constructeur global) */
   attendCeci: boolean;
+  /** Le premier complément est-il un texte libre (cible « un intitulé ») plutôt qu’un élément ? */
+  ceciLibre?: boolean;
+  /** Le premier complément est-il une direction (cible « une direction ») plutôt qu’un élément ? */
+  ceciDirection?: boolean;
   /** L’action attend-elle un second complément (cela) ? */
   attendCela: boolean;
   /** Préposition du premier complément (« vers », …). */
@@ -31,6 +38,22 @@ export interface SuggestionVerbe {
   prepositionCela: string | undefined;
   /** L’action serait probablement refusée par ses prérequis (« si ceci…, refuser »). */
   probablementRefusee: boolean;
+}
+
+/**
+ * Verbes applicables à un élément, regroupés par infinitif pour le menu
+ * tactile : un bouton par infinitif (tap = variante la plus simple), un
+ * appui long ouvre les variantes avec compléments.
+ */
+export interface GroupeVerbe {
+  /** Infinitif de l’action. */
+  infinitif: string;
+  /** Niveau d’affichage : principale (niveau 1), secondaire (niveau 2), autre (niveau 3). */
+  niveau: 'principale' | 'secondaire' | 'autre';
+  /** Variante la plus simple (sans second complément de préférence), exécutée au tap. */
+  simple: SuggestionVerbe;
+  /** Autres variantes (avec compléments, prépositions, …), proposées via un appui long. */
+  variantes: SuggestionVerbe[];
 }
 
 /**
@@ -104,6 +127,73 @@ export class VerbesElementsUtils {
   }
 
   /**
+   * Lister les actions applicables à l’élément, regroupées par infinitif et
+   * réparties en niveaux d’affichage (principales / secondaires / autres)
+   * selon les règles d’actions tactiles du jeu (défauts du moteur, déclarations
+   * de l’auteur, instructions exécutées en cours de partie).
+   *
+   * Tri : principales d’abord (dans l’ordre déclaré par l’auteur), puis
+   * secondaires (idem), puis les autres dans l’ordre de listerVerbes ; au sein
+   * des principales/secondaires, les actions que les prérequis refuseraient
+   * sont reléguées en fin de niveau.
+   */
+  public static listerGroupesVerbes(element: ElementJeu, jeu: Jeu, eju: ElementsJeuUtils): GroupeVerbe[] {
+    const suggestions = VerbesElementsUtils.listerVerbes(element, jeu, eju);
+    const { principales, secondaires } = ActionsTactilesUtils.resoudreToutes(element, jeu, eju);
+
+    // regrouper les variantes par infinitif (ordre de première apparition conservé)
+    const parInfinitif = new Map<string, SuggestionVerbe[]>();
+    suggestions.forEach(suggestion => {
+      if (!parInfinitif.has(suggestion.infinitif)) {
+        parInfinitif.set(suggestion.infinitif, []);
+      }
+      parInfinitif.get(suggestion.infinitif).push(suggestion);
+    });
+
+    const groupes: GroupeVerbe[] = [];
+    parInfinitif.forEach((variantes, infinitif) => {
+      const simple = variantes.find(v => !v.attendCela) ?? variantes[0];
+      let niveau: 'principale' | 'secondaire' | 'autre';
+      if (principales.includes(infinitif)) {
+        niveau = 'principale';
+        // une action définie pour cet élément précis (« ceci est le fauteuil ») est
+        // proposée d’office en secondaire si l’auteur ne l’a pas classée lui-même
+      } else if (secondaires.includes(infinitif) || variantes.some(v => !VerbesElementsUtils.cibleEstClasse(v.action.cibleCeci))) {
+        niveau = 'secondaire';
+      } else {
+        niveau = 'autre';
+      }
+      groupes.push({ infinitif, niveau, simple, variantes: variantes.filter(v => v !== simple) });
+    });
+
+    const rangNiveau = { principale: 0, secondaire: 1, autre: 2 };
+    // les secondaires promues automatiquement (pas déclarées) après les déclarées
+    const rangDeclare = (groupe: GroupeVerbe) => {
+      const index = groupe.niveau === 'principale'
+        ? principales.indexOf(groupe.infinitif)
+        : secondaires.indexOf(groupe.infinitif);
+      return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+    };
+    // tri stable : les groupes « autre » conservent l’ordre de listerVerbes
+    groupes.sort((a, b) => {
+      const niveau = rangNiveau[a.niveau] - rangNiveau[b.niveau];
+      if (niveau !== 0) {
+        return niveau;
+      }
+      if (a.niveau === 'autre') {
+        return 0;
+      }
+      const refusee = (a.simple.probablementRefusee ? 1 : 0) - (b.simple.probablementRefusee ? 1 : 0);
+      if (refusee !== 0) {
+        return refusee;
+      }
+      return rangDeclare(a) - rangDeclare(b);
+    });
+
+    return groupes;
+  }
+
+  /**
    * Lister toutes les actions actuellement lançables, pour le constructeur de
    * commande global (sans partir d’un élément précis) : les actions sans
    * complément (« attendre », « regarder », …) s’exécutent directement, les
@@ -130,8 +220,22 @@ export class VerbesElementsUtils {
         };
         variante = action.infinitif;
         // action avec complément(s) : proposée seulement si un candidat existe pour ceci
+        // (texte libre — « un intitulé » — et directions sont aussi pris en charge)
       } else {
-        if (!action.cibleCeci || !VerbesElementsUtils.listerCandidatsCible(action.cibleCeci, jeu, eju).length) {
+        if (!action.cibleCeci) {
+          return;
+        }
+        const ceciLibre = VerbesElementsUtils.cibleEstIntitule(action.cibleCeci);
+        const ceciDirection = !ceciLibre && VerbesElementsUtils.cibleEstDirection(action.cibleCeci);
+        if (ceciLibre || ceciDirection) {
+          // texte libre / direction + second complément : pas pris en charge par le constructeur
+          if (action.cela) {
+            return;
+          }
+          if (ceciDirection && !VerbesElementsUtils.listerSortiesVisibles(jeu, eju).length) {
+            return;
+          }
+        } else if (!VerbesElementsUtils.listerCandidatsCible(action.cibleCeci, jeu, eju).length) {
           return;
         }
         suggestion = {
@@ -139,6 +243,8 @@ export class VerbesElementsUtils {
           action,
           commande: action.infinitif,
           attendCeci: true,
+          ceciLibre,
+          ceciDirection,
           attendCela: action.cela,
           prepositionCeci: action.prepositionCeci ?? undefined,
           prepositionCela: action.cela ? (action.prepositionCela ?? undefined) : undefined,
@@ -169,6 +275,141 @@ export class VerbesElementsUtils {
   }
 
   /**
+   * Variantes du constructeur global regroupées par infinitif (un bouton par
+   * infinitif), triées par ordre alphabétique. Pas de niveaux
+   * principal/secondaire pour le constructeur global.
+   */
+  public static listerGroupesVerbesGlobaux(jeu: Jeu, eju: ElementsJeuUtils): GroupeVerbe[] {
+    const suggestions = VerbesElementsUtils.listerVerbesGlobaux(jeu, eju);
+
+    // regrouper les variantes par infinitif
+    const parInfinitif = new Map<string, SuggestionVerbe[]>();
+    suggestions.forEach(suggestion => {
+      if (!parInfinitif.has(suggestion.infinitif)) {
+        parInfinitif.set(suggestion.infinitif, []);
+      }
+      parInfinitif.get(suggestion.infinitif).push(suggestion);
+    });
+
+    const groupes: GroupeVerbe[] = [];
+    parInfinitif.forEach((variantes, infinitif) => {
+      // la plus simple : sans complément (exécution directe), sinon sans second complément
+      const simple = variantes.find(v => !v.attendCeci)
+        ?? variantes.find(v => !v.attendCela)
+        ?? variantes[0];
+      groupes.push({ infinitif, niveau: 'autre', simple, variantes: variantes.filter(v => v !== simple) });
+    });
+
+    groupes.sort((a, b) => a.infinitif.localeCompare(b.infinitif, 'fr'));
+
+    return groupes;
+  }
+
+  /**
+   * Lister les actions applicables à une sortie (direction), regroupées et
+   * réparties en niveaux selon les règles d’actions tactiles (« Les actions
+   * principales pour les directions sont aller et regarder. »). Chaque
+   * suggestion est une commande complète (la direction est connue).
+   */
+  public static listerGroupesVerbesDirection(direction: Localisation, jeu: Jeu, eju: ElementsJeuUtils): GroupeVerbe[] {
+    const parInfinitif = new Map<string, SuggestionVerbe>();
+
+    jeu.actions.forEach(action => {
+      if (!action.ceci || !action.cibleCeci || action.cela) {
+        return;
+      }
+      if (!VerbesElementsUtils.cibleEstDirection(action.cibleCeci)) {
+        return;
+      }
+      if (!parInfinitif.has(action.infinitif)) {
+        parInfinitif.set(action.infinitif, {
+          infinitif: action.infinitif,
+          action,
+          commande: VerbesElementsUtils.construireCommandeDirection(action, direction),
+          attendCeci: false,
+          attendCela: false,
+          prepositionCeci: undefined,
+          prepositionCela: undefined,
+          probablementRefusee: false,
+        });
+      }
+    });
+
+    const { principales, secondaires } = ActionsTactilesUtils.resoudreToutesPourClasse(direction.classe, jeu);
+
+    // compléter avec les infinitifs déclarés dans les listes dont l’action
+    // cible un intitulé (« regarder ») : elles acceptent aussi une direction
+    [...principales, ...secondaires].forEach(infinitif => {
+      if (parInfinitif.has(infinitif)) {
+        return;
+      }
+      const action = jeu.actions.find(a => a.ceci && !a.cela && a.cibleCeci
+        && (a.infinitif === infinitif || a.synonymes?.includes(infinitif))
+        && VerbesElementsUtils.cibleEstIntitule(a.cibleCeci));
+      if (action) {
+        parInfinitif.set(infinitif, {
+          infinitif,
+          action,
+          commande: VerbesElementsUtils.construireCommandeDirection(action, direction),
+          attendCeci: false,
+          attendCela: false,
+          prepositionCeci: undefined,
+          prepositionCela: undefined,
+          probablementRefusee: false,
+        });
+      }
+    });
+
+    const groupes: GroupeVerbe[] = [];
+    parInfinitif.forEach((simple, infinitif) => {
+      const niveau = principales.includes(infinitif) ? 'principale'
+        : (secondaires.includes(infinitif) ? 'secondaire' : 'autre');
+      groupes.push({ infinitif, niveau, simple, variantes: [] });
+    });
+
+    const rangNiveau = { principale: 0, secondaire: 1, autre: 2 };
+    const rangDeclare = (groupe: GroupeVerbe) => {
+      const index = groupe.niveau === 'principale'
+        ? principales.indexOf(groupe.infinitif)
+        : secondaires.indexOf(groupe.infinitif);
+      return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+    };
+    groupes.sort((a, b) => {
+      const niveau = rangNiveau[a.niveau] - rangNiveau[b.niveau];
+      if (niveau !== 0) {
+        return niveau;
+      }
+      if (a.niveau === 'autre') {
+        return a.infinitif.localeCompare(b.infinitif, 'fr');
+      }
+      return rangDeclare(a) - rangDeclare(b);
+    });
+
+    return groupes;
+  }
+
+  /** Sorties (directions) actuellement visibles depuis le lieu du joueur. */
+  public static listerSortiesVisibles(jeu: Jeu, eju: ElementsJeuUtils): Localisation[] {
+    const curLieu = eju.curLieu;
+    if (!jeu?.joueur?.position || !curLieu) {
+      return [];
+    }
+    return eju.getLieuxVoisinsVisibles(curLieu)
+      .filter(voisin => voisin.localisation !== ELocalisation.inconnu)
+      .map(voisin => Localisation.getLocalisation(voisin.localisation));
+  }
+
+  /** Construire la commande correspondant à l’action appliquée à une direction. */
+  public static construireCommandeDirection(action: Action, direction: Localisation): string {
+    let commande = action.infinitif;
+    if (action.ceci) {
+      commande += ' ' + (action.prepositionCeci ? (action.prepositionCeci + ' ') : '')
+        + direction.intitule.determinant + direction.intitule.nom;
+    }
+    return VerbesElementsUtils.contracter(commande);
+  }
+
+  /**
    * Lister les éléments visibles pouvant servir de second complément (cela)
    * à l’action spécifiée.
    */
@@ -180,16 +421,41 @@ export class VerbesElementsUtils {
   }
 
   /**
-   * Lister les éléments visibles correspondant à la cible (ceci ou cela) d’une action.
+   * Lister les éléments visibles correspondant à la cible (ceci ou cela) d’une
+   * action, les plus pertinents d’abord : les derniers éléments mentionnés ou
+   * manipulés (ordre de récence), puis ceux présents dans le lieu ou dans
+   * l’inventaire, puis les autres.
    */
   public static listerCandidatsCible(cible: CibleAction, jeu: Jeu, eju: ElementsJeuUtils, exclureIds: number[] = []): ElementJeu[] {
-    return jeu.objets.filter(obj =>
+    const candidats = jeu.objets.filter(obj =>
       !exclureIds.includes(obj.id)
       && obj.id !== jeu.joueur.id
       && obj.intitule?.nom
       && jeu.etats.estVisible(obj, eju)
       && VerbesElementsUtils.cibleCorrespond(obj, cible, jeu, eju)
     );
+    return VerbesElementsUtils.trierCandidats(candidats, jeu, eju);
+  }
+
+  /**
+   * Trier les candidats d’un complément : derniers mentionnés/manipulés
+   * d’abord (plus récent en premier), puis présents ou possédés, puis les
+   * autres (tri stable : ordre de déclaration conservé à rang égal).
+   */
+  private static trierCandidats(candidats: ElementJeu[], jeu: Jeu, eju: ElementsJeuUtils): ElementJeu[] {
+    const derniers = jeu.derniersElementIds ?? [];
+    const rangs = new Map<number, { recence: number, aPortee: number }>();
+    candidats.forEach(candidat => {
+      const recence = derniers.indexOf(candidat.id);
+      const aPortee = (jeu.etats.possedeEtatIdElement(candidat, jeu.etats.presentID, eju)
+        || jeu.etats.possedeEtatIdElement(candidat, jeu.etats.possedeID, eju)) ? 0 : 1;
+      rangs.set(candidat.id, { recence: recence === -1 ? Number.MAX_SAFE_INTEGER : recence, aPortee });
+    });
+    return [...candidats].sort((a, b) => {
+      const rangA = rangs.get(a.id);
+      const rangB = rangs.get(b.id);
+      return (rangA.recence - rangB.recence) || (rangA.aPortee - rangB.aPortee);
+    });
   }
 
   /** Prépositions spatiales interchangeables au niveau de la commande (« mettre ceci sur/dans/sous cela »). */
@@ -328,10 +594,27 @@ export class VerbesElementsUtils {
       .replace(/ de les /g, ' des ');
   }
 
+  /** La cible désigne-t-elle une classe (« un objet ») plutôt qu’un sujet précis (« le fauteuil ») ? */
+  private static cibleEstClasse(cible: CibleAction): boolean {
+    return !!cible.determinant?.match(/^(un|une|des|deux|1|2)( )?$/);
+  }
+
+  /** La cible est-elle un texte libre (« un intitulé »), ex. « taper {code} » ? */
+  public static cibleEstIntitule(cible: CibleAction): boolean {
+    return VerbesElementsUtils.cibleEstClasse(cible)
+      && ClasseUtils.getIntituleNormalise(cible.nom) === EClasseRacine.intitule;
+  }
+
+  /** La cible est-elle une direction (« une direction »), ex. « aller vers {direction} » ? */
+  public static cibleEstDirection(cible: CibleAction): boolean {
+    return VerbesElementsUtils.cibleEstClasse(cible)
+      && ClasseUtils.getIntituleNormalise(cible.nom) === EClasseRacine.direction;
+  }
+
   /** Vérifier si l’élément correspond à la cible (ceci ou cela) de l’action. */
   private static cibleCorrespond(element: ElementJeu, cible: CibleAction, jeu: Jeu, eju: ElementsJeuUtils): boolean {
     // A. la cible est une classe (« un objet », « une personne », …)
-    if (cible.determinant?.match(/^(un|une|des|deux|1|2)( )?$/)) {
+    if (VerbesElementsUtils.cibleEstClasse(cible)) {
       const nomClasse = ClasseUtils.getIntituleNormalise(cible.nom);
       // les cibles trop génériques (intitulé, direction) ne désignent pas un objet précis
       if (nomClasse === EClasseRacine.intitule || nomClasse === EClasseRacine.direction) {

@@ -182,6 +182,12 @@ export class AnalyseurV8Definitions {
         ctx.logResultatOk("trouvé afficher lieu");
       }
     }
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      elementTrouve = AnalyseurDivers.testerActionsTactiles(phrase, ctx);
+      if (elementTrouve === ResultatAnalysePhrase.actionsTactiles) {
+        ctx.logResultatOk("trouvé actions principales/secondaires (interface tactile)");
+      }
+    }
     return elementTrouve;
   }
 

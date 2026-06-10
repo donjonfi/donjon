@@ -203,8 +203,19 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Élément du jeu sur lequel le menu tactile est ouvert (null: constructeur global). */
   public menuTactileCible: ElementJeu | null = null;
 
+  /** Sortie (direction) sur laquelle le menu tactile est ouvert. */
+  public menuTactileDirection: Localisation | null = null;
+
+  /** Le jeu interdit-il l’interface tactile (« Désactiver le mode mobile. ») ? */
+  public get tactileDesactiveParLeJeu(): boolean {
+    return (this.partie?.jeu ?? this.jeu)?.parametres?.activerInterfaceTactile === false;
+  }
+
   /** L’interface tactile est-elle actuellement active ? */
   public get tactileActif(): boolean {
+    if (this.tactileDesactiveParLeJeu) {
+      return false;
+    }
     switch (this.interfaceTactile) {
       case 'desactive':
         return false;
@@ -229,6 +240,16 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return this.interruptionAttendreChoixLibreEnCours || this.interruptionQuestionCommande;
   }
 
+  /** Saisie clavier demandée ponctuellement par le joueur (« Taper une commande… » du menu tactile). */
+  public saisieManuelleTactile = false;
+
+  /** Afficher le champ de saisie le temps d’une commande tapée à la main en mode tactile. */
+  public activerSaisieManuelle(): void {
+    this.fermerMenuTactile();
+    this.saisieManuelleTactile = true;
+    this.focusCommande();
+  }
+
   /** Accès au jeu de la partie pour le menu tactile. */
   public get jeuPartie(): Jeu | undefined {
     return this.partie?.jeu;
@@ -250,14 +271,17 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       const element = this.partie.jeu.objets.find(x => x.id === parseInt(matchElement[1], 10));
       if (element) {
         this.menuTactileCible = element;
+        this.menuTactileDirection = null;
         this.menuTactileOuvert = true;
       }
       return;
     }
     const matchDirection = href.match(/^#D-(\w+)$/);
     if (matchDirection) {
-      const localisation = Localisation.getLocalisation(matchDirection[1] as ELocalisation);
-      this.executerCommandeTactile('aller vers ' + localisation.intitule.determinant + localisation.intitule.nom);
+      // menu des actions applicables à la sortie (aller, regarder, …)
+      this.menuTactileCible = null;
+      this.menuTactileDirection = Localisation.getLocalisation(matchDirection[1] as ELocalisation);
+      this.menuTactileOuvert = true;
     }
   }
 
@@ -277,6 +301,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       return;
     }
     this.menuTactileCible = null;
+    this.menuTactileDirection = null;
     this.menuTactileOuvert = true;
   }
 
@@ -284,6 +309,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   public fermerMenuTactile(): void {
     this.menuTactileOuvert = false;
     this.menuTactileCible = null;
+    this.menuTactileDirection = null;
   }
 
   /** Sélection tactile d’un choix proposé au joueur (attendre choix). */
@@ -400,7 +426,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // enrichir la sortie avec des liens cliquables sur les éléments du jeu
     // (toujours, sauf si désactivé : ainsi la bascule clavier ⇄ tactile ne
     // laisse pas de texte ancien sans liens)
-    if (this.interfaceTactile !== 'desactive') {
+    if (this.interfaceTactile !== 'desactive' && !this.tactileDesactiveParLeJeu) {
       this.partie.ecran.enrichisseurLiens = (html: string) =>
         LiensElementsUtils.enrichirLiens(html, LiensElementsUtils.construireCibles(this.partie.jeu, this.partie.eju));
     }
@@ -1318,8 +1344,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
   /** Définir le focus sur l’entrée commande utilisateur. */
   public focusCommande() {
-    // en mode tactile, ne pas voler le focus (ouvrirait le clavier virtuel)
-    if (this.tactileActif) {
+    // en mode tactile, ne pas voler le focus (ouvrirait le clavier virtuel),
+    // sauf si le joueur vient justement de demander à taper une commande
+    if (this.tactileActif && !this.saisieManuelleTactile) {
       return;
     }
     setTimeout(() => {
@@ -2752,6 +2779,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Lorsque le joueur valide une commande */
   private validationCommande(): void {
     this.curseurDernieresCommandes = -1;
+    // la saisie manuelle ponctuelle (mode tactile) se referme à l’envoi de la commande
+    this.saisieManuelleTactile = false;
     if (this.commande && this.commande.trim() !== "") {
       event?.stopPropagation; // éviter que l’évènement soit encore émis ailleurs
       this.commandeEnCours = true; // éviter qu’il déclenche attendre touche trop tôt et continue le texte qui va être ajouté ci dessous durant cet appuis-ci

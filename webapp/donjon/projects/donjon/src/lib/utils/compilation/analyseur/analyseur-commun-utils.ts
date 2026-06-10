@@ -142,6 +142,13 @@ export class AnalyseurCommunUtils {
               els.complement3 = resDV[3].trim();   // emplacement destination (texte brut)
             }
 
+            // CHANGER LES ACTIONS PRINCIPALES/SECONDAIRES (INTERFACE TACTILE)
+            // ex: changer les actions principales du bandit sont attaquer et fuir.
+            // => sujet marqueur « actions tactiles » ; le complément brut est conservé
+            // et réinterprété à l’exécution (executerChanger) avec xActionsTactiles.
+          } else if (els.infinitif === 'changer' && els.complement1 && ExprReg.xActionsTactiles.test(els.complement1)) {
+            els.sujet = new GroupeNominal('les ', 'actions tactiles');
+
             // AUTRE INFINITF
           } else {
             // tester si le sujet est une propriéter à changer

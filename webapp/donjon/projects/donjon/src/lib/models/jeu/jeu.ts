@@ -11,6 +11,7 @@ import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
 import { ProgrammationTemps } from './programmation-temps';
+import { RegleActionsTactiles } from './regle-actions-tactiles';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RessourceAffichee } from './ressource-affichee';
 import { RoutineSimple } from '../compilateur/routine-simple';
@@ -144,6 +145,9 @@ export class Jeu {
 
   /** Paramètres spécifiques au jeu */
   parametres: Parametres = new Parametres();
+
+  /** Actions principales/secondaires proposées par l’interface tactile */
+  actionsTactiles: RegleActionsTactiles[] = [];
 
   /** Programmations de routines (basée sur un décompte en millisecondes) */
   programmationsTemps: ProgrammationTemps[] = [];

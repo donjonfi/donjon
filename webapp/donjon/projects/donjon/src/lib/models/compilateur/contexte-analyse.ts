@@ -7,6 +7,7 @@ import { ElementGenerique } from "./element-generique";
 import { Parametres } from "../commun/parametres";
 import { ProprieteConcept } from "../commun/propriete-element";
 import { ReactionBeta } from "./reaction-beta";
+import { RegleActionsTactiles } from "../jeu/regle-actions-tactiles";
 import { Regle } from "../../interfaces/compilateur/regle";
 
 export class ContexteAnalyse {
@@ -22,6 +23,9 @@ export class ContexteAnalyse {
     public parametres = new Parametres(),
     public declarationsEtats = new Array<DeclarationEtat>(),
   ) { }
+
+  /** Actions principales/secondaires proposées par l’interface tactile. */
+  public actionsTactiles = new Array<RegleActionsTactiles>();
 
   public dernierePropriete: ProprieteConcept = null;
   public dernierElementGenerique: ElementGenerique = null;

@@ -20,6 +20,17 @@ export interface CibleLien {
 export class LiensElementsUtils {
 
   /**
+   * Libellés sous lesquels les sorties non cardinales sont affichées dans la
+   * sortie du jeu (cf. instruction-dire : « monter : Grenier », …).
+   */
+  private static readonly LIBELLES_VERBES_SORTIES: { [localisation: string]: string[] } = {
+    [ELocalisation.haut]: ['monter'],
+    [ELocalisation.bas]: ['descendre'],
+    [ELocalisation.interieur]: ['entrer'],
+    [ELocalisation.exterieur]: ['sortir'],
+  };
+
+  /**
    * Construire la liste des cibles actuellement cliquables : objets visibles
    * (présents dans le lieu ou possédés) et sorties visibles du lieu.
    */
@@ -52,7 +63,12 @@ export class LiensElementsUtils {
       eju.getLieuxVoisinsVisibles(curLieu).forEach(voisin => {
         if (voisin.localisation !== ELocalisation.inconnu) {
           const localisation = Localisation.getLocalisation(voisin.localisation);
-          cibles.push({ ref: 'D-' + voisin.localisation, libelles: [localisation.intitule.nom] });
+          // sorties non cardinales : reconnaître aussi le verbe affiché (« monter », …)
+          const libelles = [
+            localisation.intitule.nom,
+            ...(LiensElementsUtils.LIBELLES_VERBES_SORTIES[voisin.localisation] ?? []),
+          ];
+          cibles.push({ ref: 'D-' + voisin.localisation, libelles });
         }
       });
     }
@@ -64,11 +80,11 @@ export class LiensElementsUtils {
    * Entourer dans le HTML fourni les libellés des cibles d’un lien cliquable
    * `<a class="djn-lien-tactile" href="#<ref>">`.
    *
-   * Seuls les segments de texte sont enrichis : l’intérieur des balises, des
-   * liens `<a>` existants et des échos de commande (`<span class="t-commande">`)
-   * est laissé intact. Les libellés les plus longs sont prioritaires
-   * (« clé rouillée » avant « clé ») et chaque plage de texte n’est consommée
-   * qu’une seule fois.
+   * Seuls les segments de texte sont enrichis : l’intérieur des balises et des
+   * liens `<a>` existants est laissé intact (les échos de commande sont en
+   * revanche enrichis, pour pouvoir interagir à nouveau avec l’objet cité).
+   * Les libellés les plus longs sont prioritaires (« clé rouillée » avant
+   * « clé ») et chaque plage de texte n’est consommée qu’une seule fois.
    */
   public static enrichirLiens(html: string, cibles: CibleLien[]): string {
     if (!html || !cibles.length || !html.length) {
@@ -89,7 +105,7 @@ export class LiensElementsUtils {
     // découper le HTML en alternance texte / balise
     const morceaux = html.split(/(<[^>]*>)/);
 
-    // balise dont l’intérieur ne doit pas être enrichi (lien existant ou écho de commande)
+    // balise dont l’intérieur ne doit pas être enrichi (lien existant)
     let exclusionBalise: string | null = null;
     let exclusionProfondeur = 0;
 
@@ -111,7 +127,7 @@ export class LiensElementsUtils {
           }
         } else if (matchOuvrante && !matchFermante) {
           const nomBalise = matchOuvrante[1].toLowerCase();
-          if (nomBalise === 'a' || (nomBalise === 'span' && /class\s*=\s*"[^"]*\bt-commande\b/.test(morceau))) {
+          if (nomBalise === 'a') {
             exclusionBalise = nomBalise;
             exclusionProfondeur = 1;
           }
