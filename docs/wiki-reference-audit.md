@@ -286,11 +286,23 @@ Reste (moyenne) : `copier X dans/sur/sous Y` ; verbes ressources `consommer` / `
   personnalisés multi-mots et avec chiffres OK (`dé1`, `petit dé` — sondés) ; le moteur
   remplace l'espace avant « ! » par une insécable dans la sortie (assertions sans « ! »).
 
-### LOT 10 — Débogage (BASSE)
-- Commande joueur `déboguer`/`deb` (la plupart non « exemplifiable » via djnc).
-
-### LOT 10 — Débogage (BASSE)
-- Commande joueur `déboguer`/`deb` (la plupart non « exemplifiable » via djnc).
+### LOT 10 — Débogage (BASSE) — ✅ livré 2026-06-10
+- ✅ Exemple `wiki_debogage_terrain_essai` (cabane/jardin/pomme/coffre) relié aux DEUX pages
+  `deboguer_element_jeu` (file + djnc) et `modifier_etat_jeu_et_position_joueur` (djnc + renvoi) —
+  terrain d'essai pour `deb <élément>`, `deb changer`, `si <condition>`, `cd`, `mv`, `deb effacer`.
+- ✅ `modifier_etat_jeu_et_position_joueur` : note de gating (les instructions `déboguer
+  changer/déplacer/effacer/vider/dire` exigent le débogueur actif = éditeur, `commandeur.ts:166` ;
+  l'inspection `deb <élément>` fonctionne partout — `essayerCommandeDeboguer` non gaté) + Voir aussi.
+- ✅ `magneto.txt` : nouvelle section « Étape qui lit l'heure » (saisie date/heure à la pause,
+  sortie attendue recalculée, ré-avance automatique) — finding `absent` MEDIUM du critique.
+- ✅ `format_fichier_solution.txt` : forme `d:nom avec <args>` (table + prose, trailer canonique).
+- ✅ Doublon éditorial : `divers/mode_triche.txt` (obsolète, 0 lien entrant) réduit à un renvoi
+  vers `debogage/mode_triche` (canonique).
+- Spec `debogage-exemples-wiki.spec.ts` F072-T001→T005 (harness `ContextePartie(jeu, undefined,
+  false, true)` pour activer le débogueur + `Abreviations.obtenirCommandeComplete` pour étendre
+  les raccourcis comme le lecteur ; T005 = contrôle gating débogueur inactif).
+- Hors action (audit `complete`/UI, non testable via djnc) : magnéto navigation/divergence/
+  édition, mode triche, générer solution/enregistrement, deb ici/états (console F12).
 
 ## Sources moteur (ancres)
 `utils/jeu/instructions.ts` (dispatch), `instruction-changer.ts`, `instruction-dire*.ts`,
