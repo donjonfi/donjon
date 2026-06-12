@@ -472,25 +472,20 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.partie.ecran.ajouterContenuHtml("<center>")
 
     // afficher le titre et la version du jeu
-    let texteTitreVersion = ("<h1>" + (this.partie.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.partie.jeu.titre) : "(jeu sans titre)"));
-    // afficher la version du jeu
-    if (this.partie.jeu.version) {
-      texteTitreVersion += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.version) + '</small>');
+    if (this.partie.jeu.titre || this.partie.jeu.version) {
+      let texteTitreVersion = ‘<h1>’ + (this.partie.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.partie.jeu.titre) : ‘’);
+      if (this.partie.jeu.version) {
+        texteTitreVersion += (‘<small> ‘ + BalisesHtml.retirerBalisesHtml(this.partie.jeu.version) + ‘</small>’);
+      }
+      texteTitreVersion += ‘</h1>’;
+      this.partie.ecran.ajouterContenuHtml(texteTitreVersion);
     }
-    texteTitreVersion += '</h1>';
-    this.partie.ecran.ajouterContenuHtml(texteTitreVersion);
 
     // afficher l’auteur du jeu
-    let texteAuteur = '<h2>';
-    if (this.partie.jeu.auteur) {
-      texteAuteur += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.auteur));
-    } else if (this.partie.jeu.auteurs) {
-      texteAuteur += (BalisesHtml.retirerBalisesHtml(this.partie.jeu.auteurs));
-    } else {
-      texteAuteur += ("(anonyme)");
+    if (this.partie.jeu.auteur || this.partie.jeu.auteurs) {
+      const nomAuteur = this.partie.jeu.auteur ? this.partie.jeu.auteur : this.partie.jeu.auteurs;
+      this.partie.ecran.ajouterContenuHtml(‘<h2>’ + BalisesHtml.retirerBalisesHtml(nomAuteur) + ‘</h2>’);
     }
-    texteAuteur += '</h2>';
-    this.partie.ecran.ajouterContenuHtml(texteAuteur);
 
     if (this.partie.jeu.participants) {
       let texteParticipants = '<h3>Avec la participation de ';
