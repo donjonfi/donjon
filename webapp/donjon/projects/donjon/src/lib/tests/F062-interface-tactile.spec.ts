@@ -34,16 +34,19 @@ describe('Interface tactile — enrichissement de la sortie en liens', () => {
     expect(resultat).toEqual('<p><img alt="clé" src="clé.png">la <a class="djn-lien-tactile" href="#E1" role="button">clé</a></p>');
   });
 
-  it('[F062-T004] l’intérieur des liens existants n’est pas enrichi ; les échos de commande le sont', () => {
+  it('[F062-T004] l’intérieur des liens existants et des échos de commande n’est pas enrichi', () => {
     const cibles = [
       { ref: 'E1', libelles: ['clé'] },
     ];
     // lien existant
     let resultat = LiensElementsUtils.enrichirLiens('<p><a href="#L12">clé</a></p>', cibles);
     expect(resultat).toEqual('<p><a href="#L12">clé</a></p>');
-    // écho de commande : enrichi, pour pouvoir interagir à nouveau avec l’objet cité
+    // écho de commande (<span class="t-commande">) : pas de lien dans une commande tapée
     resultat = LiensElementsUtils.enrichirLiens('<p><span class="t-commande"> &gt; prendre la clé</span></p>', cibles);
-    expect(resultat).toEqual('<p><span class="t-commande"> &gt; prendre la <a class="djn-lien-tactile" href="#E1" role="button">clé</a></span></p>');
+    expect(resultat).toEqual('<p><span class="t-commande"> &gt; prendre la clé</span></p>');
+    // le texte hors écho reste enrichi
+    resultat = LiensElementsUtils.enrichirLiens('<p><span class="t-commande"> &gt; prendre la clé</span> Une clé brille.</p>', cibles);
+    expect(resultat).toEqual('<p><span class="t-commande"> &gt; prendre la clé</span> Une <a class="djn-lien-tactile" href="#E1" role="button">clé</a> brille.</p>');
   });
 
   it('[F062-T005] frontières de mots : pas de lien au milieu d’un mot ou d’un mot composé', () => {

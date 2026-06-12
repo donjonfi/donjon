@@ -320,6 +320,38 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.validationCommande();
   }
 
+  /**
+   * Dernier objet avec lequel le joueur a interagi (ceci de la dernière
+   * commande réussie), s’il s’agit bien d’un objet du jeu. `undefined` au
+   * début de partie ou si le dernier élément n’est pas un objet (sortie, lieu).
+   */
+  public get dernierObjetInteragi(): ElementJeu | undefined {
+    const jeu = this.partie?.jeu;
+    const id = jeu?.derniersElementIds?.[0];
+    if (jeu == null || id == null) {
+      return undefined;
+    }
+    return jeu.objets.find(x => x.id === id && x.id !== jeu.joueur?.id);
+  }
+
+  /** Libellé du dernier objet pour le bouton tactile (nom + épithète, capitalisé). */
+  public get libelleDernierObjet(): string {
+    const obj = this.dernierObjetInteragi;
+    if (!obj) {
+      return '';
+    }
+    const intitule = obj.intitule.nom + (obj.intitule.epithete ? ' ' + obj.intitule.epithete : '');
+    return intitule.charAt(0).toLocaleUpperCase('fr') + intitule.slice(1);
+  }
+
+  /** Ouvrir le menu tactile d’interaction avec le dernier objet manipulé. */
+  public interagirAvecDernierObjet(): void {
+    const obj = this.dernierObjetInteragi;
+    if (obj) {
+      this.onClicLienTactile('#E' + obj.id);
+    }
+  }
+
   /** Ouvrir le constructeur de commande global (toutes les actions lançables). */
   public ouvrirConstructeurTactile(): void {
     if (!this.partie || this.commandeEnCours || this.interruptionEnCours || this.resteDeLaSortie?.length || this.enregistrementActif) {

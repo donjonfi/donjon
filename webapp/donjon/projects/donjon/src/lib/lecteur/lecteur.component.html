@@ -63,7 +63,11 @@
     <!-- barre tactile : commandes courantes + constructeur global -->
     @if (tactileActif && !saisieTactileRequise && !saisieManuelleTactile && !interruptionAttendreChoixEnCours) {
       <div class="djn-barre-tactile px-1 mt-2">
-        <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('regarder')">👁 Regarder</button>
+        @if (dernierObjetInteragi) {
+          <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="interagirAvecDernierObjet()">👆 {{ libelleDernierObjet }}</button>
+        } @else {
+          <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('regarder')">👁 Regarder</button>
+        }
         <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('afficher inventaire')">🎒 Inventaire</button>
         <button type="button" class="btn btn-primary djn-barre-tactile-bouton" (click)="ouvrirConstructeurTactile()">⚡ Actions…</button>
       </div>

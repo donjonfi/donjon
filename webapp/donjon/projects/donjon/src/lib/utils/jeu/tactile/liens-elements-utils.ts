@@ -80,11 +80,12 @@ export class LiensElementsUtils {
    * Entourer dans le HTML fourni les libellés des cibles d’un lien cliquable
    * `<a class="djn-lien-tactile" href="#<ref>">`.
    *
-   * Seuls les segments de texte sont enrichis : l’intérieur des balises et des
-   * liens `<a>` existants est laissé intact (les échos de commande sont en
-   * revanche enrichis, pour pouvoir interagir à nouveau avec l’objet cité).
-   * Les libellés les plus longs sont prioritaires (« clé rouillée » avant
-   * « clé ») et chaque plage de texte n’est consommée qu’une seule fois.
+   * Seuls les segments de texte sont enrichis : l’intérieur des balises, des
+   * liens `<a>` existants et des échos de commande (`<span class="t-commande">`,
+   * issus de `{-…-}`) est laissé intact — on ne veut pas de lien dans le texte
+   * d’une commande tapée. Les libellés les plus longs sont prioritaires
+   * (« clé rouillée » avant « clé ») et chaque plage de texte n’est consommée
+   * qu’une seule fois.
    */
   public static enrichirLiens(html: string, cibles: CibleLien[]): string {
     if (!html || !cibles.length || !html.length) {
@@ -127,7 +128,10 @@ export class LiensElementsUtils {
           }
         } else if (matchOuvrante && !matchFermante) {
           const nomBalise = matchOuvrante[1].toLowerCase();
-          if (nomBalise === 'a') {
+          // lien existant, ou écho de commande (`<span class="t-commande">`) :
+          // on n’enrichit pas l’intérieur (pas de lien dans une commande tapée)
+          if (nomBalise === 'a'
+            || (nomBalise === 'span' && /\bclass\s*=\s*["'][^"']*\bt-commande\b/.test(morceau))) {
             exclusionBalise = nomBalise;
             exclusionProfondeur = 1;
           }
