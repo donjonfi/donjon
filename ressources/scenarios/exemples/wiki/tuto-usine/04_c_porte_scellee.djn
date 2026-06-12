@@ -1,0 +1,15 @@
+-- Tutoriel « Bienvenue chez MeuhCorp » — Chapitre 4, exemple complémentaire
+-- Une porte « non ouvrable » : scellée, le joueur ne peut pas l’ouvrir lui-même.
+-- L’état « ouvrable », ajouté par défaut à toute porte, est ici retiré.
+
+Le titre du jeu est "Bienvenue chez MeuhCorp".
+L’auteur du jeu est "Stagiaire du jour".
+
+Le hall est un lieu.
+Sa description est "Le hall d’accueil de MeuhCorp. Sur le mur ouest, une vieille issue de secours que plus personne n’emprunte.".
+
+L’issue de secours est une porte fermée et non ouvrable à l’ouest du hall.
+Son aperçu est "À l’ouest, une issue de secours condamnée : une barre anti-panique rouillée et une lourde chaîne cadenassée en interdisent l’ouverture.".
+
+Le quai de chargement est un lieu à l’ouest du hall.
+Sa description est "Le quai de chargement, à l’air libre. Inaccessible pour l’instant : l’issue de secours est bel et bien condamnée.".
