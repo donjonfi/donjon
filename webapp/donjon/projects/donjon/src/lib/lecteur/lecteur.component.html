@@ -22,7 +22,7 @@
           </div>
         </div>
       }
-      <div id="taResultat" #taResultat class="sortie-jeu" [innerHTML]="ecran"
+      <div id="taResultat" #taResultat class="sortie-jeu" [class.tactile-actif]="tactileActif" [innerHTML]="ecran"
         [style.padding.px]="margeInterface">
       </div>
       @if (afficherCartoucheBas) {

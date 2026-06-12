@@ -402,8 +402,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         }
       }
       // lien tactile (élément du jeu ou sortie) — la cible est encodée dans le
-      // href (`#E12`, `#D-n`) car le sanitizer Angular retire les data-attributes
-      const lienTactile = (event.target as HTMLElement).closest('.djn-lien-tactile') as HTMLAnchorElement | null;
+      // href (`#E12`, `#D-n`) car le sanitizer Angular retire les data-attributes.
+      // Inactif hors mode tactile (les liens restent dans le HTML mais sont
+      // neutralisés par CSS + ici, cf. `.tactile-actif`).
+      const lienTactile = this.tactileActif
+        ? (event.target as HTMLElement).closest('.djn-lien-tactile') as HTMLAnchorElement | null
+        : null;
       if (lienTactile) {
         event.preventDefault();
         this.onClicLienTactile(lienTactile.getAttribute('href') ?? '');

@@ -721,14 +721,24 @@
 // Lien tactile sur un élément du jeu ou une sortie, généré par l’enrichisseur
 // de liens (interface tactile). ::ng-deep nécessaire : le contenu provient
 // d’un [innerHTML], il n’est pas couvert par l’encapsulation du composant.
+// Les liens sont toujours présents dans le HTML (pour que la bascule
+// clavier ⇄ tactile ne laisse pas d’ancien texte sans liens), mais ils ne
+// sont visibles et cliquables qu’en mode tactile (classe `.tactile-actif`).
+// Hors mode tactile : rendus comme du texte normal et désactivés.
 :host ::ng-deep .djn-lien-tactile {
   color: inherit;
+  cursor: inherit;
+  text-decoration: none;
+  pointer-events: none;
+}
+:host ::ng-deep .sortie-jeu.tactile-actif .djn-lien-tactile {
   cursor: pointer;
   text-decoration: underline dotted;
   text-decoration-color: rgba(13, 110, 253, 0.6);
   text-underline-offset: 0.15em;
+  pointer-events: auto;
 }
-:host ::ng-deep .djn-lien-tactile:hover {
+:host ::ng-deep .sortie-jeu.tactile-actif .djn-lien-tactile:hover {
   color: var(--bs-link-color, #0d6efd);
   text-decoration: underline;
 }
