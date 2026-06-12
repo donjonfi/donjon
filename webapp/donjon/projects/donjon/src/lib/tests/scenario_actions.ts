@@ -19,11 +19,15 @@ désactiver les actions de base.
 Les actions principales sont regarder, inventaire et aller.
 Les actions principales pour les objets sont examiner et prendre.
 Les actions principales pour les personnes sont parler, montrer et donner.
-Les actions principales supplémentaires pour les portes sont ouvrir et fermer.
+Les actions principales pour les portes sont examiner, ouvrir et fermer.
 Les actions principales pour les directions sont aller et regarder.
 Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
 L'action principale supplémentaire pour les objets mangeables est manger.
 L'action principale supplémentaire pour les objets buvables est boire.
+Les actions principales supplémentaires pour les objets portables sont mettre et porter.
+Les actions principales supplémentaires pour les objets portés sont lâcher, jeter et poser.
+L'action principale supplémentaire pour les objets enfilables est enfiler.
+L'action principale supplémentaire pour les objets chaussables est chausser.
 
 -- =========================================
 --   AFFICHER (AIDE, INVENTAIRE et SORTIES)
@@ -992,7 +996,7 @@ action ouvrir ceci:
     ceci est prioritairement ouvrable.
   phase prérequis:
     si ceci est le joueur, refuser "Pardon ?".
-    si ceci n'est pas ouvrable, refuser "[Pronom ceci] [v s’ouvrir ipr pas ceci].".
+    si ceci n'est pas ouvrable, refuser "[si ceci est ouvert][Pronom ceci] [v être ipr ceci] déjà ouvert[es ceci][sinon][Pronom ceci] [v s’ouvrir ipr pas ceci][fin].".
     si ceci est verrouillé, refuser "[Pronom ceci] [v être ipr ceci] verrouillé[es ceci].".
   phase exécution:
     changer ceci est ouvert.

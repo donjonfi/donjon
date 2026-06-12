@@ -654,14 +654,16 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(candidats[0]).toBe(cle);
   });
 
-  it('[F062-T218] défauts des portes : héritage objets + ajout ouvrir/fermer', () => {
+  it('[F062-T218] défauts des portes : examiner, ouvrir, fermer (pas prendre)', () => {
     const ctx = commencerPartie(`
       La cuisine est un lieu au nord du salon.
       La porte verte est une porte au nord du salon.
     `);
     const porte = ctx.jeu.objets.find(o => o.intitule.nom === 'porte');
     expect(porte).toBeTruthy();
-    expect(ActionsTactilesUtils.resoudre(porte, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'ouvrir', 'fermer']);
+    // défaut actions.djn : « Les actions principales pour les portes sont examiner, ouvrir et fermer. »
+    // (remplace la liste héritée des objets : une porte ne se « prend » pas)
+    expect(ActionsTactilesUtils.resoudre(porte, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'ouvrir', 'fermer']);
   });
 
   it('[F062-T220] historiqueElementIds : accumulation des objets manipulés (plus récent d’abord, dédoublonné)', () => {

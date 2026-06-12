@@ -31,8 +31,8 @@
     @if (groupesRecents.length) {
       <div class="djn-menu-tactile-boutons">
         @for (g of groupesRecents; track g.infinitif) {
-          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" [class.djn-menu-tactile-douteux]="g.simple.probablementRefusee" (click)="clicVerbe(g)">
-            {{ g.infinitif }}
+          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="clicVerbe(g)">
+            <strong>{{ g.infinitif }}</strong>
           </button>
         }
       </div>
@@ -42,8 +42,9 @@
     @if (groupes.length) {
       <div class="djn-menu-tactile-boutons">
         @for (g of groupesAffiches; track g.infinitif) {
-          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" [class.djn-menu-tactile-douteux]="g.simple.probablementRefusee" (click)="clicVerbe(g)">
-            {{ libelleVerbe(g) }}
+          @let parties = libelleVerbeParties(g);
+          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="clicVerbe(g)">
+            <strong>{{ parties.infinitif }}</strong>{{ parties.complement }}
           </button>
         }
       </div>
@@ -68,8 +69,9 @@
     <!-- variantes du verbe choisi : commandes prêtes, ou « … » pour choisir le complément -->
     <div class="djn-menu-tactile-boutons">
       @for (p of propositions; track $index) {
-        <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" [class.djn-menu-tactile-douteux]="p.douteuse" (click)="choisirProposition(p)">
-          {{ p.libelle }}
+        @let parties = decouperLibelle(p.libelle);
+        <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="choisirProposition(p)">
+          <strong>{{ parties.infinitif }}</strong>{{ parties.complement }}
         </button>
       }
     </div>

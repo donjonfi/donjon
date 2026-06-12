@@ -20,7 +20,7 @@ interface PropositionVariante {
   commande: string | null;
   /** Variante à compléter (choix du complément). */
   variante: SuggestionVerbe | null;
-  /** L’action serait probablement refusée par ses prérequis. */
+  /** L’action serait probablement refusée par ses prérequis (sert à reléguer au niveau 2). */
   douteuse: boolean;
 }
 
@@ -244,6 +244,25 @@ export class MenuTactileComponent implements OnChanges {
       return groupe.simple.commande;
     }
     return groupe.infinitif;
+  }
+
+  /**
+   * Libellé d’un bouton de verbe découpé pour l’affichage : l’infinitif (mis en
+   * gras dans le menu) et le reste de la commande (« examiner » / « la bille »).
+   */
+  libelleVerbeParties(groupe: GroupeVerbe): { infinitif: string, complement: string } {
+    return this.decouperLibelle(this.libelleVerbe(groupe));
+  }
+
+  /**
+   * Découpe un libellé de commande en infinitif (premier mot, mis en gras) et
+   * complément (le reste, espace de séparation inclus).
+   */
+  decouperLibelle(libelle: string): { infinitif: string, complement: string } {
+    const espace = libelle.indexOf(' ');
+    return espace === -1
+      ? { infinitif: libelle, complement: '' }
+      : { infinitif: libelle.substring(0, espace), complement: libelle.substring(espace) };
   }
 
   /** Nom du lieu de destination de la sortie ciblée par le menu (mode `cibleDirection`). */
