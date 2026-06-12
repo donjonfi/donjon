@@ -57,6 +57,9 @@ export class LiensElementsUtils {
       }
     });
 
+    // mot « inventaire » : lien qui exécute la commande inventaire
+    cibles.push({ ref: 'CMD-inventaire', libelles: ['inventaire'] });
+
     // sorties visibles du lieu (directions)
     const curLieu = eju.curLieu;
     if (curLieu) {
@@ -92,15 +95,28 @@ export class LiensElementsUtils {
       return html;
     }
 
-    // libellés triés du plus long au plus court (priorité au plus précis)
-    const entrees: { libelle: string, ref: string }[] = [];
+    // regrouper les refs par libellé : un même libellé (« porte ») peut désigner
+    // plusieurs objets → on proposera un choix plutôt que d’en deviner un seul.
+    const parLibelle = new Map<string, { libelle: string, refs: string[] }>();
     cibles.forEach(cible => {
       cible.libelles.forEach(libelle => {
-        if (libelle?.trim().length) {
-          entrees.push({ libelle: libelle.trim(), ref: cible.ref });
+        const valeur = libelle?.trim();
+        if (!valeur?.length) {
+          return;
+        }
+        const cle = valeur.toLowerCase();
+        let entree = parLibelle.get(cle);
+        if (!entree) {
+          entree = { libelle: valeur, refs: [] };
+          parLibelle.set(cle, entree);
+        }
+        if (!entree.refs.includes(cible.ref)) {
+          entree.refs.push(cible.ref);
         }
       });
     });
+    // libellés triés du plus long au plus court (priorité au plus précis)
+    const entrees = Array.from(parLibelle.values());
     entrees.sort((a, b) => b.libelle.length - a.libelle.length);
 
     // découper le HTML en alternance texte / balise
@@ -147,22 +163,18 @@ export class LiensElementsUtils {
   }
 
   /** Entourer les libellés trouvés dans le texte d’un lien cliquable. */
-  private static remplacerLibelles(texte: string, entrees: { libelle: string, ref: string }[]): string {
-    const intervalles: { debut: number, fin: number, ref: string }[] = [];
+  private static remplacerLibelles(texte: string, entrees: { libelle: string, refs: string[] }[]): string {
+    const intervalles: { debut: number, fin: number, refs: string[] }[] = [];
 
     entrees.forEach(entree => {
-      // frontières de mots compatibles avec les lettres accentuées (\b ne convient pas)
-      // (le tiret est exclu pour ne pas matcher « nord » dans « nord-est »)
-      const regExp = new RegExp(
-        '(?<![\\p{L}\\p{N}-])' + LiensElementsUtils.echapperRegExp(entree.libelle) + '(?![\\p{L}\\p{N}-])',
-        'giu');
+      const regExp = LiensElementsUtils.regExpLibelle(entree.libelle);
       let match: RegExpExecArray | null;
       while ((match = regExp.exec(texte))) {
         const debut = match.index;
         const fin = debut + match[0].length;
         // ne pas chevaucher une plage déjà consommée par un libellé plus long
         if (!intervalles.some(x => debut < x.fin && fin > x.debut)) {
-          intervalles.push({ debut, fin, ref: entree.ref });
+          intervalles.push({ debut, fin, refs: entree.refs });
         }
       }
     });
@@ -177,7 +189,7 @@ export class LiensElementsUtils {
     let position = 0;
     intervalles.forEach(intervalle => {
       retVal += texte.slice(position, intervalle.debut)
-        + '<a class="djn-lien-tactile" href="#' + intervalle.ref + '" role="button">'
+        + '<a class="djn-lien-tactile" href="#' + LiensElementsUtils.refLien(intervalle.refs) + '" role="button">'
         + texte.slice(intervalle.debut, intervalle.fin)
         + '</a>';
       position = intervalle.fin;
@@ -185,6 +197,38 @@ export class LiensElementsUtils {
     retVal += texte.slice(position);
 
     return retVal;
+  }
+
+  /**
+   * Expression régulière de détection d’un libellé dans le texte. Frontières de
+   * mots compatibles avec les lettres accentuées (`\b` ne convient pas) ; le
+   * tiret est exclu pour ne pas matcher « nord » dans « nord-est ».
+   *
+   * Cas particulier « est » : homographe (direction « l’est » vs verbe « être »).
+   * On ne le rend cliquable que s’il est précédé de « l’ » / « l' » (déterminant)
+   * ou de « - » suivi d’une espace (puce de la liste des sorties) — sinon c’est
+   * le verbe conjugué, qu’il ne faut pas transformer en lien.
+   */
+  private static regExpLibelle(libelle: string): RegExp {
+    if (libelle.toLowerCase() === 'est') {
+      return /(?<=l['’]|-\s)est(?![\p{L}\p{N}-])/giu;
+    }
+    return new RegExp(
+      '(?<![\\p{L}\\p{N}-])' + LiensElementsUtils.echapperRegExp(libelle) + '(?![\\p{L}\\p{N}-])',
+      'giu');
+  }
+
+  /**
+   * Référence du lien pour une plage de texte : la ref unique si le libellé ne
+   * désigne qu’une cible, sinon un lien de désambiguïsation `AMBIG-<id>-<id>…`
+   * listant les objets candidats (on propose le choix plutôt que de deviner).
+   */
+  private static refLien(refs: string[]): string {
+    if (refs.length === 1) {
+      return refs[0];
+    }
+    const ids = refs.filter(ref => /^E\d+$/.test(ref)).map(ref => ref.slice(1));
+    return ids.length > 1 ? 'AMBIG-' + ids.join('-') : refs[0];
   }
 
   /** Échapper les caractères spéciaux d’une expression régulière. */

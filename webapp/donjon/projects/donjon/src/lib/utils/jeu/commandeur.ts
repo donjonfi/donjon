@@ -544,8 +544,14 @@ export class Commandeur {
     }
     if (ids.length > 0) {
       this.jeu.derniersElementIds = ids;
+      // accumuler l’historique (plus récent d’abord, dédoublonné, borné)
+      const historique = this.jeu.historiqueElementIds.filter(id => !ids.includes(id));
+      this.jeu.historiqueElementIds = [...ids, ...historique].slice(0, Commandeur.MAX_HISTORIQUE_ELEMENTS);
     }
   }
+
+  /** Taille maximale de l’historique des éléments manipulés (interface tactile). */
+  private static readonly MAX_HISTORIQUE_ELEMENTS = 12;
 
   /**
    * Essayer de trouver une action correspondant à la commande.

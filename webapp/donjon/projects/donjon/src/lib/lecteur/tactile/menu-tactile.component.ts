@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 
+import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../../utils/commun/elements-jeu-utils';
 import { Jeu } from '../../models/jeu/jeu';
-import { Localisation } from '../../models/jeu/localisation';
+import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { GroupeVerbe, SuggestionVerbe, VerbesElementsUtils } from '../../utils/jeu/tactile/verbes-elements-utils';
 
 /**
@@ -39,6 +40,8 @@ export class MenuTactileComponent implements OnChanges {
   @Input() cible: ElementJeu | null = null;
   /** Sortie (direction) sur laquelle le menu est ouvert (prioritaire sur le mode global). */
   @Input() cibleDirection: Localisation | null = null;
+  /** Objets candidats à désambiguïser : un libellé ambigu (« porte ») désigne plusieurs objets. */
+  @Input() candidatsAmbigus: ElementJeu[] = [];
   /** Dernières commandes exécutées par le joueur (la plus récente en dernier). */
   @Input() dernieresCommandes: string[] = [];
   @Input() jeu: Jeu;
@@ -52,7 +55,7 @@ export class MenuTactileComponent implements OnChanges {
   @Output() saisieManuelle = new EventEmitter<void>();
 
   /** Étape du constructeur de phrase. */
-  etape: 'verbes' | 'variantes' | 'ceci' | 'ceciLibre' | 'cela' | 'apercu' = 'verbes';
+  etape: 'desambiguisation' | 'verbes' | 'variantes' | 'ceci' | 'ceciLibre' | 'cela' | 'apercu' = 'verbes';
   /** Verbes proposés, regroupés par infinitif (et par niveau en mode élément). */
   groupes: GroupeVerbe[] = [];
   /** Niveau d’affichage : 1 principales, 2 + secondaires, 3 toutes les actions. */
@@ -83,6 +86,8 @@ export class MenuTactileComponent implements OnChanges {
   apercu = '';
   /** Préposition de cela utilisée dans l’aperçu (ajustable si spatiale). */
   prepositionApercu: string | undefined;
+  /** Nom du lieu de destination d’une sortie (si connu), pour « aller vers … ». */
+  nomLieuDirection: string | null = null;
 
   ngOnChanges(): void {
     this.etape = 'verbes';
@@ -101,16 +106,17 @@ export class MenuTactileComponent implements OnChanges {
     this.groupesRecents = [];
     this.texteLibre = '';
     this.groupes = [];
+    this.nomLieuDirection = null;
     if (this.jeu && this.eju) {
       if (this.cible) {
-        this.groupes = VerbesElementsUtils.listerGroupesVerbes(this.cible, this.jeu, this.eju);
-        // pas de principale pour cet élément : montrer directement tous les niveaux
-        if (!this.groupes.some(g => g.niveau === 'principale')) {
-          this.niveauAffiche = 3;
-        }
+        this.chargerGroupesPourCible();
+      } else if (this.candidatsAmbigus?.length) {
+        // libellé ambigu : laisser le joueur choisir l’objet avant d’afficher les actions
+        this.etape = 'desambiguisation';
       } else if (this.cibleDirection) {
         // sortie : actions ciblant une direction (aller, regarder, …)
         this.groupes = VerbesElementsUtils.listerGroupesVerbesDirection(this.cibleDirection, this.jeu, this.eju);
+        this.nomLieuDirection = this.calculerNomLieuDirection();
         if (!this.groupes.some(g => g.niveau === 'principale')) {
           this.niveauAffiche = 3;
         }
@@ -121,6 +127,23 @@ export class MenuTactileComponent implements OnChanges {
         this.groupesRecents = this.calculerGroupesRecents();
       }
     }
+  }
+
+  /** Charger les verbes applicables à la cible courante et afficher l’étape des verbes. */
+  private chargerGroupesPourCible(): void {
+    this.groupes = VerbesElementsUtils.listerGroupesVerbes(this.cible, this.jeu, this.eju);
+    this.niveauAffiche = 1;
+    // pas de principale pour cet élément : montrer directement tous les niveaux
+    if (!this.groupes.some(g => g.niveau === 'principale')) {
+      this.niveauAffiche = 3;
+    }
+    this.etape = 'verbes';
+  }
+
+  /** Choix d’un objet parmi les candidats ambigus : on bascule sur ses actions. */
+  choisirCibleAmbigue(element: ElementJeu): void {
+    this.cible = element;
+    this.chargerGroupesPourCible();
   }
 
   /** Nombre de derniers verbes utilisés proposés en tête du constructeur global. */
@@ -142,6 +165,52 @@ export class MenuTactileComponent implements OnChanges {
       }
     }
     return recents;
+  }
+
+  /**
+   * Libellé d’un bouton de verbe : en mode élément, la commande concrète
+   * incluant déjà la cible cliquée (« examiner la bille ») ; en mode sortie, la
+   * commande avec le nom du lieu de destination pour le verbe de déplacement
+   * (« aller vers la cuisine ») ou la direction sinon (« regarder le nord ») ;
+   * en constructeur global, l’infinitif seul (la cible reste à choisir).
+   */
+  libelleVerbe(groupe: GroupeVerbe): string {
+    if (this.cible) {
+      return groupe.simple.commande;
+    }
+    if (this.cibleDirection) {
+      // verbe de déplacement : afficher la destination si elle est connue
+      if (this.nomLieuDirection && groupe.infinitif === 'aller') {
+        return 'aller vers ' + this.nomLieuDirection;
+      }
+      return groupe.simple.commande;
+    }
+    return groupe.infinitif;
+  }
+
+  /**
+   * Nom du lieu de destination d’une sortie, s’il est connu du joueur (lieu déjà
+   * visité, paramètre « afficher les lieux inconnus », ou sortie verticale /
+   * intérieure dont la destination est toujours dévoilée). `null` sinon (la
+   * destination reste masquée, comme dans la liste des sorties).
+   */
+  private calculerNomLieuDirection(): string | null {
+    const curLieu = this.eju.curLieu;
+    if (!curLieu || !this.cibleDirection) {
+      return null;
+    }
+    const voisin = curLieu.voisins.find(v => v.type === EClasseRacine.lieu && v.localisation === this.cibleDirection.id);
+    if (!voisin) {
+      return null;
+    }
+    const lieu = this.eju.getLieu(voisin.id);
+    if (!lieu) {
+      return null;
+    }
+    const destinationDevoilee = this.jeu.etats.possedeEtatIdElement(lieu, this.jeu.etats.visiteID)
+      || this.jeu.parametres.activerAffichageLieuxInconnus
+      || [ELocalisation.haut, ELocalisation.bas, ELocalisation.interieur].includes(this.cibleDirection.id);
+    return destinationDevoilee ? VerbesElementsUtils.intituleCommande(lieu) : null;
   }
 
   /** Groupes de verbes affichés au niveau courant (mode élément). */
@@ -262,9 +331,9 @@ export class MenuTactileComponent implements OnChanges {
     return libelle;
   }
 
-  /** Le dernier élément mentionné dans la partie qui figure parmi les candidats. */
+  /** Le dernier élément manipulé dans la partie qui figure parmi les candidats. */
   private dernierMentionneParmi(candidats: ElementJeu[]): ElementJeu | null {
-    for (const id of (this.jeu.derniersElementIds ?? [])) {
+    for (const id of (this.jeu.historiqueElementIds ?? [])) {
       const candidat = candidats.find(c => c.id === id);
       if (candidat) {
         return candidat;
@@ -310,24 +379,22 @@ export class MenuTactileComponent implements OnChanges {
     }
   }
 
-  /** Valider le premier complément saisi en texte libre → aperçu de la commande. */
+  /** Valider le premier complément saisi en texte libre → commande exécutée. */
   validerTexteLibre(): void {
     const texte = this.texteLibre.trim();
     if (!this.verbeChoisi || !texte) {
       return;
     }
     const preposition = this.verbeChoisi.prepositionCeci ? (this.verbeChoisi.prepositionCeci + ' ') : '';
-    this.apercu = this.verbeChoisi.infinitif + ' ' + preposition + texte;
-    this.etape = 'apercu';
+    this.commandeChoisie.emit(this.verbeChoisi.infinitif + ' ' + preposition + texte);
   }
 
-  /** Choisir une direction comme premier complément (« aller vers … ») → aperçu. */
+  /** Choisir une direction comme premier complément (« aller vers … ») → commande exécutée. */
   choisirCeciDirection(direction: Localisation): void {
     if (!this.verbeChoisi) {
       return;
     }
-    this.apercu = VerbesElementsUtils.construireCommandeDirection(this.verbeChoisi.action, direction);
-    this.etape = 'apercu';
+    this.commandeChoisie.emit(VerbesElementsUtils.construireCommandeDirection(this.verbeChoisi.action, direction));
   }
 
   choisirCeci(ceci: ElementJeu): void {
@@ -340,8 +407,8 @@ export class MenuTactileComponent implements OnChanges {
       this.candidatsCela = VerbesElementsUtils.listerCandidatsCela(this.verbeChoisi.action, ceci, this.jeu, this.eju);
       this.etape = 'cela';
     } else {
-      this.apercu = this.commandePartielle;
-      this.etape = 'apercu';
+      // commande complète : pas d’aperçu inutile, on exécute directement
+      this.commandeChoisie.emit(this.commandePartielle);
     }
   }
 
@@ -350,7 +417,12 @@ export class MenuTactileComponent implements OnChanges {
       this.celaChoisi = cela;
       this.prepositionApercu = VerbesElementsUtils.prepositionCelaParDefaut(this.verbeChoisi.action, cela);
       this.apercu = VerbesElementsUtils.construireCommande(this.verbeChoisi.action, this.ceciChoisi, cela, this.prepositionApercu);
-      this.etape = 'apercu';
+      // aperçu seulement s’il reste une préposition à choisir (dans/sur/sous), sinon on exécute
+      if (this.prepositionsPossibles.length > 1) {
+        this.etape = 'apercu';
+      } else {
+        this.commandeChoisie.emit(this.apercu);
+      }
     }
   }
 

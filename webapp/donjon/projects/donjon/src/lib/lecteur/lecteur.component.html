@@ -346,6 +346,7 @@
 
   @if (menuTactileOuvert) {
     <djn-menu-tactile [cible]="menuTactileCible" [cibleDirection]="menuTactileDirection" [jeu]="jeuPartie" [eju]="ejuPartie"
+      [candidatsAmbigus]="menuTactileCandidats"
       [dernieresCommandes]="dernieresCommandesDistinctes"
       (commandeChoisie)="executerCommandeTactile($event)" (fermer)="fermerMenuTactile()"
       (saisieManuelle)="activerSaisieManuelle()">

@@ -111,6 +111,14 @@ export class Jeu {
   /** IDs des derniers éléments avec lesquels le joueur a interagi (ceci et cela de la dernière commande réussie). */
   derniersElementIds: number[] = [];
 
+  /**
+   * Historique borné des IDs d’éléments manipulés (ceci/cela des commandes
+   * réussies), du plus récent au plus ancien, dédoublonné. Sert à proposer dans
+   * l’interface tactile l’avant-dernier objet manipulé (« jeter la pièce vers la
+   * lucarne »). Reconstruit au rejeu, non sauvegardé.
+   */
+  historiqueElementIds: number[] = [];
+
   /** Un auditeur écoute un évènement en particulier.
    * Lorsque l'évènement se déclenche, on exécute les actions
    * de l'auditeur.

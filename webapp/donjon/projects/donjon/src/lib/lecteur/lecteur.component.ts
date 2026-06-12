@@ -231,6 +231,9 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   /** Sortie (direction) sur laquelle le menu tactile est ouvert. */
   public menuTactileDirection: Localisation | null = null;
 
+  /** Objets candidats à désambiguïser (un libellé ambigu désigne plusieurs objets). */
+  public menuTactileCandidats: ElementJeu[] = [];
+
   /** Le jeu interdit-il l’interface tactile (« Désactiver le mode mobile. ») ? */
   public get tactileDesactiveParLeJeu(): boolean {
     return (this.partie?.jeu ?? this.jeu)?.parametres?.activerInterfaceTactile === false;
@@ -291,12 +294,42 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (!this.partie || this.commandeEnCours || this.interruptionEnCours || this.resteDeLaSortie?.length || this.enregistrementActif) {
       return;
     }
+    // lien de commande (`#CMD-<commande>`, ex. « inventaire ») : exécution directe
+    const matchCommande = href.match(/^#CMD-(\w+)$/);
+    if (matchCommande) {
+      this.executerCommandeTactile(matchCommande[1]);
+      return;
+    }
+    // lien ambigu (`#AMBIG-<id>-<id>…`) : un libellé désigne plusieurs objets → proposer un choix
+    const matchAmbig = href.match(/^#AMBIG-([\d-]+)$/);
+    if (matchAmbig) {
+      const candidats: ElementJeu[] = [];
+      matchAmbig[1].split('-').forEach(s => {
+        const obj = this.partie.jeu.objets.find(x => x.id === parseInt(s, 10));
+        if (obj && obj.id !== this.partie.jeu.joueur?.id) {
+          candidats.push(obj);
+        }
+      });
+      if (candidats.length === 1) {
+        this.menuTactileCible = candidats[0];
+        this.menuTactileDirection = null;
+        this.menuTactileCandidats = [];
+        this.menuTactileOuvert = true;
+      } else if (candidats.length > 1) {
+        this.menuTactileCible = null;
+        this.menuTactileDirection = null;
+        this.menuTactileCandidats = candidats;
+        this.menuTactileOuvert = true;
+      }
+      return;
+    }
     const matchElement = href.match(/^#E(\d+)$/);
     if (matchElement) {
       const element = this.partie.jeu.objets.find(x => x.id === parseInt(matchElement[1], 10));
       if (element) {
         this.menuTactileCible = element;
         this.menuTactileDirection = null;
+        this.menuTactileCandidats = [];
         this.menuTactileOuvert = true;
       }
       return;
@@ -306,6 +339,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       // menu des actions applicables à la sortie (aller, regarder, …)
       this.menuTactileCible = null;
       this.menuTactileDirection = Localisation.getLocalisation(matchDirection[1] as ELocalisation);
+      this.menuTactileCandidats = [];
       this.menuTactileOuvert = true;
     }
   }
@@ -359,6 +393,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     }
     this.menuTactileCible = null;
     this.menuTactileDirection = null;
+    this.menuTactileCandidats = [];
     this.menuTactileOuvert = true;
   }
 
@@ -367,6 +402,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.menuTactileOuvert = false;
     this.menuTactileCible = null;
     this.menuTactileDirection = null;
+    this.menuTactileCandidats = [];
   }
 
   /** Sélection tactile d’un choix proposé au joueur (attendre choix). */
@@ -484,6 +520,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.partie.ecran.supportLiensLignes = this.supportLiensLignes;
     this.menuTactileOuvert = false;
     this.menuTactileCible = null;
+    this.menuTactileCandidats = [];
     // enrichir la sortie avec des liens cliquables sur les éléments du jeu
     // (toujours, sauf si désactivé : ainsi la bascule clavier ⇄ tactile ne
     // laisse pas de texte ancien sans liens)

@@ -66,6 +66,40 @@ describe('Interface tactile — enrichissement de la sortie en liens', () => {
     expect(resultat).toEqual('<p>Vous voyez l’<a class="djn-lien-tactile" href="#E1" role="button">épée</a> du roi.</p>');
   });
 
+  it('[F062-T007] le mot « inventaire » devient un lien de commande (#CMD-inventaire)', () => {
+    const cibles = [
+      { ref: 'CMD-inventaire', libelles: ['inventaire'] },
+    ];
+    const resultat = LiensElementsUtils.enrichirLiens('<p>Consultez votre inventaire.</p>', cibles);
+    expect(resultat).toEqual('<p>Consultez votre <a class="djn-lien-tactile" href="#CMD-inventaire" role="button">inventaire</a>.</p>');
+  });
+
+  it('[F062-T008] « est » : lien comme direction (l’est / liste des sorties), pas comme verbe « être »', () => {
+    const cibles = [
+      { ref: 'D-est', libelles: ['est'] },
+    ];
+    // verbe conjugué « est » : pas de lien
+    expect(LiensElementsUtils.enrichirLiens('<p>La porte est ouverte.</p>', cibles))
+      .toEqual('<p>La porte est ouverte.</p>');
+    // direction précédée du déterminant « l’ » : lien
+    expect(LiensElementsUtils.enrichirLiens('<p>Allez vers l’est.</p>', cibles))
+      .toEqual('<p>Allez vers l’<a class="djn-lien-tactile" href="#D-est" role="button">est</a>.</p>');
+    // direction dans la liste des sorties (« - est ») : lien
+    expect(LiensElementsUtils.enrichirLiens('<p>- est : Cuisine</p>', cibles))
+      .toEqual('<p>- <a class="djn-lien-tactile" href="#D-est" role="button">est</a> : Cuisine</p>');
+  });
+
+  it('[F062-T009] libellé ambigu : choix entre les objets (#AMBIG) plutôt qu’un lien deviné', () => {
+    const cibles = [
+      { ref: 'E5', libelles: ['porte vitrée', 'porte'] },
+      { ref: 'E8', libelles: ['porte du bureau', 'porte'] },
+    ];
+    const resultat = LiensElementsUtils.enrichirLiens('<p>une porte vitrée et une porte en chêne.</p>', cibles);
+    // « porte vitrée » : non ambigu → lien direct ; « porte » seul → désambiguïsation des deux objets
+    expect(resultat).toEqual('<p>une <a class="djn-lien-tactile" href="#E5" role="button">porte vitrée</a>'
+      + ' et une <a class="djn-lien-tactile" href="#AMBIG-5-8" role="button">porte</a> en chêne.</p>');
+  });
+
 });
 
 describe('Interface tactile — cibles et verbes sur une partie', () => {
@@ -110,6 +144,9 @@ describe('Interface tactile — cibles et verbes sur une partie', () => {
 
     // le joueur n’est pas cliquable
     expect(cibles.some(c => c.ref === 'E' + ctx.jeu.joueur.id)).toBeFalse();
+
+    // le mot « inventaire » est toujours une cible de commande
+    expect(cibles.some(c => c.ref === 'CMD-inventaire')).toBeTrue();
   });
 
   it('[F062-T102] listerVerbes : verbes applicables selon les états (donner seulement si possédée)', () => {
@@ -594,6 +631,26 @@ describe('Interface tactile — actions principales et secondaires', () => {
     const porte = ctx.jeu.objets.find(o => o.intitule.nom === 'porte');
     expect(porte).toBeTruthy();
     expect(ActionsTactilesUtils.resoudre(porte, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'ouvrir', 'fermer']);
+  });
+
+  it('[F062-T220] historiqueElementIds : accumulation des objets manipulés (plus récent d’abord, dédoublonné)', () => {
+    const ctx = commencerPartie();
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+
+    expect(ctx.jeu.historiqueElementIds).toEqual([]);
+
+    // une première manipulation : le coffre en tête
+    ctx.com.executerCommande('examiner le coffre', false);
+    expect(ctx.jeu.historiqueElementIds).toEqual([coffre.id]);
+
+    // une seconde : la clé devient l'objet le plus récent, le coffre l'avant-dernier
+    ctx.com.executerCommande('prendre la clé', false);
+    expect(ctx.jeu.historiqueElementIds).toEqual([cle.id, coffre.id]);
+
+    // re-manipuler le coffre : il repasse en tête sans doublon
+    ctx.com.executerCommande('examiner le coffre', false);
+    expect(ctx.jeu.historiqueElementIds).toEqual([coffre.id, cle.id]);
   });
 
 });
