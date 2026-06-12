@@ -1,6 +1,6 @@
 
-export const version = "3.9.0"
-export const versionNum = 30900;
+export const version = "3.10.0"
+export const versionNum = 31000;
 
 export enum EClasseRacine {
   intitule = 'intitule',
@@ -25,6 +25,7 @@ export enum EClasseRacine {
   obstacle = 'obstacle',
   contenant = 'contenant',
   support = 'support',
+  fond = 'fond',
   // types spéciaux
   joueur = 'joueur',
   inventaire = 'inventaire',

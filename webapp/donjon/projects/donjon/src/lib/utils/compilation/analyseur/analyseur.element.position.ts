@@ -1,3 +1,4 @@
+import { AnalyseurFond } from "./analyseur.fond";
 import { ClasseUtils } from "../../commun/classe-utils";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { EClasseRacine } from "../../../models/commun/constantes";
@@ -15,6 +16,13 @@ export class AnalyseurElementPosition {
 
   // Tester phrase avec élement générique + position
   public static testerElementAvecPosition(phrase: Phrase, ctx: ContexteAnalyse): ElementGenerique {
+
+    // FOND : une portée déclarée inline (« … est un fond commun dans les lieux côtiers ») contient
+    //  « dans les lieux … » qui ressemble à une position. On renonce ici pour laisser
+    //  testerElementSansPosition la traiter (retrait du suffixe de portée + pose de la présence).
+    if (AnalyseurFond.extrairePorteeDeclaration(phrase.morceaux[0])) {
+      return null;
+    }
 
     // nouvel élément (sera éventuellement pas ajouté si on se rend compte qu’on fait référence à un élément existant)
     let newElementGenerique: ElementGenerique = null;

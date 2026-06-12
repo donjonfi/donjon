@@ -1,0 +1,16 @@
+-- Mini-jeu d'illustration — pages wiki « Débogage » (déboguer un élément,
+-- modifier l'état du jeu en cours de partie). Terrain d'essai pour les
+-- commandes de débogage, à charger dans l'éditeur (le débogueur y est actif).
+
+La cabane est un lieu.
+Sa description est "Une cabane de jardinier. Le jardin est au nord.".
+Le jardin est un lieu au nord de la cabane.
+Sa description est "Un petit jardin en friche.".
+La pomme est un objet mangeable dans la cabane.
+Sa description est "Une belle pomme rouge.".
+Le coffre est un contenant fermé et ouvrable dans la cabane.
+La bille est un objet dans le coffre.
+
+règle avant commencer le jeu:
+  dire "Commandes de débogage à essayer : {/deb pomme/}, {/deb coffre/}, {/si le coffre est ouvert/}, {/deb changer le coffre est ouvert/}, {/cd jardin/}, {/mv pomme vers jardin/}, {/deb effacer la bille/}.".
+fin règle

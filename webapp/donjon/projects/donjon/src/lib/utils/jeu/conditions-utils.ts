@@ -1,4 +1,5 @@
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
+import { HorlogeUtils } from './horloge-utils';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { ElementsJeuUtils, TypeSujet } from '../commun/elements-jeu-utils';
 
@@ -126,6 +127,18 @@ export class ConditionsUtils {
     const conditionSujetNomNettoye = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom);
 
     if (condition.sujet) {
+      // LOCATEUR : sujet localisé d'un objet/instance de fond, p.ex. « le sol situé dans la cuisine
+      //  est sale », « la clé située sur la table est rouge ». (Forme « situé » : la forme
+      //  « qui se trouve » entre en collision avec le verbe de condition « se trouve ».)
+      //  Singulier en v1 : on prend la 1re instance correspondante.
+      const locSujet = PhraseUtils.extraireLocalisationReference(condition.sujet.nomEpithete);
+      if (locSujet && (locSujet.cible || locSujet.ici)) {
+        const baseGN = PhraseUtils.getGroupeNominalDefiniOuIndefini(locSujet.base, true) ?? condition.sujet;
+        const cibleGN = locSujet.cible ? PhraseUtils.getGroupeNominalDefiniOuIndefini(locSujet.cible, true) : null;
+        const trouves = this.eju.resoudreReferenceLocalisee(baseGN, locSujet.preposition ?? null, !!locSujet.ici, cibleGN);
+        return trouves.length > 0 ? trouves[0] : null;
+      }
+
       // ici
       if (conditionSujetNomNettoye === 'ici') {
         sujet = this.eju.curLieu;
@@ -302,6 +315,9 @@ export class ConditionsUtils {
             sujet = correspondances.compteurs[0];
           } else if (correspondances.listes.length === 1) {
             sujet = correspondances.listes[0];
+          } else if (correspondances.localisation) {
+            // direction (ex. « si une sortie existe vers le sud ») : le sujet est la localisation
+            sujet = correspondances.localisation;
           } else {
             // chercher dans les propriétés
             const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
@@ -1136,10 +1152,9 @@ export class ConditionsUtils {
       }
       // B) PORTE
     } else if (condition.sujetComplement.nom === 'porte') {
-      console.warn("Test des portes", condition, sujet);
       // trouver direction
       const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
-      if (loc != null) {
+      if (loc == null) {
         console.error("siEstVraiSansLien: porte vers '", sujet.intitule.nom, "' : direction inconnue.");
         // regarder s'il y a une porte dans la direction indiquée
       } else {
@@ -1155,12 +1170,11 @@ export class ConditionsUtils {
       }
       // C) OBSTACLE (AUTRE QUE PORTE)
     } else if (condition.sujetComplement.nom === 'obstacle') {
-      console.warn("Test des obstacles", condition, sujet);
       // trouver direction
       const loc = ElementsJeuUtils.trouverLocalisation(sujet.intitule);
-      if (loc != null) {
+      if (loc == null) {
         console.error("siEstVraiSansLien: obstacle vers '", sujet.intitule.nom, "' : direction inconnue.");
-        // regarder s'il y a une porte dans la direction indiquée
+        // regarder s'il y a un obstacle dans la direction indiquée
       } else {
         const obstacleID = this.eju.getVoisinDirectionID(loc, EClasseRacine.obstacle);
         // aucun obstacle
@@ -1227,13 +1241,13 @@ export class ConditionsUtils {
     if (match) {
       switch (match[1]) {
         case 'heure':
-          retVal = new Compteur("heure", new Date().getHours());
+          retVal = new Compteur("heure", HorlogeUtils.maintenant().getHours());
           break;
         case 'minute':
-          retVal = new Compteur("minute", new Date().getMinutes());
+          retVal = new Compteur("minute", HorlogeUtils.maintenant().getMinutes());
           break;
         case 'seconde':
-          retVal = new Compteur("seconde", new Date().getSeconds());
+          retVal = new Compteur("seconde", HorlogeUtils.maintenant().getSeconds());
           break;
         default:
           this.eju.ajouterErreur("getValeurHorloge: valeurRecherchee doit être en minuscules.")
@@ -1250,24 +1264,24 @@ export class ConditionsUtils {
       switch (match[1]) {
         // jour de la semaine
         case 'jour':
-          const indexJour = new Date().getDay();
+          const indexJour = HorlogeUtils.maintenant().getDay();
           // valeur numérique (1 => 7)
           if (ExprReg.verbesCompteur.test(verbe)) {
             const jours = [7, 1, 2, 3, 4, 5, 6];
             retVal = new Compteur('jour', jours[indexJour]);
             // valeur textuelle (lundi => dimanche)
           } else {
-            const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'];
+            const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
             retVal = new Intitule(jours[indexJour], new GroupeNominal(null, jours[indexJour], null), ClassesRacines.Intitule);
           }
           break;
         // date du mois
         case 'date':
-          retVal = new Compteur("date", new Date().getDate());
+          retVal = new Compteur("date", HorlogeUtils.maintenant().getDate());
           break;
         // mois (1 => 12)
         case 'mois':
-          const indexMois = new Date().getMonth();
+          const indexMois = HorlogeUtils.maintenant().getMonth();
           // valeur numérique (1 => 12)
           if (ExprReg.verbesCompteur.test(verbe)) {
             const mois = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -1279,7 +1293,7 @@ export class ConditionsUtils {
           }
           break;
         case 'année':
-          retVal = new Compteur("année", new Date().getFullYear());
+          retVal = new Compteur("année", HorlogeUtils.maintenant().getFullYear());
           break;
         default:
           this.eju.ajouterErreur("getValeurCalendrier: valeurRecherchee doit être en minuscules.")

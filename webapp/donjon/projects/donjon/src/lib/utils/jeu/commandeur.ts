@@ -500,8 +500,8 @@ export class Commandeur {
     return this.comTour.continuerLeTourInterrompu(tour);
   }
 
-  public executerRoutine(routine: RoutineSimple): string {
-    let ctxTour = new ContexteTour(undefined, undefined);
+  public executerRoutine(routine: RoutineSimple, ceciVal?: Intitule, celaVal?: Intitule): string {
+    let ctxTour = new ContexteTour(ceciVal, celaVal);
     ctxTour.commande = new ContexteCommande();
     ctxTour.commande.evenement = new Evenement(TypeEvenement.routine, routine.titre);
     ctxTour.commande.sortie = "";

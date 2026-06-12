@@ -1,0 +1,21 @@
+La crypte est un lieu.
+La stèle est un objet ici.
+Sa description est "Des runes anciennes y sont gravées.".
+
+action balayer:
+  dire "Vous époussetez la crypte du regard :".
+  exécuter l'action regarder.
+fin action
+
+action réciter:
+  exécuter la commande "examiner la stèle".
+fin action
+
+action répéter:
+  dire "(Vous recommencez.)".
+  exécuter la dernière commande.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/balayer/}, {/réciter/}, {/répéter/}.".
+fin règle

@@ -1,0 +1,29 @@
+-- Mini-jeu d'illustration — page wiki « Balises dynamiques », section [nombre de …].
+-- Compte des éléments du jeu : par classe, par état, et par position (dans/sur/sous).
+
+Un trophée est une sorte d'objet.
+
+La salle des coupes est un lieu.
+La vitrine est un contenant ouvert dans la salle des coupes.
+L'étagère est un support dans la salle des coupes.
+La table est un support dans la salle des coupes.
+
+Le trophée d'or est un trophée dans la vitrine.
+Le trophée d'argent est un trophée dans la vitrine.
+Le trophée de bronze est un trophée sur l'étagère.
+Le tabouret est un objet sous la table.
+La lampe rouge est un objet allumé sur l'étagère.
+La lampe bleue est un objet éteint sur l'étagère.
+
+action compter:
+  dire "Trophées dans le jeu : [nombre de trophées].".
+  dire "Objets allumés : [nombre d'objets allumés].".
+  dire "Trophées dans la vitrine : [nombre de trophées dans la vitrine].".
+  dire "Trophées sur l'étagère : [nombre de trophées sur l'étagère].".
+  dire "Objets allumés sur l'étagère : [nombre d'objets allumés sur l'étagère].".
+  dire "Objets sous la table : [nombre d'objets sous la table].".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/compter/}.".
+fin règle

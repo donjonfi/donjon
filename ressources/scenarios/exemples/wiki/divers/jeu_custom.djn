@@ -1,0 +1,11 @@
+Désactiver les commandes de base.
+
+Le donjon est un lieu.
+
+action commencer le jeu:
+  dire "Bienvenue ! Ici, seules vos commandes existent. Tapez « psalmodier ».".
+fin action
+
+action psalmodier:
+  dire "Vous récitez une incantation mystérieuse.".
+fin action

@@ -135,6 +135,13 @@ export class Declencheur {
                 } else if (curAudEvenement.ceci === evenement.ceci) {
                   let curScore = scoreCorrespondanceExact + (infinitifPrecise ? scoreCorrespondanceInfinif : 0);
                   meilleurScorePourCetAuditeur = Math.max(curScore, meilleurScorePourCetAuditeur);
+                  // ––––––––––––––––––––––––––––––
+                  // d. ceci: direction du déplacement (règle « après aller vers le nord » alors
+                  //    que ceci de l’évènement a été remplacé par le lieu de destination)
+                  // ––––––––––––––––––––––––––––––
+                } else if (evenement.orientationDeplacement && curAudEvenement.ceci === evenement.orientationDeplacement) {
+                  let curScore = scoreCorrespondanceExact + (infinitifPrecise ? scoreCorrespondanceInfinif : 0);
+                  meilleurScorePourCetAuditeur = Math.max(curScore, meilleurScorePourCetAuditeur);
                 }
               }
               // C) CELA UNIQUEMENT => NE DEVRAIT JAMAIS SE PRODUIRE

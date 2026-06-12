@@ -1,0 +1,22 @@
+-- Exemple wiki : routine programmée AVEC arguments.
+-- Une routine paramétrée peut être déclenchée après un délai en temps réel ;
+-- ses arguments sont résolus au moment du déclenchement.
+-- Essayez : « armer », puis patientez 5 secondes que l'alerte se déclenche.
+Le poste de garde est un lieu.
+
+routine alerter:
+  définitions:
+    ceci est un texte.
+    cela est un nombre.
+  exécution:
+    dire "{N}ALERTE niveau [c cela] : [ceci] !".
+fin routine
+
+action armer:
+  dire "Surveillance activée : alerte dans 5 secondes...".
+  exécuter la routine alerter avec "intrus détecté" et 3 dans 5 secondes.
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/armer/}, puis patientez 5 secondes.".
+fin règle

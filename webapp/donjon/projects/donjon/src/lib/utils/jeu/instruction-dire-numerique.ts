@@ -1,4 +1,5 @@
 import { ClasseUtils } from "../commun/classe-utils";
+import { HorlogeUtils } from "./horloge-utils";
 import { Compteur } from "../../models/compilateur/compteur";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { EClasseRacine } from "../../models/commun/constantes";
@@ -51,14 +52,18 @@ export class InstructionDireNumerique {
     return compteur !== undefined ? compteur.valeur : null;
   }
 
-  calculerBaliseCalendrier(texteDynamique: string): string {
+  calculerBaliseCalendrier(texteDynamique: string, getMaintenant?: () => Date): string {
     const baliseCalendrier = "(calendrier|(?:0?(?:jour|date|mois|ann(?:é|e|è)e)))";
-    const maintenant = new Date();
+    // Lecture d'horloge paresseuse et partagée (cf. instruction-dire.calculerTexteDynamique) :
+    // une seule lecture par `dire`, partagée entre calendrier et horloge.
+    let maintenant: Date | undefined;
+    const lire = getMaintenant ?? (() => HorlogeUtils.maintenant());
     const zeroPad = (num, places) => String(num).padStart(places, '0');
     return InstructionsUtils.processBalises(texteDynamique, baliseCalendrier, decoupe => {
+      maintenant ??= lire();
       const unite = InstructionsUtils.normaliserAccents(decoupe[1]?.toLocaleLowerCase() ?? '');
       switch (unite) {
-        case 'jour': return ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeurdi', 'vendredi', 'samedi'][maintenant.getDay()];
+        case 'jour': return ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'][maintenant.getDay()];
         case 'date': return maintenant.getDate().toString();
         case 'mois': return ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][maintenant.getMonth()];
         case 'annee': return maintenant.getFullYear().toString();
@@ -71,11 +76,14 @@ export class InstructionDireNumerique {
     });
   }
 
-  calculerBaliseHorloge(texteDynamique: string): string {
+  calculerBaliseHorloge(texteDynamique: string, getMaintenant?: () => Date): string {
     const baliseHorloge = "(horloge|(?:0?(?:heure|minute|seconde)))s*";
-    const maintenant = new Date();
+    // Lecture d'horloge paresseuse et partagée (cf. calculerBaliseCalendrier).
+    let maintenant: Date | undefined;
+    const lire = getMaintenant ?? (() => HorlogeUtils.maintenant());
     const zeroPad = (num, places) => String(num).padStart(places, '0');
     return InstructionsUtils.processBalises(texteDynamique, baliseHorloge, decoupe => {
+      maintenant ??= lire();
       const unite = decoupe[1]?.toLocaleLowerCase();
       switch (unite) {
         case 'heure': return maintenant.getHours().toString();

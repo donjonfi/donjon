@@ -1,0 +1,21 @@
+La taverne est un lieu.
+
+action commander:
+  dire "Que souhaitez-vous boire ?".
+  choisir librement:
+    choix "limonade":
+      dire "Une limonade bien fraîche, voilà !".
+    autre choix:
+      si la réponse commence par "café":
+        dire "Le percolateur est en panne, désolé.".
+      sinonsi la réponse termine par "ade":
+        dire "Une [intitulé réponse] ? Voilà !".
+      sinon
+        dire "Je ne connais pas la boisson « [intitulé réponse] ».".
+      fin si
+  fin choisir
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/commander/}.".
+fin règle

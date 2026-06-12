@@ -1,0 +1,12 @@
+La forge est un lieu.
+Le moule est un contenant ouvert ici.
+La médaille est un objet dans le moule.
+
+action mouler:
+  copier la médaille dans le moule.
+  dire "Une médaille de plus dans le moule.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/mouler/}, puis {/examiner le moule/}.".
+fin règle

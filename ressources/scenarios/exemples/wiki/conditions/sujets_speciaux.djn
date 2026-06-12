@@ -1,0 +1,28 @@
+Le belvédère est un lieu.
+La lunette est un objet ici.
+
+action méditer:
+  si le jeu est commencé:
+    dire "La partie est bel et bien commencée.".
+  fin si
+  si le jeu n’est pas terminé:
+    dire "Et elle n’est pas encore terminée.".
+  fin si
+fin action
+
+règle après prendre la lunette:
+  si l’infinitif de l’action est prendre:
+    dire "La règle sait que vous venez de la prendre.".
+  fin si
+fin règle
+
+action abandonner:
+  terminer le jeu.
+  si le jeu est terminé:
+    dire "La partie est finie.".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/méditer/}, {/prendre la lunette/}, {/abandonner/}.".
+fin règle

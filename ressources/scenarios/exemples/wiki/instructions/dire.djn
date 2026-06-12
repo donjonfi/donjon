@@ -1,0 +1,14 @@
+-- Mini-jeu d'illustration — page wiki « Dire ».
+-- Affiche du texte au joueur, avec une balise dynamique ([c …] et accord [s …]).
+
+Le belvédère est un lieu.
+Le score est un compteur initialisé à 3.
+
+action proclamer:
+  dire "Bienvenue, voyageur.".
+  dire "Votre score est de [c score] point[s score].".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/proclamer/}.".
+fin règle

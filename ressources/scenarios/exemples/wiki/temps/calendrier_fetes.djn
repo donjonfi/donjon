@@ -1,0 +1,25 @@
+-- Exemple wiki : lire la date système et réagir selon le calendrier.
+-- La date provient de l'ordinateur qui exécute le jeu.
+-- Essayez : « consulter » (affiche la date) puis « vérifier » (message selon le mois/jour).
+La place du village est un lieu.
+
+action consulter:
+  dire "Aujourd'hui on est un [jour] et nous sommes le [date] [mois] [année].".
+fin action
+
+action vérifier:
+  si le mois est décembre:
+    dire "C'est le mois de Noël !".
+  sinonsi le mois dépasse 6:
+    dire "On a déjà dépassé la moitié de l'année.".
+  sinon:
+    dire "L'année ne fait que commencer.".
+  fin si
+  si le jour est dimanche:
+    dire "Et en plus, c'est dimanche : on se repose !".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/consulter/} ou {/vérifier/}.".
+fin règle

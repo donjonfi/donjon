@@ -570,6 +570,23 @@ export class PhraseUtils {
 
     let retVal: ProprieteJeu = null;
 
+    // 0) Locateur spatial sur l’élément cible (« la description du sol situé dans la cuisine »).
+    // On décompose la base (« la description du sol ») normalement, puis on réattache le locateur
+    // à l’épithète de l’élément pour que la résolution runtime cible la bonne instance (cf.
+    // InstructionsUtils.trouverProprieteCible). La récursion est sûre : la base ne contient plus de locateur.
+    const loc = PhraseUtils.extraireLocalisationReference(intitule);
+    if (loc && (loc.cible || loc.ici)) {
+      const base = PhraseUtils.trouverPropriete(loc.base);
+      if (base && base.intituleElement) {
+        const suffixe = loc.ici ? "situé ici" : ("situé " + loc.preposition + " " + loc.cible);
+        base.intituleElement.epithete = base.intituleElement.epithete
+          ? (base.intituleElement.epithete + " " + suffixe)
+          : suffixe;
+        return base;
+      }
+      // sinon : pas une propriété d’élément → poursuivre la décomposition normale.
+    }
+
     // A) vérifier si la propriété correspond au type « nombre de propriété d’un élément » :
     const intituleEstUnNombreDePropriete = ExprReg.xNombreDeProprieteElement.exec(intitule);
     if (intituleEstUnNombreDePropriete) {
@@ -668,6 +685,22 @@ export class PhraseUtils {
       }
     }
     return retVal;
+  }
+
+  /**
+   * Extraire un qualifieur de localisation d’une référence d’objet :
+   * « <base> (qui se trouve|situé(e)(s)) (dans|sur|sous) <cible> » ou « <base> … ici ».
+   * Utilisé pour les instructions, les conditions et les définitions (surcharge de fond par lieu).
+   * @returns { base, preposition?, cible?, ici? } ou null si aucun qualifieur n’est présent.
+   */
+  public static extraireLocalisationReference(texte: string): { base: string, preposition?: string, cible?: string, ici?: boolean } | null {
+    if (!texte) { return null; }
+    const m = ExprReg.xQualifieurLocalisation.exec(texte.trim());
+    if (!m) { return null; }
+    if (m[4]) {
+      return { base: m[1].trim(), ici: true };
+    }
+    return { base: m[1].trim(), preposition: m[2].toLowerCase(), cible: m[3].trim() };
   }
 
   /**

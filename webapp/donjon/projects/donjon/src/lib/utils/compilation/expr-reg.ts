@@ -269,7 +269,7 @@ export class ExprReg {
    *   - Par rapport à la cabane, la forêt se trouve au nord, au sud et à l’ouest.
    *   - Il se trouve ici.
    */
-  static readonly xDefinirPositionElement = /^(?!(?:changer|si|(?:le joueur peut)) )(.+) se trouve(?:nt)? (.+)$/i;
+  static readonly xDefinirPositionElement = /^(?!(?:changer|si|déplacer|deplacer|copier|(?:le joueur peut)) )(.+) se trouve(?:nt)? (.+)$/i;
 
   /**
    * position relative d’un élément du jeu
@@ -302,6 +302,49 @@ export class ExprReg {
    * - Ex: Celui-ci grand.
    */
   static readonly xPronomPersonnelAttribut = /^(?:(?:(?:il|elle|celui-ci|celle-ci) est)|(?:(?:ils|elles|celles-ci|ceux-ci) sont))((?!une |un |des ) (?:.+[^,])(?:$| et (?:.+[^,])|(?:, .+[^,])+ et (?:.+[^,])))/i;
+
+  /** pronom personnel + portée d’un fond (objet de décor multi-lieux)
+   * - (commun|propre)(1), domaine « tous »(2) | état du domaine(3)
+   * - Ex: Il est commun à tous les lieux.            → partagé, tous les lieux
+   * - Ex: Elle est commune dans les lieux côtiers.   → partagé, lieux « côtier »
+   * - Ex: Il est propre à chaque lieu.               → une instance par lieu, tous les lieux
+   * - Ex: Il est propre aux lieux couverts.          → une instance par lieu « couvert »
+   * Note : « commun »/« propre » nus (sans domaine) ne matchent pas → restent des états.
+   */
+  static readonly xFondPortee = /^(?:il|elle|ils|elles|celui-ci|celle-ci|ceux-ci|celles-ci) (?:est|sont) (commun|propre)(?:e|s|es)? (?:(à tous les lieux|à chaque lieu)|(?:dans les lieux|aux lieux) (.+?))\.?$/i;
+
+  /** portée d’un fond déclarée INLINE dans la définition (après « est un fond »).
+   * - (commun|propre)(1), domaine « tous »(2) | état du domaine(3)
+   * - Ex: « Le sol est un fond propre à chaque lieu. »      → propre, à chaque lieu
+   * - Ex: « La mer est un fond commun dans les lieux côtiers. » → commun, lieux « côtier »
+   * Nécessaire car le groupe « attributs » de xDefinitionElementAvecType tronque la portée.
+   */
+  static readonly xFondPorteeDeclaration = / (?:un|une|des) fonds? (commun|propre)(?:e|s|es)? (?:(à tous les lieux|à chaque lieu)|(?:dans les lieux|aux lieux) (.+?))\s*\.?$/i;
+
+  /** suffixe de portée à RETIRER d’une définition de fond pour que xDefinitionElementAvecType matche.
+   * « Le sol est un fond propre à chaque lieu. » → (retrait du suffixe) → « Le sol est un fond. »
+   * Le point final éventuel est préservé via le groupe (1).
+   */
+  static readonly xFondPorteeSuffixe = / (?:commun|propre)(?:e|s|es)? (?:à tous les lieux|à chaque lieu|(?:dans les lieux|aux lieux) .+?)\s*(\.?)$/i;
+
+  /** Qualifieur de localisation sur une RÉFÉRENCE d’objet (instructions, conditions, définitions).
+   * Découpe « <groupe nominal>(1) (qui se trouve(nt)|situé(e)(s)) (dans|sur|sous)(2) <cible>(3) | ici(4) ».
+   * - Ex: « les objets qui se trouvent dans le coffre » → (1)=les objets, (2)=dans, (3)=le coffre
+   * - Ex: « le sol situé dans la salle de bain »        → (1)=le sol, (2)=dans, (3)=la salle de bain
+   * - Ex: « les clés situées sur la table »             → (1)=les clés, (2)=sur, (3)=la table
+   * - Ex: « le sol qui se trouve ici »                  → (1)=le sol, (4)=ici
+   * Le « qui » (relatif) ou le participe « situé » distingue ce qualifieur du VERBE « se trouve »
+   * (test de position d’une condition : « la clé se trouve dans le coffre »).
+   */
+  static readonly xQualifieurLocalisation = /^(.+?) (?:qui se trouvent?|situé(?:e|s|es)?) (?:(dans|sur|sous) (.+)|(ici))$/i;
+
+  /** Instruction de déplacement/copie avec SUJET LOCALISÉ + destination :
+   * « <sujet qui se trouve(nt)/situé(e)(s) (dans|sur|sous) X> (vers|dans|sur|sous|à) <destination> ».
+   * - (1) sujet (avec le locateur), (2) préposition de destination, (3) destination
+   * - Ex: « les objets qui se trouvent dans le coffre vers l'inventaire »
+   * Nécessaire car le « dans » interne du locateur casse le découpage standard sujet/complément.
+   */
+  static readonly xInstructionLocateurDestination = /^(.+? (?:qui se trouvent?|situé(?:e|s|es)?) (?:dans|sur|sous) .+?) (vers|dans|sur|sous|à|au|aux) (.+)$/i;
 
   /**  
    * Pronom personnel + contenu
@@ -390,6 +433,28 @@ export class ExprReg {
    *     - activer/désactiver(1) paramètre(2)
    */
   static readonly xActiverDesactiver = /^(activer|désactiver) (.+)$/i;
+
+  /**
+   * Actions principales/secondaires proposées par l’interface tactile, pour une
+   * classe d’éléments ou un élément précis.
+   * - Découpage :
+   *     - principales/secondaires(1) supplémentaires(2) cible(3) infinitifs(4)
+   * Ex :
+   *  - Les actions principales pour les objets sont examiner, prendre et utiliser.
+   *  - L’action principale pour les lieux est regarder.
+   *  - Les actions principales du bandit sont attaquer et parler.
+   *  - Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
+   */
+  static readonly xActionsTactiles = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?)( suppl[ée]mentaires?)? (?:pour |du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+?) (?:est|sont) (.+)$/i;
+
+  /**
+   * Ajout d’actions principales/secondaires à la liste héritée (définition ou instruction).
+   * - Découpage :
+   *     - infinitifs(1) principales/secondaires(2) cible(3)
+   * Ex :
+   *  - Ajouter attaquer et insulter aux actions principales du bandit.
+   */
+  static readonly xAjouterActionsTactiles = /^ajouter (.+?) aux actions (principales|secondaires) (?:du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+)$/i;
 
   // ================================================================================================
   //  DÉCLARATION D'ÉTATS PERSONNALISÉS

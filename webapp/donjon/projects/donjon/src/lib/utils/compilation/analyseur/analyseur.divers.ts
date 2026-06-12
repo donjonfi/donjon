@@ -4,9 +4,11 @@ import { Aide } from "../../../models/commun/aide";
 import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../expr-reg";
 import { Phrase } from "../../../models/compilateur/phrase";
+import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { StringUtils } from "../../commun/string.utils";
 import { TexteUtils } from "../../commun/texte-utils";
+import { TypeListeActionsTactiles } from "../../../models/jeu/regle-actions-tactiles";
 
 export class AnalyseurDivers {
 
@@ -137,6 +139,19 @@ export class AnalyseurDivers {
           ctxAnalyse.parametres.activerAttendre = isActiver;
           break;
 
+        case 'mode mobile':
+        case 'mode tactile':
+        case 'interface mobile':
+        case 'interface tactile':
+          ctxAnalyse.parametres.activerInterfaceTactile = isActiver;
+          break;
+
+        case 'creation automatique des etats':
+        case 'creation auto des etats':
+        case 'creation des etats automatique':
+          ctxAnalyse.parametres.activerCreationAutomatiqueEtats = isActiver;
+          break;
+
         default:
           ctxAnalyse.probleme(phrase, undefined,
             CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
@@ -146,6 +161,69 @@ export class AnalyseurDivers {
           break;
       }
 
+    }
+
+    return elementTrouve;
+  }
+
+  /**
+   * La phrase déclare les actions principales ou secondaires proposées par
+   * l’interface tactile pour une classe d’éléments ou un élément précis
+   * (remplace la liste héritée), ou en ajoute à la liste héritée.
+   * Ex :
+   *  - Les actions principales pour les objets sont examiner, prendre et utiliser.
+   *  - L’action principale pour les lieux est regarder.
+   *  - Ajouter attaquer et insulter aux actions principales du bandit.
+   *  - Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
+   */
+  public static testerActionsTactiles(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
+
+    let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
+
+    const declaration = ExprReg.xActionsTactiles.exec(phrase.morceaux[0]);
+    const ajout = declaration ? null : ExprReg.xAjouterActionsTactiles.exec(phrase.morceaux[0]);
+
+    if (declaration || ajout) {
+      elementTrouve = ResultatAnalysePhrase.actionsTactiles;
+
+      const typeListe: TypeListeActionsTactiles = (declaration ? declaration[1] : ajout[2]).toLowerCase().startsWith('principale') ? 'principales' : 'secondaires';
+      // « supplémentaires » : complète la liste héritée au lieu de la remplacer
+      const supplementaires = declaration ? !!declaration[2] : false;
+      const cibleBrute = (declaration ? declaration[3] : ajout[3]).trim();
+      const infinitifsBruts = (declaration ? declaration[4] : ajout[1]).trim();
+
+      const cible = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleBrute, true);
+      if (!cible) {
+        ctxAnalyse.probleme(phrase, undefined,
+          CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+          'Cible pas comprise',
+          `Actions ${typeListe} : cible pas comprise : « ${cibleBrute} ».`,
+        );
+        return elementTrouve;
+      }
+
+      const infinitifs: string[] = [];
+      PhraseUtils.separerListeIntitulesEtOu(infinitifsBruts, true).forEach(item => {
+        const infinitif = item.trim().toLowerCase();
+        if (ExprReg.xVerbeInfinitif.test(infinitif)) {
+          infinitifs.push(infinitif);
+        } else {
+          ctxAnalyse.probleme(phrase, undefined,
+            CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+            'Infinitif attendu',
+            `Actions ${typeListe} : « ${item.trim()} » devrait être un verbe à l\u2019infinitif (-er, -ir ou -re).`,
+          );
+        }
+      });
+
+      if (infinitifs.length) {
+        ctxAnalyse.actionsTactiles.push({
+          typeListe,
+          cible,
+          mode: (declaration && !supplementaires) ? 'remplacer' : 'ajouter',
+          infinitifs,
+        });
+      }
     }
 
     return elementTrouve;

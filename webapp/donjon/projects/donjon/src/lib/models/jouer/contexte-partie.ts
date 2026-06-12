@@ -10,6 +10,7 @@ import { Sauvegarde } from "./sauvegarde";
 import { EtapeEnregistrement, FichierEnregistrement } from "./fichier-enregistrement";
 import { versionNum } from "../commun/constantes";
 import { ExprReg } from "donjon";
+import { HorlogeUtils } from "../../utils/jeu/horloge-utils";
 
 export class ContextePartie {
 
@@ -34,6 +35,16 @@ export class ContextePartie {
    * Utilisé pour générer un FichierEnregistrement.
    */
   private _sortiesParEtape: (string | null)[] = [];
+
+  /**
+   * Lectures d'horloge (epoch ms) produites par chaque étape, aligné par index sur _etapesPartie
+   * (même pattern que _sortiesParEtape). null tant qu'aucune lecture pour l'étape.
+   * Utilisé pour rejouer l'heure de façon déterministe (au lieu de l'heure réelle).
+   */
+  private _horlogesParEtape: (number[] | null)[] = [];
+
+  /** Lectures d'horloge de la phase intro (avant la première étape c/r/d). */
+  private _horlogeIntro: number[] = [];
 
   /**
    * Sortie textuelle de l'intro du jeu — accumulée avant la première commande joueur.
@@ -83,11 +94,13 @@ export class ContextePartie {
   public ajouterCommandeDansSauvegarde(commandeBrute: string) {
     this._etapesPartie.push(ExprReg.caractereCommande + ":" + commandeBrute);
     this._sortiesParEtape.push(null);
+    this._horlogesParEtape.push(null);
   }
 
   public ajouterReponseDansSauvegarde(reponseBrute: string) {
     this._etapesPartie.push(ExprReg.caractereReponse + ":" + reponseBrute);
     this._sortiesParEtape.push(null);
+    this._horlogesParEtape.push(null);
   }
 
   /**
@@ -105,11 +118,17 @@ export class ContextePartie {
     this._derniereSortieEnregistree = (this._derniereSortieEnregistree === null)
       ? sortie
       : (this._derniereSortieEnregistree + sortie);
+    // Lectures d'horloge accumulées depuis le dernier prélèvement (= pendant cette étape).
+    const lectures = HorlogeUtils.preleverLecturesEtape();
     for (let i = this._sortiesParEtape.length - 1; i >= 0; i--) {
       const brut = this._etapesPartie[i];
       if (brut?.startsWith('c:') || brut?.startsWith('r:') || brut?.startsWith('d:')) {
         const existant = this._sortiesParEtape[i];
         this._sortiesParEtape[i] = (existant === null) ? sortie : (existant + sortie);
+        if (lectures.length) {
+          if (this._horlogesParEtape[i] == null) this._horlogesParEtape[i] = [];
+          this._horlogesParEtape[i]!.push(...lectures);
+        }
         this._phaseIntroTerminee = true;
         return;
       }
@@ -117,6 +136,7 @@ export class ContextePartie {
     // Aucune étape c/r/d encore enregistrée : on est en phase intro. Accumuler.
     if (!this._phaseIntroTerminee) {
       this._sortieIntro += (this._sortieIntro ? '\n' : '') + sortie;
+      if (lectures.length) this._horlogeIntro.push(...lectures);
     }
   }
 
@@ -154,11 +174,23 @@ export class ContextePartie {
     // sauvegarde de la graine
     this.etapesPartie.push(`${ExprReg.caractereGraine}:${nouvelleGraine}`);
     this._sortiesParEtape.push(null);
+    this._horlogesParEtape.push(null);
   }
 
-  public ajouterDeclenchementDansSauvegarde(routine: string) {
-    this.etapesPartie.push(`${ExprReg.caractereDeclenchement}:${routine}`);
+  /**
+   * Enregistre un déclenchement de routine dans la sauvegarde.
+   * @param routine nom de la routine déclenchée.
+   * @param trailerCanonique arguments résolus sous forme canonique (jointe par « et »),
+   *   ou undefined si la routine n’a pas d’arguments. Forme stockée : `d:nom` (sans args,
+   *   byte-identique à l’ancien format) ou `d:nom avec <trailerCanonique>`.
+   */
+  public ajouterDeclenchementDansSauvegarde(routine: string, trailerCanonique?: string) {
+    const valeur = (trailerCanonique && trailerCanonique.length)
+      ? `${routine} avec ${trailerCanonique}`
+      : routine;
+    this.etapesPartie.push(`${ExprReg.caractereDeclenchement}:${valeur}`);
     this._sortiesParEtape.push(null);
+    this._horlogesParEtape.push(null);
   }
 
   /** Dossier qui contient les ressources de jeu (images, musiques, …) */
@@ -175,6 +207,9 @@ export class ContextePartie {
     sauvegarde.declenchementsFuturs = this.jeu.declenchementsFuturs;
     // commandes du joueur
     sauvegarde.etapesSauvegarde = this.etapesPartie;
+    // lectures d'horloge par étape (déterminisme du replay)
+    sauvegarde.horlogesSauvegarde = this._horlogesParEtape;
+    sauvegarde.horlogeIntro = this._horlogeIntro;
     // scénario (on ne le connait pas ici, il sera ajouté ensuite par Donjon Jouer)
     sauvegarde.scenario = undefined;
 
@@ -184,6 +219,7 @@ export class ContextePartie {
   public enleverCommandeGenererSolution() {
     this._etapesPartie.pop();
     this._sortiesParEtape.pop();
+    this._horlogesParEtape.pop();
   }
 
   /**
@@ -206,6 +242,7 @@ export class ContextePartie {
       if (estCommandeOuReponse) break;
       this._etapesPartie.pop();
       this._sortiesParEtape.pop();
+      this._horlogesParEtape.pop();
     }
   }
 
@@ -232,6 +269,10 @@ export class ContextePartie {
       if ((type === 'c' || type === 'r' || type === 'd') && this._sortiesParEtape[i] != null) {
         etape.sortie = this._sortiesParEtape[i]!;
       }
+      const lectures = this._horlogesParEtape[i];
+      if (lectures && lectures.length) {
+        etape.horloge = lectures;
+      }
       etapes.push(etape);
       if (type === 'g' && graineInitiale === undefined) {
         graineInitiale = valeur;
@@ -241,6 +282,9 @@ export class ContextePartie {
     fichier.graine = graineInitiale;
     fichier.etapes = etapes;
     fichier.sortieIntro = this._sortieIntro;
+    if (this._horlogeIntro.length) {
+      fichier.horlogeIntro = this._horlogeIntro;
+    }
     return fichier;
   }
 

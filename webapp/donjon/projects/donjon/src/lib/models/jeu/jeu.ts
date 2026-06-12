@@ -11,9 +11,11 @@ import { ListeEtats } from '../../utils/jeu/liste-etats';
 import { Objet } from './objet';
 import { Parametres } from '../commun/parametres';
 import { ProgrammationTemps } from './programmation-temps';
+import { RegleActionsTactiles } from './regle-actions-tactiles';
 import { RegleBeta } from '../compilateur/regle-beta';
 import { RessourceAffichee } from './ressource-affichee';
 import { RoutineSimple } from '../compilateur/routine-simple';
+import { RoutineEnAttente } from './routine-en-attente';
 import { Statistiques } from './statistiques';
 import { DeclenchementFutur, Sauvegarde } from '../jouer/sauvegarde';
 import { Concept } from '../compilateur/concept';
@@ -87,8 +89,8 @@ export class Jeu {
   /** Les erreurs qui doivent encore être affichées à l’utilisateur. */
   tamponInterruptions: Interruption[] = [];
 
-  /** Les routines simples qui attendent d’être exécutées (elle ne le sont qu’entre 2 tours de jeu) */
-  tamponRoutinesEnAttente: RoutineSimple[] = [];
+  /** Les routines simples qui attendent d’être exécutées (elle ne le sont qu’entre 2 tours de jeu), avec leurs arguments liés */
+  tamponRoutinesEnAttente: RoutineEnAttente[] = [];
 
   classes: Classe[] = [];
 
@@ -144,6 +146,9 @@ export class Jeu {
 
   /** Paramètres spécifiques au jeu */
   parametres: Parametres = new Parametres();
+
+  /** Actions principales/secondaires proposées par l’interface tactile */
+  actionsTactiles: RegleActionsTactiles[] = [];
 
   /** Programmations de routines (basée sur un décompte en millisecondes) */
   programmationsTemps: ProgrammationTemps[] = [];

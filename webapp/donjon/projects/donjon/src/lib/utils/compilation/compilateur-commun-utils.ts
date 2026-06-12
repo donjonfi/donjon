@@ -174,6 +174,7 @@ export class CompilateurCommunUtils {
     }
     ctx.resultat.aides = ctx.analyse.aides;
     ctx.resultat.parametres = ctx.analyse.parametres;
+    ctx.resultat.actionsTactiles = ctx.analyse.actionsTactiles;
     ctx.resultat.declarationsEtats = ctx.analyse.declarationsEtats;
 
   }

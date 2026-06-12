@@ -1,0 +1,20 @@
+-- Mini-jeu d'illustration — pages wiki « Hasard » et « Sélectionner un nombre ».
+-- Démontre « sélectionner un nombre compris entre X et Y », l'affichage avec
+-- [mémoire nombre] et le test du résultat avec un comparateur.
+
+Le tripot est un lieu.
+Sa description est "Une table, un gobelet, un dé à six faces. Tentez votre chance.".
+
+action parier:
+  sélectionner un nombre compris entre 1 et 6.
+  dire "Le dé s’arrête sur le [mémoire nombre].".
+  si le nombre atteint 5:
+    dire "Gagné !".
+  sinon
+    dire "Perdu…".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez plusieurs fois : {/parier/}.".
+fin règle

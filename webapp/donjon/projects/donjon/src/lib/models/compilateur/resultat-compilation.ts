@@ -7,6 +7,7 @@ import { MessageAnalyse } from './message-analyse';
 import { Monde } from './monde';
 import { Parametres } from '../commun/parametres';
 import { Regle } from '../../interfaces/compilateur/regle';
+import { RegleActionsTactiles } from '../jeu/regle-actions-tactiles';
 import { RoutineSimple } from './routine-simple';
 import { Statistiques } from '../jeu/statistiques';
 
@@ -34,6 +35,8 @@ export class ResultatCompilation {
   messages: MessageAnalyse[];
   /** Les paramètres définis pour le jeu. */
   parametres: Parametres;
+  /** Les actions principales/secondaires de l’interface tactile. */
+  actionsTactiles: RegleActionsTactiles[];
   /** Les statistiques de l’analyse. */
   statistiques: Statistiques;
   /** Les déclarations d'états personnalisés trouvées (à appliquer sur la {@link ListeEtats}). */

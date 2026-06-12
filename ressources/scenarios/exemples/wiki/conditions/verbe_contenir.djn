@@ -1,0 +1,17 @@
+-- Mini-jeu d'illustration — page wiki « Conditions » (verbe « contient »).
+-- « contient » teste l'appartenance à une LISTE (ou à l'historique).
+-- Pour le contenu d'un contenant, utilisez plutôt « se trouve dans » (voir se_trouver).
+
+Le marché est un lieu.
+Les achats sont une liste.
+Elle contient "pain" et "lait".
+
+action consulter:
+  si les achats contiennent "pain", dire "Le pain est sur la liste.".
+  si les achats ne contiennent pas "beurre", dire "Le beurre manque à la liste.".
+  si les achats sont vides, dire "La liste est vide.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/consulter/}.".
+fin règle

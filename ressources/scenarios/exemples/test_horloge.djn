@@ -1,0 +1,32 @@
+Le titre du jeu est "Test - Horloge".
+L'auteur du jeu est "Donjon FI".
+
+-- Démontre la lecture de l'heure réelle (balises [horloge], [heure], [minute],
+-- [seconde], [jour], [date], [mois], [année]) et son usage dans une condition.
+--
+-- L'horloge est désormais déterministe au rejeu : si vous générez une sauvegarde
+-- (« générer solution ») ou un enregistrement (« générer enregistrement »), les
+-- heures lues sont mémorisées et rejouées à l'identique (triche / magnétoscope),
+-- au lieu de l'heure réelle du moment du rejeu.
+
+Le observatoire est un lieu.
+
+règle après commencer le jeu:
+  dire "Tapez « consulter » pour lire l'horloge, ou « saluer » pour un message dépendant de l'heure.".
+fin règle
+
+action consulter:
+  dire "Horloge : [horloge].".
+  dire "Heure : [heure] h [minute] min [seconde] s.".
+  dire "Date : [jour] [date] [mois] [année].".
+fin action
+
+action saluer:
+  si l'heure dépasse 17:
+    dire "Bonne soirée !".
+  sinonsi l'heure dépasse 11:
+    dire "Bon après-midi !".
+  sinon:
+    dire "Bonne matinée !".
+  fin si.
+fin action

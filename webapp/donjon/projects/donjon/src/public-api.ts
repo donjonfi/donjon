@@ -150,6 +150,8 @@ export * from './lib/utils/jeu/instruction-executer';
 export * from './lib/utils/jeu/instructions-utils';
 export * from './lib/utils/jeu/instructions';
 export * from './lib/utils/jeu/liste-etats';
+export * from './lib/utils/jeu/tactile/liens-elements-utils';
+export * from './lib/utils/jeu/tactile/verbes-elements-utils';
 
 
 

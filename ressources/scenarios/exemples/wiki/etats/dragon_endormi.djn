@@ -71,7 +71,7 @@ action enrager ceci:
     dire "[Intitulé ceci] est déjà furieux.".
   sinon
     changer ceci est enragé.
-    dire "[Intitulé ceci] entre dans une rage folle ! (Et se réveille s’il dormait, par implication.)".
+    dire "[Intitulé ceci] entre dans une rage folle et se réveille s’il dormait, par implication !".
   fin si
 fin action
 

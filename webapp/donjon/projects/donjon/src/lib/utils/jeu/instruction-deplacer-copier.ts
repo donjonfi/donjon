@@ -6,6 +6,7 @@ import { ClasseUtils } from "../commun/classe-utils";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
 import { ElementJeu } from "../../models/jeu/element-jeu";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
+import { PhraseUtils } from "../commun/phrase-utils";
 import { InstructionsUtils } from "./instructions-utils";
 import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
@@ -373,6 +374,15 @@ export class InstructionDeplacerCopier {
   private trouverObjetsDeplacementCopie(sujet: GroupeNominal, contexteTour: ContexteTour) {
     let objet: Objet = null;
     let objets: Objet[] = null;
+
+    // LOCATEUR SPATIAL : « les objets qui se trouvent dans le coffre », « le sol situé dans la cuisine », …
+    //  (pluriel ou instance précise d'un fond). Résolution via le résolveur partagé.
+    const loc = PhraseUtils.extraireLocalisationReference(sujet.nomEpithete);
+    if (loc && (loc.cible || loc.ici)) {
+      const baseGN = PhraseUtils.getGroupeNominalDefiniOuIndefini(loc.base, true) ?? sujet;
+      const cibleGN = loc.cible ? PhraseUtils.getGroupeNominalDefiniOuIndefini(loc.cible, true) : null;
+      return this.eju.resoudreReferenceLocalisee(baseGN, loc.preposition ?? null, !!loc.ici, cibleGN);
+    }
 
     // si on déplace ceci, vérifier si ceci est un objet
     if ((sujet.nom.endsWith(" ceci") || sujet.nom === 'ceci') && (!ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet))) {

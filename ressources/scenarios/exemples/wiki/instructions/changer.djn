@@ -1,0 +1,23 @@
+-- Mini-jeu d'illustration — page wiki « Changer ».
+-- Démontre plusieurs formes : état (n'est plus / est), possession, compteur, intitulé.
+
+Le sas est un lieu.
+Le coffre est un contenant fermé et verrouillé dans le sas.
+La carte est un objet dans le sas.
+Le niveau est un compteur initialisé à 0.
+
+action activer:
+  changer le coffre n'est plus verrouillé.
+  changer le coffre est ouvert.
+  changer le joueur possède la carte.
+  changer le niveau augmente de 1.
+  changer l'intitulé du coffre est "coffre forcé".
+  dire "Coffre : [intitulé coffre].".
+  si le coffre est ouvert, dire "Le coffre est ouvert.".
+  si le joueur possède la carte, dire "Vous tenez la carte.".
+  si le niveau vaut 1, dire "Niveau 1 atteint.".
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/activer/}.".
+fin règle

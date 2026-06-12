@@ -1,0 +1,28 @@
+Le salon est un lieu.
+La cave est un lieu au sud du salon.
+La trappe est une porte fermée au sud du salon.
+
+action sonder:
+  si une sortie existe vers le sud:
+    dire "Une sortie existe au sud.".
+  fin si
+  si aucune sortie accessible n’existe vers le sud:
+    dire "Mais elle est bloquée par la trappe fermée.".
+  fin si
+  si aucune sortie n’existe vers le nord:
+    dire "Aucune sortie au nord.".
+  fin si
+fin action
+
+action toquer:
+  si une porte existe vers le sud:
+    dire "Une porte ferme le passage au sud.".
+  fin si
+  si aucune porte n’existe vers le nord:
+    dire "Aucune porte au nord.".
+  fin si
+fin action
+
+règle avant commencer le jeu:
+  dire "Essayez : {/sonder/}, {/toquer/}.".
+fin règle

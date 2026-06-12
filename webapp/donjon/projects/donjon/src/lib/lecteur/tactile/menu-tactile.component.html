@@ -1,0 +1,144 @@
+<div class="djn-menu-tactile-fond" (click)="onFermer()"></div>
+<div class="djn-menu-tactile" role="dialog" aria-modal="true">
+  <div class="djn-menu-tactile-entete">
+    @if (etape === 'verbes') {
+      <span class="djn-menu-tactile-titre">{{ titreCible }}</span>
+    } @else if (etape === 'variantes') {
+      <span class="djn-menu-tactile-titre">{{ groupeChoisi?.infinitif }}</span>
+    } @else if (etape === 'ceci' || etape === 'ceciLibre') {
+      <span class="djn-menu-tactile-titre">{{ verbeChoisi?.infinitif }}@if (verbeChoisi?.prepositionCeci) {&nbsp;{{ verbeChoisi?.prepositionCeci }}}&nbsp;…</span>
+    } @else if (etape === 'cela') {
+      <span class="djn-menu-tactile-titre">{{ commandePartielle }} {{ affichagePrepositionCela(verbeChoisi) }}&nbsp;…</span>
+    } @else {
+      <span class="djn-menu-tactile-titre">Confirmer&nbsp;?</span>
+    }
+    <button type="button" class="btn btn-sm btn-outline-secondary djn-menu-tactile-fermer" (click)="onFermer()" title="Fermer">✕</button>
+  </div>
+
+  @if (etape === 'verbes') {
+    <!-- constructeur global : les derniers verbes utilisés en premier -->
+    @if (groupesRecents.length) {
+      <div class="djn-menu-tactile-boutons">
+        @for (g of groupesRecents; track g.infinitif) {
+          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" [class.djn-menu-tactile-douteux]="g.simple.probablementRefusee" (click)="clicVerbe(g)">
+            {{ g.infinitif }}
+          </button>
+        }
+      </div>
+      <hr class="djn-menu-tactile-separateur">
+    }
+    <!-- un bouton par infinitif (mode élément : réparti en niveaux ; constructeur global : tout, alphabétique) -->
+    @if (groupes.length) {
+      <div class="djn-menu-tactile-boutons">
+        @for (g of groupesAffiches; track g.infinitif) {
+          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" [class.djn-menu-tactile-douteux]="g.simple.probablementRefusee" (click)="clicVerbe(g)">
+            {{ g.infinitif }}
+          </button>
+        }
+      </div>
+      @if (plusDeCommandesDisponible) {
+        <div class="djn-menu-tactile-actions djn-menu-tactile-plus">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="afficherPlusDeCommandes()">{{ libellePlusDeCommandes }}</button>
+        </div>
+      }
+    } @else {
+      <p class="djn-menu-tactile-vide">Aucune action disponible pour cet élément.</p>
+    }
+    @if (!cible && !cibleDirection) {
+      <!-- filet de sécurité : taper soi-même une commande complète -->
+      <div class="djn-menu-tactile-actions djn-menu-tactile-plus">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="demanderSaisieManuelle()">⌨ Taper une commande…</button>
+      </div>
+    }
+  }
+
+  @if (etape === 'variantes') {
+    <!-- variantes du verbe choisi : commandes prêtes, ou « … » pour choisir le complément -->
+    <div class="djn-menu-tactile-boutons">
+      @for (p of propositions; track $index) {
+        <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" [class.djn-menu-tactile-douteux]="p.douteuse" (click)="choisirProposition(p)">
+          {{ p.libelle }}
+        </button>
+      }
+    </div>
+    <div class="djn-menu-tactile-actions">
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="retour()">← Retour</button>
+    </div>
+  }
+
+  @if (etape === 'ceciLibre') {
+    <!-- premier complément en texte libre (cible « un intitulé », ex. « taper {code} ») -->
+    <div class="djn-menu-tactile-saisie">
+      <input type="text" class="form-control" #saisieLibre [value]="texteLibre"
+        (input)="texteLibre = saisieLibre.value" (keyup.enter)="validerTexteLibre()"
+        autocapitalize="off" autocomplete="off" spellcheck="false" />
+    </div>
+    <div class="djn-menu-tactile-actions">
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="retour()">← Retour</button>
+      <button type="button" class="btn btn-sm btn-primary" [disabled]="!texteLibre.trim()" (click)="validerTexteLibre()">Continuer</button>
+    </div>
+  }
+
+  @if (etape === 'ceci') {
+    @if (verbeChoisi?.ceciDirection) {
+      <!-- premier complément direction (« aller vers … ») : les sorties visibles -->
+      @if (candidatsCeciDirections.length) {
+        <div class="djn-menu-tactile-boutons">
+          @for (d of candidatsCeciDirections; track d.id) {
+            <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="choisirCeciDirection(d)">
+              {{ intituleDirection(d) }}
+            </button>
+          }
+        </div>
+      } @else {
+        <p class="djn-menu-tactile-vide">Aucune sortie disponible.</p>
+      }
+    } @else if (candidatsCeci.length) {
+      <div class="djn-menu-tactile-boutons">
+        @for (c of candidatsCeci; track c.id) {
+          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="choisirCeci(c)">
+            {{ intituleElement(c) }}
+          </button>
+        }
+      </div>
+    } @else {
+      <p class="djn-menu-tactile-vide">Aucun élément disponible.</p>
+    }
+    <div class="djn-menu-tactile-actions">
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="retour()">← Retour</button>
+    </div>
+  }
+
+  @if (etape === 'cela') {
+    @if (candidatsCela.length) {
+      <div class="djn-menu-tactile-boutons">
+        @for (c of candidatsCela; track c.id) {
+          <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="choisirCela(c)">
+            {{ intituleElement(c) }}
+          </button>
+        }
+      </div>
+    } @else {
+      <p class="djn-menu-tactile-vide">Aucun élément disponible.</p>
+    }
+    <div class="djn-menu-tactile-actions">
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="retour()">← Retour</button>
+    </div>
+  }
+
+  @if (etape === 'apercu') {
+    <p class="djn-menu-tactile-apercu"><span class="t-commande">&gt; {{ apercu }}</span></p>
+    @if (prepositionsPossibles.length > 1) {
+      <div class="btn-group djn-menu-tactile-prepositions" role="group" aria-label="Choisir la préposition">
+        @for (p of prepositionsPossibles; track p) {
+          <button type="button" class="btn btn-sm" [class.btn-primary]="p === prepositionApercu"
+            [class.btn-outline-primary]="p !== prepositionApercu" (click)="changerPreposition(p)">{{ p }}</button>
+        }
+      </div>
+    }
+    <div class="djn-menu-tactile-actions">
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="retour()">← Retour</button>
+      <button type="button" class="btn btn-sm btn-primary" (click)="envoyerApercu()">Envoyer</button>
+    </div>
+  }
+</div>

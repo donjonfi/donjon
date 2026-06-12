@@ -167,10 +167,14 @@ Les routines programmées via chrono temps réel (`programmationsTemps` + `verif
 
 Mécanisme commun : le flag `instructions.restaurationPartieEnCours` empêche le `push` dans `programmationsTemps` dans `instruction-executer.ts` (≈ ligne 275). Les étapes `'d'` forcent les routines via `tamponRoutinesEnAttente.push(...)` + `traiterProchaineRoutine()`.
 
+**Garde-fou supplémentaire (anti double-exécution)** : `verifierChrono` lui-même ne déclenche AUCUNE programmation tant que `restaurationPartieEnCours` est vrai (`if (!this.jeu.interrompu && !this.partie.ins.restaurationPartieEnCours)`). Sans ça, une `ProgrammationTemps` pendante (héritée du jeu en cours à l'entrée du magnéto, ou créée dans une fenêtre de timing avant le vidage) serait jouée 2× : une fois forcée par l'étape `'d'`, une fois par le chrono temps réel. Le bloc `programmerRoutine` empêche d'en *créer* de nouvelles ; ce garde-fou empêche d'en *déclencher* d'existantes. (Les routines encore en attente en fin d'enregistrement relèvent de `declenchementsFuturs`, non restauré — hors scope.)
+
 - **`.sol`** : flag posé pendant le bloc `forEach` de restauration dans `lecteur.component.ts` (≈ 1160) et remis à `false` en fin de bloc (≈ 1209).
 - **`.rec`** : flag posé tant que `enregistrementActif` est `true` — `initialiserMagneto` + `recapReculer` (entrée), `magnetoQuitter` + `afficherRecap` (sortie). Plus, à l'entrée du magnéto, on vide `programmationsTemps` et `tamponRoutinesEnAttente` pour évacuer les routines pendantes du jeu en cours (cas « magnéto sans RAZ » via `magnetoConfirmerRazNon`).
 
 Cas particulier : un `annuler` dans le magnéto déclenche un reload (parent recompile → `ngOnChanges` → `initialiserJeu` → **nouvelle** `ContextePartie` avec `partie.ins.restaurationPartieEnCours = false` par défaut). Il faut donc re-poser le flag dans `initialiserJeu` quand `enregistrementActif` est `true`, sinon le replay auto-triche post-annuler ré-injecte des `ProgrammationTemps` que `verifierChrono` finit par déclencher (sortie de routine fantôme en fin d'écran, accumulée à chaque round-trip).
+
+De plus, ce reload post-`annuler` rejoue la sauvegarde via `lancerAutoTriche`, dont la fin lève normalement `restaurationPartieEnCours` (+ `HorlogeUtils.terminerRejeu`). En magnéto c'est faux : le magnéto reste actif après le « Précédent », donc `lancerAutoTriche` **conserve** le flag (et le rejeu horloge) tant que `enregistrementActif` est vrai (`if (!this.enregistrementActif) { … }`). Sans ça, le « Suivant » suivant reprogrammerait réellement les routines (flag retombé à `false`) → double exécution (forcée + programmée) au prochain Précédent/Suivant.
 
 Si tu touches au cycle de vie d'un mode de replay : mirror toutes les transitions on/off du flag (et le vidage des tampons côté `.rec`).
 
@@ -186,6 +190,26 @@ Fix : `ContextePartie.enleverDeclenchementsTrailing()` appelé dans les deux bra
 
 Fix dans la branche divergence de `magnetoPrecedent` : si l'étape divergente est un `'d'`, on cible `magnetoIdx = idx de la c/r précédente`, puis on planifie un `magnetoPasSuivant()` programmatique dans le `setTimeout(250)` post-reload pour re-jouer cette c/r — résultat : état = « post-c/r, avant routine », curseur sur le `'d'`, c/r affichée comme courant.
 
+### Paramètres des routines déclenchées (`'d'`) et résolution de surcharge
+
+Les routines **programmées avec arguments** (`exécuter la routine X avec <args> dans N secondes`) résolvent leurs arguments **au déclenchement** (fire-time) : `ProgrammationTemps.argsTrailer` mémorise le trailer brut, `verifierChrono` le lie contre l'état courant. L'entrée `'d'` de la sauvegarde encode les arguments **résolus** sous forme canonique : `d:nom` (sans arg, byte-identique à l'ancien format) ou `d:nom avec <trailerCanonique>` (nombre → entier nu, texte → `"…"`, classe → intitulé).
+
+Les **4 sites de déclenchement** (chrono `verifierChrono`, restauration `.sol`, intro magnéto `avancerJusquAEtapeJouable`, pas-à-pas magnéto `executerEtapeDeclenchement`) passent tous par `lecteur.lierEtEnfilerRoutine(nom, args)` → `instructions.lierAppelRoutine` (helper partagé dans `InstructionExecuter`, exposé via `Instructions`). **Ne jamais** ré-introduire un `routines.find(x => x.nom == valeur)` : la surcharge doit être re-jouée (sinon `afficher(nombre)` vs `afficher(classe)` exécute le mauvais corps). `tamponRoutinesEnAttente` porte désormais des `RoutineEnAttente { routine, ceciVal, celaVal }` (plus de `RoutineSimple[]`).
+
+### Déterminisme de l'horloge (calqué sur la graine)
+
+L'heure réelle (`new Date()`, balises `[heure]`/`[horloge]`/`[date]` et conditions `heure/minute/seconde`) est non déterministe et **peut alimenter l'état**. `HorlogeUtils` (jumeau statique d'`AleatoireUtils`) capture **chaque lecture** : en jeu les lectures sont enregistrées **par étape** (`EtapeEnregistrement.horloge` / `Sauvegarde.horlogesSauvegarde` / `horlogeIntro`, parallèles à `_etapesPartie`/`_sortiesParEtape` dans `ContextePartie`) ; au replay `chargerRejeuEtape(etape.horloge)` est appelé **avant** chaque étape et `maintenant()` consomme les valeurs stockées. Les lectures se font paresseusement (seulement si une balise/condition d'heure est rencontrée) pour ne pas polluer chaque étape.
+
+Cycle de vie câblé aux mêmes points que la graine / `restaurationPartieEnCours` : `reinitialiser()` au démarrage (`initialiserJeu`, `test-utils`), `chargerRejeuEtape(horlogeIntro)` avant l'intro puis par étape (forEach `.sol` via l'index, `executerEtapeEnregistrement`/`executerEtapeDeclenchement` au magnéto), `terminerRejeu()` à la fin (`lancerAutoTriche`, `magnetoQuitter`, `afficherRecap`). `enleverToursDeJeux` (`annuler`) pop/préserve `horlogesSauvegarde` **en parallèle** d'`etapesSauvegarde` (sinon désync au premier `annuler` d'un tour lisant l'heure). Stockage **par étape** (pas de curseur global) → avancer/reculer au magnéto relit les lectures de l'étape sans risque de désync.
+
+**Une seule lecture par instruction `dire`** : `dire` découpe son texte en morceaux (un par balise) et appelle `calculerBalise` par morceau ; un `getMaintenant` mémoïsé est créé dans `interpreterLesCrochetsDynamiques` et passé à tous les morceaux, donc `[heure]`/`[date]`/`[mois]`… d'un même `dire` reflètent le même instant et ne consomment **qu'une** lecture de la bande. Sans ce partage, chaque balise lirait l'horloge séparément.
+
+Magnéto : si une étape lit l'heure sans valeur enregistrée, `HorlogeUtils.aLectureManquante` ouvre `magnetoSaisieHorloge` (pause + champs `datetime-local` éditables) ; valider inscrit les heures dans `etape.horloge` et **marque l'étape pour recalcul** de sa sortie (`magnetoIdxSortieARecalculer`). Comme la sortie attendue avait été capturée avec l'heure réelle, elle est **recalculée** quand l'étape est rejouée avec l'heure fournie : `magnetoPasSuivant`/`executerEtapeDeclenchement` acceptent alors la sortie obtenue (`etape.sortie = sortieObtenue`) au lieu de comparer.
+
+Pour ne PAS rester sur l'intro (équivalent « Précédent puis Suivant »), `magnetoConfirmerSaisieHorloge` mémorise la position courante dans `magnetoIdxRejeuCible`, relance le rejeu déterministe (`magnetoRecommencer`), puis `initialiserMagneto` **ré-avance automatiquement** (`avancerAutoJusqua`, via `setTimeout` post-reload) jusqu'à cette position — l'auteur retrouve sa place, la sortie recalculée en route. Les états `magnetoIdxSortieARecalculer` (Set) et `magnetoIdxRejeuCible` **survivent au reload** de `magnetoRecommencer` (donc PAS vidés dans `initialiserMagneto`, qui au contraire consomme la cible) ; ils sont vidés dans `magnetoQuitter` et `setEnregistrement`. À l'**insertion/modification** d'une commande au magnéto (`magnetoTesterSaisie`/`magnetoValiderSaisie`), les lectures d'horloge sont capturées (`chargerRejeuEtape(null)` puis `lecturesUtiliseesEtape()`) et inscrites dans la nouvelle `etape.horloge`, et la saisie est proposée si la commande lit l'heure.
+
+Insertion d'une commande qui **programme une routine** (`exécuter la routine X dans N s`) : comme le magnéto n'a pas de temps réel, le flag de replay est levé le temps d'exécuter la commande insérée (sinon `programmerRoutine` la sauterait), puis `magnetoForcerRoutinesProgrammees` **force immédiatement** chaque routine programmée et l'ajoute comme étape `'d'` (avec sortie + horloge) juste après le `'c'` inséré (le délai N est ignoré — sans objet au replay). Le forçage tourne flag rétabli (true) pour qu'une routine récurrente ne se re-programme pas. Branches couvertes : `inserer` (avec/sans divergence) ; `modifier` et `inserer-reponse` ne forcent pas.
+
 ## Wiki utilisateur (hors repo)
 
 Doc DokuWiki destinée aux auteurs Donjon FI : `D:\GIT\2025\donjon3\wiki\v3\`. Pages source en `.txt` (syntaxe DokuWiki) sous `data/pages/<namespace>/`. Médias et captures sous `data/media/`.
@@ -195,6 +219,8 @@ Pages pertinentes pour le moteur :
 - `data/pages/reference/debogage/deboguer_element_jeu.txt` — sommaire débogage
 
 Quand on modifie une feature visible côté auteur, vérifier si la page wiki correspondante doit être mise à jour. Les captures d'écran (`data/media/...`) doivent être régénérées manuellement — les signaler dans le commit/PR mais ne pas les éditer programmatiquement.
+
+**Chantier en cours — audit de couverture de la référence** : `docs/wiki-reference-audit.md` (état, reste à faire par lots, conventions, boucle de validation, découvertes de calibration dont un bug moteur `réussit` corrigé) + `docs/wiki-reference-audit-findings.json` (188 lacunes, données brutes exhaustives). Point de reprise du travail wiki ; les exemples testables vivent sous `ressources/scenarios/exemples/wiki/<thème>/`.
 
 ## Testing
 

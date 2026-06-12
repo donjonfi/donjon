@@ -19,7 +19,17 @@ export class Sauvegarde {
   */
   public etapesSauvegarde: string[];
 
-  /** 
+  /**
+   * Lectures d'horloge (epoch ms) par étape, aligné par index sur `etapesSauvegarde`.
+   * Chaque entrée est la liste des lectures faites pendant l'étape (ou null/absente si aucune).
+   * Rejouées (au lieu de l'heure réelle) à la restauration pour le déterminisme.
+   */
+  public horlogesSauvegarde?: (number[] | null)[];
+
+  /** Lectures d'horloge de la phase intro (avant la première commande), dans l'ordre. */
+  public horlogeIntro?: number[];
+
+  /**
    * La graine utilisée pour initialiser le générateur
    * de nombres aléatoires.
    * (sauvegarde V1)

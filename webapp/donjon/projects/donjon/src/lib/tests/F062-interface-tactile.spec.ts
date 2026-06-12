@@ -1,0 +1,596 @@
+import { CompilateurV8, EEtatsBase } from "../../public-api";
+
+import { ActionsTactilesUtils } from "../utils/jeu/tactile/actions-tactiles-utils";
+import { ContextePartie } from "../models/jouer/contexte-partie";
+import { Generateur } from "../utils/compilation/generateur";
+import { LiensElementsUtils } from "../utils/jeu/tactile/liens-elements-utils";
+import { Localisation } from "../models/jeu/localisation";
+import { VerbesElementsUtils } from "../utils/jeu/tactile/verbes-elements-utils";
+import { actions } from "./scenario_actions";
+
+describe('Interface tactile — enrichissement de la sortie en liens', () => {
+
+  it('[F062-T001] le libellé le plus long est prioritaire (« clé rouillée » avant « clé »)', () => {
+    const cibles = [
+      { ref: 'E1', libelles: ['clé rouillée', 'clé'] },
+    ];
+    const resultat = LiensElementsUtils.enrichirLiens('<p>Il y a une clé rouillée ici.</p>', cibles);
+    expect(resultat).toEqual('<p>Il y a une <a class="djn-lien-tactile" href="#E1" role="button">clé rouillée</a> ici.</p>');
+  });
+
+  it('[F062-T002] correspondance insensible à la casse, texte original préservé', () => {
+    const cibles = [
+      { ref: 'E1', libelles: ['clé'] },
+    ];
+    const resultat = LiensElementsUtils.enrichirLiens('<p>Clé en vue. Une clé brille.</p>', cibles);
+    expect(resultat).toEqual('<p><a class="djn-lien-tactile" href="#E1" role="button">Clé</a> en vue. Une <a class="djn-lien-tactile" href="#E1" role="button">clé</a> brille.</p>');
+  });
+
+  it('[F062-T003] l’intérieur des balises (attributs) n’est pas enrichi', () => {
+    const cibles = [
+      { ref: 'E1', libelles: ['clé'] },
+    ];
+    const resultat = LiensElementsUtils.enrichirLiens('<p><img alt="clé" src="clé.png">la clé</p>', cibles);
+    expect(resultat).toEqual('<p><img alt="clé" src="clé.png">la <a class="djn-lien-tactile" href="#E1" role="button">clé</a></p>');
+  });
+
+  it('[F062-T004] l’intérieur des liens existants n’est pas enrichi ; les échos de commande le sont', () => {
+    const cibles = [
+      { ref: 'E1', libelles: ['clé'] },
+    ];
+    // lien existant
+    let resultat = LiensElementsUtils.enrichirLiens('<p><a href="#L12">clé</a></p>', cibles);
+    expect(resultat).toEqual('<p><a href="#L12">clé</a></p>');
+    // écho de commande : enrichi, pour pouvoir interagir à nouveau avec l’objet cité
+    resultat = LiensElementsUtils.enrichirLiens('<p><span class="t-commande"> &gt; prendre la clé</span></p>', cibles);
+    expect(resultat).toEqual('<p><span class="t-commande"> &gt; prendre la <a class="djn-lien-tactile" href="#E1" role="button">clé</a></span></p>');
+  });
+
+  it('[F062-T005] frontières de mots : pas de lien au milieu d’un mot ou d’un mot composé', () => {
+    const cibles = [
+      { ref: 'D-n', libelles: ['nord'] },
+      { ref: 'E1', libelles: ['clé'] },
+    ];
+    const resultat = LiensElementsUtils.enrichirLiens('<p>Au nord-est, Clément garde la clémentine.</p>', cibles);
+    expect(resultat).toEqual('<p>Au nord-est, Clément garde la clémentine.</p>');
+  });
+
+  it('[F062-T006] frontières de mots : l’apostrophe et les accents sont gérés', () => {
+    const cibles = [
+      { ref: 'E1', libelles: ['épée'] },
+    ];
+    const resultat = LiensElementsUtils.enrichirLiens('<p>Vous voyez l’épée du roi.</p>', cibles);
+    expect(resultat).toEqual('<p>Vous voyez l’<a class="djn-lien-tactile" href="#E1" role="button">épée</a> du roi.</p>');
+  });
+
+});
+
+describe('Interface tactile — cibles et verbes sur une partie', () => {
+
+  function commencerPartie(): ContextePartie {
+    const scenario = `
+      Le salon est un lieu. "Vous êtes dans le salon."
+      La cuisine est un lieu au nord du salon.
+      La clé rouillée est un objet dans le salon.
+      Le coffre est un contenant fixé, ouvrable et fermé dans le salon.
+      La table est un support dans le salon.
+      Le garde est une personne dans le salon.
+      La fourchette est un objet dans la cuisine.
+    `;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
+    expect(rc.erreurs.length).toEqual(0);
+    const jeu = Generateur.genererJeu(rc);
+    const ctx = new ContextePartie(jeu);
+    ctx.com.executerCommande('commencer le jeu', false);
+    return ctx;
+  }
+
+  it('[F062-T101] construireCibles : objets visibles du lieu et sorties, pas les objets d’ailleurs', () => {
+    const ctx = commencerPartie();
+    const cibles = LiensElementsUtils.construireCibles(ctx.jeu, ctx.eju);
+
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const fourchette = ctx.jeu.objets.find(o => o.nom === 'fourchette');
+
+    // la clé du salon est cliquable, avec son libellé complet en premier
+    const cibleCle = cibles.find(c => c.ref === 'E' + cle.id);
+    expect(cibleCle).toBeTruthy();
+    expect(cibleCle.libelles).toEqual(['clé rouillée', 'clé']);
+
+    // la fourchette est dans la cuisine : pas cliquable
+    expect(cibles.some(c => c.ref === 'E' + fourchette.id)).toBeFalse();
+
+    // la sortie vers le nord est cliquable
+    const cibleNord = cibles.find(c => c.ref === 'D-n');
+    expect(cibleNord).toBeTruthy();
+    expect(cibleNord.libelles).toEqual(['nord']);
+
+    // le joueur n’est pas cliquable
+    expect(cibles.some(c => c.ref === 'E' + ctx.jeu.joueur.id)).toBeFalse();
+  });
+
+  it('[F062-T102] listerVerbes : verbes applicables selon les états (donner seulement si possédée)', () => {
+    const ctx = commencerPartie();
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+
+    // clé posée dans le salon : examiner et prendre proposés, donner pas encore
+    let suggestions = VerbesElementsUtils.listerVerbes(cle, ctx.jeu, ctx.eju);
+    let infinitifs = suggestions.map(s => s.infinitif);
+    expect(infinitifs).toContain('examiner');
+    expect(infinitifs).toContain('prendre');
+    expect(infinitifs).not.toContain('donner');
+
+    // la commande proposée pour examiner est complète
+    const examiner = suggestions.find(s => s.infinitif === 'examiner');
+    expect(examiner.attendCela).toBeFalse();
+    expect(examiner.commande).toEqual('examiner la clé rouillée');
+
+    // une fois la clé possédée, donner devient disponible (avec second complément)
+    ctx.com.executerCommande('prendre la clé', false);
+    expect(ctx.jeu.etats.possedeEtatElement(cle, EEtatsBase.possede, ctx.eju)).toBeTrue();
+
+    suggestions = VerbesElementsUtils.listerVerbes(cle, ctx.jeu, ctx.eju);
+    const donner = suggestions.find(s => s.infinitif === 'donner');
+    expect(donner).toBeTruthy();
+    expect(donner.attendCela).toBeTrue();
+    expect(donner.prepositionCela).toEqual('à');
+  });
+
+  it('[F062-T103] listerVerbes : les deux variantes d’un verbe sont proposées (simple avant 2 compléments)', () => {
+    const ctx = commencerPartie();
+    const coffre = ctx.jeu.objets.find(o => o.nom === 'coffre');
+
+    const suggestions = VerbesElementsUtils.listerVerbes(coffre, ctx.jeu, ctx.eju);
+    // « ouvrir ceci » et « ouvrir ceci avec cela » existent : les deux variantes sont
+    // proposées (sinon le constructeur de phrase serait inaccessible pour « ouvrir avec »),
+    // la variante simple d’abord
+    const ouvrir = suggestions.filter(s => s.infinitif === 'ouvrir');
+    expect(ouvrir.length).toEqual(2);
+    expect(ouvrir[0].attendCela).toBeFalse();
+    expect(ouvrir[1].attendCela).toBeTrue();
+    expect(ouvrir[1].prepositionCela).toEqual('avec');
+  });
+
+  it('[F062-T104] listerCandidatsCela : candidats visibles, sans ceci ni le joueur', () => {
+    const ctx = commencerPartie();
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const garde = ctx.jeu.objets.find(o => o.nom === 'garde');
+
+    ctx.com.executerCommande('prendre la clé', false);
+    const donner = VerbesElementsUtils.listerVerbes(cle, ctx.jeu, ctx.eju).find(s => s.infinitif === 'donner');
+
+    const candidats = VerbesElementsUtils.listerCandidatsCela(donner.action, cle, ctx.jeu, ctx.eju);
+    expect(candidats.some(c => c.id === garde.id)).toBeTrue();
+    expect(candidats.some(c => c.id === cle.id)).toBeFalse();
+    expect(candidats.some(c => c.id === ctx.jeu.joueur.id)).toBeFalse();
+  });
+
+  it('[F062-T105] construireCommande : prépositions contractées et commande comprise par le moteur', () => {
+    const ctx = commencerPartie();
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const garde = ctx.jeu.objets.find(o => o.nom === 'garde');
+
+    ctx.com.executerCommande('prendre la clé', false);
+    const donner = VerbesElementsUtils.listerVerbes(cle, ctx.jeu, ctx.eju).find(s => s.infinitif === 'donner');
+
+    const commande = VerbesElementsUtils.construireCommande(donner.action, cle, garde);
+    expect(commande).toEqual('donner la clé rouillée au garde');
+
+    // la commande générée est comprise et exécutée par le moteur
+    ctx.com.executerCommande(commande, false);
+    expect(ctx.jeu.etats.possedeEtatElement(cle, EEtatsBase.possede, ctx.eju)).toBeFalse();
+    expect(cle.position.cibleId).toEqual(garde.id);
+  });
+
+  it('[F062-T107] listerVerbesGlobaux : actions sans complément directes + actions avec complément si candidat', () => {
+    const ctx = commencerPartie();
+    const suggestions = VerbesElementsUtils.listerVerbesGlobaux(ctx.jeu, ctx.eju);
+
+    // action sans complément : commande directe
+    const attendre = suggestions.find(s => s.infinitif === 'attendre');
+    expect(attendre).toBeTruthy();
+    expect(attendre.attendCeci).toBeFalse();
+    expect(attendre.commande).toEqual('attendre');
+
+    // action avec complément : proposée car des objets visibles correspondent
+    const prendre = suggestions.find(s => s.infinitif === 'prendre');
+    expect(prendre).toBeTruthy();
+    expect(prendre.attendCeci).toBeTrue();
+
+    // les candidats du premier complément sont les éléments visibles compatibles
+    const candidats = VerbesElementsUtils.listerCandidatsCible(prendre.action.cibleCeci, ctx.jeu, ctx.eju);
+    expect(candidats.some(c => c.intitule.nom === 'clé')).toBeTrue();
+    expect(candidats.some(c => c.intitule.nom === 'fourchette')).toBeFalse();
+
+    // « donner » n’est pas proposé : aucun objet possédé
+    expect(suggestions.some(s => s.infinitif === 'donner')).toBeFalse();
+  });
+
+  it('[F062-T108] préposition spatiale adaptée à la cible (sur un support, dans un contenant)', () => {
+    const ctx = commencerPartie();
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const table = ctx.jeu.objets.find(o => o.nom === 'table');
+    const coffre = ctx.jeu.objets.find(o => o.nom === 'coffre');
+
+    ctx.com.executerCommande('prendre la clé', false);
+    const mettre = VerbesElementsUtils.listerVerbes(cle, ctx.jeu, ctx.eju)
+      .find(s => s.infinitif === 'mettre' && s.attendCela);
+    expect(mettre).toBeTruthy();
+
+    // le moteur ne tient pas compte de la préposition (« mettre ceci sur/dans/sous cela ») :
+    // la commande générée s’adapte à la cible
+    expect(VerbesElementsUtils.construireCommande(mettre.action, cle, table)).toEqual('mettre la clé rouillée sur la table');
+    expect(VerbesElementsUtils.construireCommande(mettre.action, cle, coffre)).toEqual('mettre la clé rouillée dans le coffre');
+    // préposition forcée par le joueur (sélecteur de l’aperçu)
+    expect(VerbesElementsUtils.construireCommande(mettre.action, cle, table, 'sous')).toEqual('mettre la clé rouillée sous la table');
+    // les 3 prépositions spatiales sont proposées pour cette action
+    expect(VerbesElementsUtils.prepositionsCelaPossibles(mettre.action)).toEqual(['dans', 'sur', 'sous']);
+
+    // la commande adaptée est comprise et exécutée par le moteur
+    ctx.com.executerCommande('mettre la clé rouillée sur la table', false);
+    expect(cle.position.cibleId).toEqual(table.id);
+  });
+
+  it('[F062-T109] les actions que les prérequis refuseraient sont reléguées en fin de liste', () => {
+    const ctx = commencerPartie();
+    ctx.com.executerCommande('regarder', false);
+    const table = ctx.jeu.objets.find(o => o.nom === 'table');
+    const garde = ctx.jeu.objets.find(o => o.nom === 'garde');
+
+    // parler avec le garde (une personne) : action pertinente, pas reléguée
+    const suggestionsGarde = VerbesElementsUtils.listerVerbes(garde, ctx.jeu, ctx.eju);
+    const parlerGarde = suggestionsGarde.find(s => s.infinitif === 'parler');
+    expect(parlerGarde).toBeTruthy();
+    expect(parlerGarde.probablementRefusee).toBeFalse();
+
+    // parler avec la table : le prérequis « si ceci n’est ni une personne ni parlant, refuser »
+    // serait vérifié → suggestion marquée et reléguée après les actions pertinentes
+    const suggestionsTable = VerbesElementsUtils.listerVerbes(table, ctx.jeu, ctx.eju);
+    const parlerTable = suggestionsTable.find(s => s.infinitif === 'parler');
+    if (parlerTable) {
+      expect(parlerTable.probablementRefusee).toBeTrue();
+      const idxParler = suggestionsTable.indexOf(parlerTable);
+      const idxExaminer = suggestionsTable.findIndex(s => s.infinitif === 'examiner');
+      expect(idxExaminer).toBeGreaterThanOrEqual(0);
+      expect(idxParler).toBeGreaterThan(idxExaminer);
+    }
+  });
+
+  it('[F062-T106] la commande de déplacement générée pour une sortie est comprise', () => {
+    const ctx = commencerPartie();
+    // commande générée par le lecteur pour un lien de sortie « D-n »
+    ctx.com.executerCommande('aller vers le nord', false);
+    expect(ctx.eju.curLieu.nom).toEqual('cuisine');
+  });
+
+});
+
+describe('Interface tactile — actions principales et secondaires', () => {
+
+  function commencerPartie(scenarioSupplementaire: string = ''): ContextePartie {
+    const scenario = `
+      Le salon est un lieu. "Vous êtes dans le salon."
+      La clé rouillée est un objet dans le salon.
+      Le coffre est un contenant fixé, ouvrable et fermé dans le salon.
+      Le garde est une personne dans le salon.
+      ${scenarioSupplementaire}
+    `;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
+    expect(rc.erreurs.length).toEqual(0);
+    const jeu = Generateur.genererJeu(rc);
+    const ctx = new ContextePartie(jeu);
+    ctx.com.executerCommande('commencer le jeu', false);
+    return ctx;
+  }
+
+  it('[F062-T201] défauts du moteur (actions.djn) : objets et personnes', () => {
+    const ctx = commencerPartie();
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
+
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre']);
+    expect(ActionsTactilesUtils.resoudre(cle, 'secondaires', ctx.jeu, ctx.eju)).toEqual([]);
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner']);
+    expect(ActionsTactilesUtils.resoudre(garde, 'secondaires', ctx.jeu, ctx.eju)).toEqual([]);
+  });
+
+  it('[F062-T202] une déclaration sur la classe remplace les défauts du moteur', () => {
+    const ctx = commencerPartie(`Les actions principales pour les objets sont examiner et sentir.`);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'sentir']);
+  });
+
+  it('[F062-T203] une déclaration sur un élément précis prime sur celle de sa classe', () => {
+    const ctx = commencerPartie(`
+      Les actions principales pour les personnes sont examiner.
+      Les actions principales du garde sont parler et donner.
+    `);
+    const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu)).toEqual(['parler', 'donner']);
+  });
+
+  it('[F062-T204] « Ajouter … aux actions principales de … » complète la liste héritée (définition)', () => {
+    const ctx = commencerPartie(`Ajouter pousser et sentir aux actions principales du garde.`);
+    const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
+    // défauts de la classe personne + ajouts de l'élément
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner', 'pousser', 'sentir']);
+  });
+
+  it('[F062-T205] « ajouter … aux actions … » en cours de partie (élément et classe)', () => {
+    const ctx = commencerPartie(`
+      action pratiquer:
+        phase exécution:
+          ajouter pousser aux actions principales du garde.
+          ajouter chanter aux actions principales des personnes.
+      fin action
+    `);
+    const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner']);
+
+    ctx.com.executerCommande('pratiquer', false);
+    // ajout sur l'élément + ajout sur la classe, tous deux reflétés sur l'élément
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner', 'chanter', 'pousser']);
+  });
+
+  it('[F062-T206] « changer les actions principales de … sont … » remplace la liste en cours de partie', () => {
+    const ctx = commencerPartie(`
+      action modifier:
+        phase exécution:
+          changer les actions principales de la clé rouillée sont examiner et pousser.
+      fin action
+    `);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre']);
+
+    ctx.com.executerCommande('modifier', false);
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'pousser']);
+  });
+
+  it('[F062-T207] infinitif invalide → problème ; infinitif sans action correspondante → conseil', () => {
+    // « chapeau » : pas un infinitif → problème à l'analyse
+    let rc = CompilateurV8.analyserScenarioEtActions(`
+      Le salon est un lieu.
+      Les actions principales pour les objets sont examiner et chapeau.
+    `, actions, false);
+    expect(rc.messages.some(m => m.titre === 'Infinitif attendu')).toBeTrue();
+
+    // « valser » : infinitif valide mais aucune action → simple conseil à la génération
+    rc = CompilateurV8.analyserScenarioEtActions(`
+      Le salon est un lieu.
+      Les actions principales pour les objets sont examiner et valser.
+    `, actions, false);
+    expect(rc.messages.some(m => m.titre === 'Infinitif attendu')).toBeFalse();
+    const jeu = Generateur.genererJeu(rc);
+    expect(jeu.tamponConseils.some(c => c.includes('valser'))).toBeTrue();
+  });
+
+  it('[F062-T208] « Désactiver le mode mobile. » désactive le paramètre du jeu', () => {
+    const ctx = commencerPartie(`Désactiver le mode mobile.`);
+    expect(ctx.jeu.parametres.activerInterfaceTactile).toBeFalse();
+
+    // actif par défaut
+    const ctxDefaut = commencerPartie();
+    expect(ctxDefaut.jeu.parametres.activerInterfaceTactile).toBeTrue();
+  });
+
+  it('[F062-T209] listerGroupesVerbes : un groupe par infinitif, niveaux et variantes', () => {
+    const ctx = commencerPartie();
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const groupes = VerbesElementsUtils.listerGroupesVerbes(cle, ctx.jeu, ctx.eju);
+
+    // un seul groupe par infinitif
+    const infinitifs = groupes.map(g => g.infinitif);
+    expect(new Set(infinitifs).size).toEqual(infinitifs.length);
+
+    // principales en tête, dans l'ordre déclaré
+    const principales = groupes.filter(g => g.niveau === 'principale').map(g => g.infinitif);
+    expect(principales).toEqual(['examiner', 'prendre']);
+    expect(groupes.slice(0, principales.length).every(g => g.niveau === 'principale')).toBeTrue();
+
+    // « utiliser » a une variante avec second complément (« utiliser ceci sur cela »)
+    const utiliser = groupes.find(g => g.infinitif === 'utiliser');
+    expect(utiliser.simple.attendCela).toBeFalse();
+    expect(utiliser.variantes.length).toBeGreaterThanOrEqual(1);
+    expect(utiliser.variantes.some(v => v.attendCela)).toBeTrue();
+  });
+
+  it('[F062-T210] une action définie pour un élément précis est proposée d’office en secondaire', () => {
+    const ctx = commencerPartie(`
+      action soulever ceci:
+        définitions:
+          ceci est le coffre.
+        phase exécution:
+          dire "Il est trop lourd.".
+      fin action
+    `);
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const groupes = VerbesElementsUtils.listerGroupesVerbes(coffre, ctx.jeu, ctx.eju);
+
+    const soulever = groupes.find(g => g.infinitif === 'soulever');
+    expect(soulever).toBeDefined();
+    expect(soulever.niveau).toEqual('secondaire');
+    // les secondaires promues automatiquement arrivent après les secondaires déclarées
+    const idxSoulever = groupes.indexOf(soulever);
+    const dernierDeclare = Math.max(...groupes
+      .filter(g => g.niveau === 'secondaire' && g !== soulever && !g.simple.probablementRefusee)
+      .map(g => groupes.indexOf(g)));
+    expect(idxSoulever).toBeGreaterThan(dernierDeclare);
+
+    // mais une déclaration de l'auteur reste prioritaire (principale)
+    const ctx2 = commencerPartie(`
+      action soulever ceci:
+        définitions:
+          ceci est le coffre.
+        phase exécution:
+          dire "Il est trop lourd.".
+      fin action
+      Les actions principales du coffre sont soulever et examiner.
+    `);
+    const coffre2 = ctx2.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const groupes2 = VerbesElementsUtils.listerGroupesVerbes(coffre2, ctx2.jeu, ctx2.eju);
+    expect(groupes2.find(g => g.infinitif === 'soulever').niveau).toEqual('principale');
+  });
+
+  it('[F062-T211] une action sur un intitulé (texte libre) est proposée dans le constructeur global', () => {
+    const ctx = commencerPartie(`
+      action taper ceci:
+        définitions:
+          ceci est un intitulé.
+        phase exécution:
+          dire "Rien ne se passe.".
+      fin action
+    `);
+    const suggestions = VerbesElementsUtils.listerVerbesGlobaux(ctx.jeu, ctx.eju);
+
+    const taper = suggestions.find(s => s.infinitif === 'taper');
+    expect(taper).toBeDefined();
+    expect(taper.attendCeci).toBeTrue();
+    expect(taper.ceciLibre).toBeTrue();
+
+    // une action ciblant un élément n'est pas en texte libre
+    const prendre = suggestions.find(s => s.infinitif === 'prendre');
+    expect(prendre).toBeDefined();
+    expect(prendre.ceciLibre).toBeFalsy();
+
+    // la commande construite (infinitif + texte saisi) est comprise par le moteur
+    const sortie = ctx.com.executerCommande('taper anneau', false).sortie;
+    expect(sortie).toContain('Rien ne se passe.');
+  });
+
+  it('[F062-T212] listerGroupesVerbesGlobaux : un groupe par infinitif, forme simple en premier', () => {
+    const ctx = commencerPartie(`
+      action taper ceci:
+        définitions:
+          ceci est un intitulé.
+        phase exécution:
+          dire "Rien ne se passe.".
+      fin action
+    `);
+    const groupes = VerbesElementsUtils.listerGroupesVerbesGlobaux(ctx.jeu, ctx.eju);
+
+    // un seul groupe par infinitif (le menu n'affiche que les infinitifs)
+    const infinitifs = groupes.map(g => g.infinitif);
+    expect(new Set(infinitifs).size).toEqual(infinitifs.length);
+
+    // liste triée par ordre alphabétique
+    const tries = [...infinitifs].sort((a, b) => a.localeCompare(b, 'fr'));
+    expect(infinitifs).toEqual(tries);
+
+    // la forme simple est celle avec le moins de compléments : si elle attend
+    // un complément, c'est qu'aucune variante sans complément n'existe
+    groupes.forEach(g => {
+      if (g.simple.attendCeci) {
+        expect(g.variantes.every(v => v.attendCeci)).toBeTrue();
+      }
+    });
+
+    // « taper » (texte libre) est proposé dans le constructeur global
+    const taper = groupes.find(g => g.infinitif === 'taper');
+    expect(taper).toBeDefined();
+    expect(taper.simple.ceciLibre).toBeTrue();
+  });
+
+  it('[F062-T213] construireCibles : les sorties non cardinales sont reconnues par leur verbe (monter, …)', () => {
+    const ctx = commencerPartie(`Le grenier est un lieu en haut du salon.`);
+    const cibles = LiensElementsUtils.construireCibles(ctx.jeu, ctx.eju);
+
+    const cibleHaut = cibles.find(c => c.ref === 'D-h');
+    expect(cibleHaut).toBeTruthy();
+    // le texte des sorties affiche « monter : Grenier » → les deux libellés sont cliquables
+    expect(cibleHaut.libelles).toEqual(['haut', 'monter']);
+
+    const html = LiensElementsUtils.enrichirLiens('<p>Vous pouvez monter.</p>', cibles);
+    expect(html).toContain('href="#D-h"');
+  });
+
+  it('[F062-T214] listerGroupesVerbesDirection : aller et regarder principales (défauts actions.djn)', () => {
+    const ctx = commencerPartie(`La cave est un lieu au nord du salon.`);
+    const groupes = VerbesElementsUtils.listerGroupesVerbesDirection(Localisation.Nord, ctx.jeu, ctx.eju);
+
+    const principales = groupes.filter(g => g.niveau === 'principale').map(g => g.infinitif);
+    expect(principales).toEqual(['aller', 'regarder']);
+
+    const aller = groupes.find(g => g.infinitif === 'aller');
+    expect(aller.simple.commande).toEqual('aller vers le nord');
+    const regarder = groupes.find(g => g.infinitif === 'regarder');
+    expect(regarder.simple.commande).toEqual('regarder le nord');
+
+    // les commandes construites sont comprises par le moteur
+    const sortieRegarder = ctx.com.executerCommande('regarder le nord', false).sortie;
+    expect(sortieRegarder.length).toBeGreaterThan(0);
+    ctx.com.executerCommande('aller vers le nord', false);
+    expect(ctx.eju.curLieu.nom).toEqual('cave');
+  });
+
+  it('[F062-T215] listerVerbesGlobaux : « aller » proposé avec choix de direction quand une sortie existe', () => {
+    const ctx = commencerPartie(`La cave est un lieu au nord du salon.`);
+    const suggestions = VerbesElementsUtils.listerVerbesGlobaux(ctx.jeu, ctx.eju);
+
+    const aller = suggestions.find(s => s.infinitif === 'aller');
+    expect(aller).toBeDefined();
+    expect(aller.attendCeci).toBeTrue();
+    expect(aller.ceciDirection).toBeTrue();
+
+    const sorties = VerbesElementsUtils.listerSortiesVisibles(ctx.jeu, ctx.eju);
+    expect(sorties.map(s => s.id)).toContain(Localisation.Nord.id);
+  });
+
+  it('[F062-T216] « Les actions principales supplémentaires pour … sont … » complète la liste héritée', () => {
+    const ctx = commencerPartie(`Les actions principales supplémentaires pour les objets sont sentir et pousser.`);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'sentir', 'pousser']);
+  });
+
+  it('[F062-T217] cible classe + état (« les objets ouvrables ») : seuls les éléments dans cet état sont concernés', () => {
+    // défauts actions.djn : « Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer. »
+    const ctx = commencerPartie();
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+
+    // le coffre est ouvrable : il reçoit ouvrir et fermer en plus
+    expect(ActionsTactilesUtils.resoudre(coffre, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'ouvrir', 'fermer']);
+    // la clé ne l'est pas : liste de la classe seule
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre']);
+
+    // une déclaration classe + état du scénario est plus précise que la classe seule
+    const ctx2 = commencerPartie(`Les actions principales pour les objets ouvrables sont ouvrir.`);
+    const coffre2 = ctx2.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    expect(ActionsTactilesUtils.resoudre(coffre2, 'principales', ctx2.jeu, ctx2.eju)).toEqual(['ouvrir']);
+  });
+
+  it('[F062-T219] candidats d’un complément : derniers mentionnés/manipulés d’abord', () => {
+    const ctx = commencerPartie(`
+      action peser ceci:
+        définitions:
+          ceci est un objet.
+        phase exécution:
+          dire "Pesé.".
+      fin action
+    `);
+    const peser = ctx.jeu.actions.find(a => a.infinitif === 'peser');
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+
+    // après avoir examiné le coffre, il est proposé en premier
+    ctx.com.executerCommande('examiner le coffre', false);
+    let candidats = VerbesElementsUtils.listerCandidatsCible(peser.cibleCeci, ctx.jeu, ctx.eju);
+    expect(candidats.length).toBeGreaterThanOrEqual(3);
+    expect(candidats[0]).toBe(coffre);
+
+    // après avoir pris la clé (manipulée + possédée), c'est elle qui passe en tête
+    ctx.com.executerCommande('prendre la clé', false);
+    candidats = VerbesElementsUtils.listerCandidatsCible(peser.cibleCeci, ctx.jeu, ctx.eju);
+    expect(candidats[0]).toBe(cle);
+  });
+
+  it('[F062-T218] défauts des portes : héritage objets + ajout ouvrir/fermer', () => {
+    const ctx = commencerPartie(`
+      La cuisine est un lieu au nord du salon.
+      La porte verte est une porte au nord du salon.
+    `);
+    const porte = ctx.jeu.objets.find(o => o.intitule.nom === 'porte');
+    expect(porte).toBeTruthy();
+    expect(ActionsTactilesUtils.resoudre(porte, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'ouvrir', 'fermer']);
+  });
+
+});
