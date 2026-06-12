@@ -3,6 +3,8 @@ import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core
 import { ActionsTactilesUtils } from '../../utils/jeu/tactile/actions-tactiles-utils';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
+import { Genre } from '../../models/commun/genre.enum';
+import { Nombre } from '../../models/commun/nombre.enum';
 import { ElementsJeuUtils } from '../../utils/commun/elements-jeu-utils';
 import { Jeu } from '../../models/jeu/jeu';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
@@ -55,6 +57,13 @@ export class MenuTactileComponent implements OnChanges {
   @Output() fermer = new EventEmitter<void>();
   /** Le joueur veut taper une commande complète au clavier. */
   @Output() saisieManuelle = new EventEmitter<void>();
+
+  /**
+   * Libellé court des boutons d’action sur un objet : pronom + infinitif
+   * (« l’examiner ») au lieu de la commande complète (« examiner la casquette »),
+   * pour alléger l’affichage. Mettre à `false` pour revenir à l’ancienne version.
+   */
+  libelleObjetCourt = true;
 
   /** Étape du constructeur de phrase. */
   etape: 'verbes' | 'variantes' | 'ceci' | 'ceciLibre' | 'cela' | 'apercu' = 'verbes';
@@ -247,22 +256,42 @@ export class MenuTactileComponent implements OnChanges {
   }
 
   /**
-   * Libellé d’un bouton de verbe découpé pour l’affichage : l’infinitif (mis en
-   * gras dans le menu) et le reste de la commande (« examiner » / « la bille »).
+   * Libellé d’un bouton de verbe découpé pour l’affichage : un éventuel préfixe
+   * (pronom), l’infinitif (mis en gras dans le menu) et le reste. Deux formes :
+   * - objet + libellé court : pronom + infinitif (« l’ » + « examiner ») ;
+   * - sinon : commande complète, infinitif (premier mot) en gras + complément.
    */
-  libelleVerbeParties(groupe: GroupeVerbe): { infinitif: string, complement: string } {
+  libelleVerbeParties(groupe: GroupeVerbe): { avant: string, infinitif: string, apres: string } {
+    if (this.cible && this.libelleObjetCourt) {
+      return { avant: this.pronomCibleAvantVerbe(groupe.infinitif), infinitif: groupe.infinitif, apres: '' };
+    }
     return this.decouperLibelle(this.libelleVerbe(groupe));
   }
 
   /**
-   * Découpe un libellé de commande en infinitif (premier mot, mis en gras) et
-   * complément (le reste, espace de séparation inclus).
+   * Pronom complément d’objet direct accordé à la cible, placé avant le verbe :
+   * « l’ » (élision devant voyelle/h muet), « le », « la » ou « les ».
    */
-  decouperLibelle(libelle: string): { infinitif: string, complement: string } {
+  private pronomCibleAvantVerbe(infinitif: string): string {
+    if (this.cible.nombre === Nombre.p || this.cible.nombre === Nombre.tp) {
+      return 'les ';
+    }
+    const voyellesEtH = 'aâàäeéèêëiîïoôöuûüyhœæ';
+    if (voyellesEtH.includes(infinitif.charAt(0).toLowerCase())) {
+      return 'l’';
+    }
+    return this.cible.genre === Genre.f ? 'la ' : 'le ';
+  }
+
+  /**
+   * Découpe un libellé de commande en infinitif (premier mot, mis en gras) et
+   * complément (le reste, espace de séparation inclus) ; pas de préfixe.
+   */
+  decouperLibelle(libelle: string): { avant: string, infinitif: string, apres: string } {
     const espace = libelle.indexOf(' ');
     return espace === -1
-      ? { infinitif: libelle, complement: '' }
-      : { infinitif: libelle.substring(0, espace), complement: libelle.substring(espace) };
+      ? { avant: '', infinitif: libelle, apres: '' }
+      : { avant: '', infinitif: libelle.substring(0, espace), apres: libelle.substring(espace) };
   }
 
   /** Nom du lieu de destination de la sortie ciblée par le menu (mode `cibleDirection`). */

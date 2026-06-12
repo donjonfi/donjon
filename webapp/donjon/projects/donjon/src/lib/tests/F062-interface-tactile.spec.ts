@@ -792,4 +792,35 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(infinitifs).not.toContain('aller');
   });
 
+  it('[F062-T226] libellé court d’un bouton objet : pronom COD + infinitif (« l’examiner »)', () => {
+    const ctx = commencerPartie();
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');       // féminin singulier
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre'); // masculin singulier
+
+    const comp = new MenuTactileComponent();
+    comp.jeu = ctx.jeu;
+    comp.eju = ctx.eju;
+    comp.libelleObjetCourt = true;
+
+    comp.cible = coffre;
+    // élision devant voyelle, quel que soit le genre
+    expect(comp.libelleVerbeParties({ infinitif: 'examiner' } as any)).toEqual({ avant: 'l’', infinitif: 'examiner', apres: '' });
+    // consonne + masculin → « le »
+    expect(comp.libelleVerbeParties({ infinitif: 'prendre' } as any)).toEqual({ avant: 'le ', infinitif: 'prendre', apres: '' });
+
+    // consonne + féminin → « la »
+    comp.cible = cle;
+    expect(comp.libelleVerbeParties({ infinitif: 'prendre' } as any)).toEqual({ avant: 'la ', infinitif: 'prendre', apres: '' });
+
+    // pluriel → « les » (cible synthétique : seuls genre/nombre comptent)
+    comp.cible = { genre: 'm', nombre: 'p' } as any;
+    expect(comp.libelleVerbeParties({ infinitif: 'prendre' } as any)).toEqual({ avant: 'les ', infinitif: 'prendre', apres: '' });
+
+    // ancienne version conservée : commande complète, infinitif (premier mot) en gras
+    comp.libelleObjetCourt = false;
+    comp.cible = coffre;
+    expect(comp.libelleVerbeParties({ infinitif: 'examiner', simple: { commande: 'examiner le coffre' } } as any))
+      .toEqual({ avant: '', infinitif: 'examiner', apres: ' le coffre' });
+  });
+
 });

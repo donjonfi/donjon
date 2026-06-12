@@ -2,7 +2,10 @@
 <div class="djn-menu-tactile" role="dialog" aria-modal="true">
   <div class="djn-menu-tactile-entete">
     @if (etape === 'verbes') {
-      <span class="djn-menu-tactile-titre">{{ titreCible }}</span>
+      <!-- libellé ambigu : les onglets affichent déjà chaque objet → pas de titre redondant -->
+      @if (candidatsAmbigus.length <= 1) {
+        <span class="djn-menu-tactile-titre">{{ titreCible }}</span>
+      }
     } @else if (etape === 'variantes') {
       <span class="djn-menu-tactile-titre">{{ groupeChoisi?.infinitif }}</span>
     } @else if (etape === 'ceci' || etape === 'ceciLibre') {
@@ -44,7 +47,7 @@
         @for (g of groupesAffiches; track g.infinitif) {
           @let parties = libelleVerbeParties(g);
           <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="clicVerbe(g)">
-            <strong>{{ parties.infinitif }}</strong>{{ parties.complement }}
+            {{ parties.avant }}<strong>{{ parties.infinitif }}</strong>{{ parties.apres }}
           </button>
         }
       </div>
@@ -71,7 +74,7 @@
       @for (p of propositions; track $index) {
         @let parties = decouperLibelle(p.libelle);
         <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="choisirProposition(p)">
-          <strong>{{ parties.infinitif }}</strong>{{ parties.complement }}
+          {{ parties.avant }}<strong>{{ parties.infinitif }}</strong>{{ parties.apres }}
         </button>
       }
     </div>

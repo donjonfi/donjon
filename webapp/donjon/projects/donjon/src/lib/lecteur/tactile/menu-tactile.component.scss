@@ -30,6 +30,11 @@
   margin-bottom: 0.5rem;
 }
 
+// bouton fermer toujours collé à droite, même sans titre (onglets visibles)
+.djn-menu-tactile-fermer {
+  margin-left: auto;
+}
+
 .djn-menu-tactile-titre {
   font-weight: 600;
   font-size: 1.1rem;
@@ -42,12 +47,13 @@
 }
 
 // onglets de désambiguïsation : basculer entre les objets qu’un même libellé désigne
+// (couleurs Donjon : parchemin + rouge danger de marque, pas les défauts Bootstrap)
 .djn-menu-tactile-onglets {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
   margin-bottom: 0.6rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 2px solid #AA5555;
 }
 
 .djn-menu-tactile-onglet {
@@ -56,8 +62,8 @@
   border: 1px solid transparent;
   border-bottom: none;
   border-radius: 8px 8px 0 0;
-  background: #f2f2f2;
-  color: #333;
+  background: #edeae1;
+  color: #2c3e50;
   font-weight: 500;
   user-select: none;
   -webkit-user-select: none;
@@ -66,9 +72,9 @@
   cursor: pointer;
 
   &.actif {
-    background: #fff;
-    border-color: #ddd;
-    color: #0d6efd;
+    background: #fcf8ef;
+    border-color: #AA5555;
+    color: #AA5555;
     font-weight: 600;
   }
 }
