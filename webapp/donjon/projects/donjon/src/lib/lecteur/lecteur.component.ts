@@ -473,18 +473,18 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
     // afficher le titre et la version du jeu
     if (this.partie.jeu.titre || this.partie.jeu.version) {
-      let texteTitreVersion = ‘<h1>’ + (this.partie.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.partie.jeu.titre) : ‘’);
+      let texteTitreVersion = "<h1>" + (this.partie.jeu.titre ? BalisesHtml.retirerBalisesHtml(this.partie.jeu.titre) : "");
       if (this.partie.jeu.version) {
-        texteTitreVersion += (‘<small> ‘ + BalisesHtml.retirerBalisesHtml(this.partie.jeu.version) + ‘</small>’);
+        texteTitreVersion += ('<small> ' + BalisesHtml.retirerBalisesHtml(this.partie.jeu.version) + '</small>');
       }
-      texteTitreVersion += ‘</h1>’;
+      texteTitreVersion += '</h1>';
       this.partie.ecran.ajouterContenuHtml(texteTitreVersion);
     }
 
     // afficher l’auteur du jeu
     if (this.partie.jeu.auteur || this.partie.jeu.auteurs) {
       const nomAuteur = this.partie.jeu.auteur ? this.partie.jeu.auteur : this.partie.jeu.auteurs;
-      this.partie.ecran.ajouterContenuHtml(‘<h2>’ + BalisesHtml.retirerBalisesHtml(nomAuteur) + ‘</h2>’);
+      this.partie.ecran.ajouterContenuHtml("<h2>" + BalisesHtml.retirerBalisesHtml(nomAuteur) + "</h2>");
     }
 
     if (this.partie.jeu.participants) {
