@@ -1,4 +1,4 @@
-﻿
+
 export const actions = `-- Titre: "Actions de base pour Donjon FI".
 -- Version: 2026-06-10-31000
 -- Auteur: Jonathan Claes (https://donjon.fi)
@@ -16,6 +16,7 @@ désactiver les actions de base.
 -- les objets sont … ») ou les compléter (« Ajouter … aux actions
 -- principales du bandit. »).
 
+Les actions principales sont regarder, inventaire et aller.
 Les actions principales pour les objets sont examiner et prendre.
 Les actions principales pour les personnes sont parler, montrer et donner.
 Les actions principales supplémentaires pour les portes sont ouvrir et fermer.

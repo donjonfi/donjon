@@ -49,10 +49,19 @@ export class LiensElementsUtils {
     jeu.objets.forEach(obj => {
       if (obj.id !== jeu.joueur.id && obj.intitule?.nom && jeu.etats.estVisible(obj, eju)) {
         const libelles: string[] = [];
+        const nom = obj.intitule.nom;
         if (obj.intitule.epithete) {
-          libelles.push(obj.intitule.nom + ' ' + obj.intitule.epithete);
+          libelles.push(nom + ' ' + obj.intitule.epithete);
         }
-        libelles.push(obj.intitule.nom);
+        libelles.push(nom);
+        // nom composé (« porte du bureau ») : exposer aussi le nom de tête (« porte »).
+        // Le moteur désambiguïse « porte » vers tous les objets concernés ; sans ce
+        // libellé nu, « porte » dans un texte ne pointerait que vers la porte dont le
+        // nom est simplement « porte » (épithète à part), pas vers les noms composés.
+        const nomTete = nom.split(/\s+/)[0];
+        if (nomTete && nomTete !== nom) {
+          libelles.push(nomTete);
+        }
         cibles.push({ ref: 'E' + obj.id, libelles });
       }
     });

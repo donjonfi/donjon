@@ -104,6 +104,38 @@ export class ActionsTactilesUtils {
     return { principales, secondaires };
   }
 
+  /**
+   * Infinitifs des actions de la liste globale du menu tactile (constructeur de
+   * commande sans élément de départ), déclarées sans cible (« Les actions
+   * principales sont … »). La dernière règle « remplacer » fournit la base, les
+   * règles « ajouter » déclarées après s’y accumulent (sans doublon).
+   */
+  public static resoudreGlobales(typeListe: TypeListeActionsTactiles, jeu: Jeu): string[] {
+    const applicables = (jeu.actionsTactiles ?? [])
+      .map((regle, ordre) => ({ regle, ordre }))
+      .filter(x => x.regle.typeListe === typeListe && !x.regle.cible);
+
+    let base: string[] = [];
+    let ordreBase = -1;
+    const remplacements = applicables.filter(x => x.regle.mode === 'remplacer');
+    if (remplacements.length) {
+      const dernier = remplacements[remplacements.length - 1];
+      base = dernier.regle.infinitifs;
+      ordreBase = dernier.ordre;
+    }
+    const ajouts = applicables.filter(x => x.regle.mode === 'ajouter' && x.ordre > ordreBase);
+
+    const infinitifs: string[] = [];
+    [base, ...ajouts.map(x => x.regle.infinitifs)].forEach(liste => {
+      liste.forEach(infinitif => {
+        if (!infinitifs.includes(infinitif)) {
+          infinitifs.push(infinitif);
+        }
+      });
+    });
+    return infinitifs;
+  }
+
   /** Actions principales et secondaires d’une classe (sans élément précis). */
   public static resoudreToutesPourClasse(classe: Classe, jeu: Jeu): { principales: string[], secondaires: string[] } {
     const principales = ActionsTactilesUtils.resoudrePourClasse(classe, 'principales', jeu);

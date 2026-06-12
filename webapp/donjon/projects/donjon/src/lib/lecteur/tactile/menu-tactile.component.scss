@@ -41,6 +41,38 @@
   gap: 0.5rem;
 }
 
+// onglets de désambiguïsation : basculer entre les objets qu’un même libellé désigne
+.djn-menu-tactile-onglets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.djn-menu-tactile-onglet {
+  min-height: 40px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: #f2f2f2;
+  color: #333;
+  font-weight: 500;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  cursor: pointer;
+
+  &.actif {
+    background: #fff;
+    border-color: #ddd;
+    color: #0d6efd;
+    font-weight: 600;
+  }
+}
+
 // cibles de tap confortables (≥ 44 px), pas de sélection de texte au tap
 .djn-menu-tactile-bouton {
   min-height: 44px;

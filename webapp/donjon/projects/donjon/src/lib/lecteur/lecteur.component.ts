@@ -278,6 +278,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     this.focusCommande();
   }
 
+  /** Annuler la saisie clavier et revenir au menu Actions dont elle est issue. */
+  public annulerSaisieManuelle(): void {
+    this.saisieManuelleTactile = false;
+    this.ouvrirConstructeurTactile();
+  }
+
   /** Accès au jeu de la partie pour le menu tactile. */
   public get jeuPartie(): Jeu | undefined {
     return this.partie?.jeu;
@@ -368,9 +374,30 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return jeu.objets.find(x => x.id === id && x.id !== jeu.joueur?.id);
   }
 
-  /** Libellé du dernier objet pour le bouton tactile (nom + épithète, capitalisé). */
-  public get libelleDernierObjet(): string {
-    const obj = this.dernierObjetInteragi;
+  /**
+   * Avant-dernier objet manipulé : l’objet distinct le plus récent autre que le
+   * dernier (cf. `historiqueElementIds`). `undefined` s’il n’y en a pas encore.
+   */
+  public get avantDernierObjetInteragi(): ElementJeu | undefined {
+    const jeu = this.partie?.jeu;
+    if (jeu == null) {
+      return undefined;
+    }
+    const dernierId = this.dernierObjetInteragi?.id;
+    for (const id of (jeu.historiqueElementIds ?? [])) {
+      if (id === dernierId || id === jeu.joueur?.id) {
+        continue;
+      }
+      const obj = jeu.objets.find(x => x.id === id);
+      if (obj) {
+        return obj;
+      }
+    }
+    return undefined;
+  }
+
+  /** Libellé d’un objet pour un bouton tactile (nom + épithète, capitalisé). */
+  private libelleObjet(obj: ElementJeu | undefined): string {
     if (!obj) {
       return '';
     }
@@ -378,9 +405,27 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return intitule.charAt(0).toLocaleUpperCase('fr') + intitule.slice(1);
   }
 
+  /** Libellé du dernier objet pour le bouton tactile (nom + épithète, capitalisé). */
+  public get libelleDernierObjet(): string {
+    return this.libelleObjet(this.dernierObjetInteragi);
+  }
+
+  /** Libellé de l’avant-dernier objet pour le bouton tactile. */
+  public get libelleAvantDernierObjet(): string {
+    return this.libelleObjet(this.avantDernierObjetInteragi);
+  }
+
   /** Ouvrir le menu tactile d’interaction avec le dernier objet manipulé. */
   public interagirAvecDernierObjet(): void {
     const obj = this.dernierObjetInteragi;
+    if (obj) {
+      this.onClicLienTactile('#E' + obj.id);
+    }
+  }
+
+  /** Ouvrir le menu tactile d’interaction avec l’avant-dernier objet manipulé. */
+  public interagirAvecAvantDernierObjet(): void {
+    const obj = this.avantDernierObjetInteragi;
     if (obj) {
       this.onClicLienTactile('#E' + obj.id);
     }

@@ -448,6 +448,17 @@ export class ExprReg {
   static readonly xActionsTactiles = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?)( suppl[ée]mentaires?)? (?:pour |du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+?) (?:est|sont) (.+)$/i;
 
   /**
+   * Actions principales/secondaires globales du menu tactile (constructeur de
+   * commande sans élément de départ) : pas de cible, ces verbes sont toujours
+   * proposés en plus des dernières commandes utilisées.
+   * - Découpage :
+   *     - principales/secondaires(1) supplémentaires(2) infinitifs(3)
+   * Ex :
+   *  - Les actions principales sont regarder, inventaire et aller.
+   */
+  static readonly xActionsTactilesGlobales = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?)( suppl[ée]mentaires?)? (?:est|sont) (.+)$/i;
+
+  /**
    * Ajout d’actions principales/secondaires à la liste héritée (définition ou instruction).
    * - Découpage :
    *     - infinitifs(1) principales/secondaires(2) cible(3)

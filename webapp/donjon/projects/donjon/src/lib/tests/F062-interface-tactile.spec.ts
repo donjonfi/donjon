@@ -3,8 +3,10 @@ import { CompilateurV8, EEtatsBase } from "../../public-api";
 import { ActionsTactilesUtils } from "../utils/jeu/tactile/actions-tactiles-utils";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { Generateur } from "../utils/compilation/generateur";
+import { LecteurComponent } from "../lecteur/lecteur.component";
 import { LiensElementsUtils } from "../utils/jeu/tactile/liens-elements-utils";
-import { Localisation } from "../models/jeu/localisation";
+import { ELocalisation, Localisation } from "../models/jeu/localisation";
+import { MenuTactileComponent } from "../lecteur/tactile/menu-tactile.component";
 import { VerbesElementsUtils } from "../utils/jeu/tactile/verbes-elements-utils";
 import { actions } from "./scenario_actions";
 
@@ -301,6 +303,35 @@ describe('Interface tactile — cibles et verbes sur une partie', () => {
     // commande générée par le lecteur pour un lien de sortie « D-n »
     ctx.com.executerCommande('aller vers le nord', false);
     expect(ctx.eju.curLieu.nom).toEqual('cuisine');
+  });
+
+  it('[F062-T107] nom composé (« porte du bureau ») : le nom de tête « porte » reste ambigu', () => {
+    const scenario = `
+      Le hall est un lieu.
+      La porte vitrée est une porte ouverte à l’est du hall.
+      La porte du bureau est une porte fermée au sud du hall.
+    `;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, false);
+    expect(rc.erreurs.length).toEqual(0);
+    const jeu = Generateur.genererJeu(rc);
+    const ctx = new ContextePartie(jeu);
+    ctx.com.executerCommande('commencer le jeu', false);
+
+    const porteVitree = jeu.objets.find(o => o.intitule.nom === 'porte');
+    const porteBureau = jeu.objets.find(o => o.intitule.nom === 'porte du bureau');
+    expect(porteVitree).toBeTruthy();
+    expect(porteBureau).toBeTruthy();
+
+    // le moteur désambiguïse « porte » entre les deux portes : le lien tactile doit le refléter
+    const cibles = LiensElementsUtils.construireCibles(jeu, ctx.eju);
+    const cibleBureau = cibles.find(c => c.ref === 'E' + porteBureau.id);
+    // le nom de tête « porte » est exposé même si le nom complet est composé
+    expect(cibleBureau.libelles).toContain('porte');
+
+    // « porte » seul → lien de désambiguïsation vers les deux portes ; le nom complet reste direct
+    const html = LiensElementsUtils.enrichirLiens('<p>une porte en chêne près de la porte du bureau.</p>', cibles);
+    expect(html).toContain('href="#AMBIG-' + porteVitree.id + '-' + porteBureau.id + '" role="button">porte</a>');
+    expect(html).toContain('href="#E' + porteBureau.id + '" role="button">porte du bureau</a>');
   });
 
 });
@@ -651,6 +682,112 @@ describe('Interface tactile — actions principales et secondaires', () => {
     // re-manipuler le coffre : il repasse en tête sans doublon
     ctx.com.executerCommande('examiner le coffre', false);
     expect(ctx.jeu.historiqueElementIds).toEqual([coffre.id, cle.id]);
+  });
+
+  it('[F062-T221] avantDernierObjetInteragi : 2e objet distinct le plus récent', () => {
+    const ctx = commencerPartie();
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+
+    const lecteur = new LecteurComponent(document, { nativeElement: document.createElement('div') } as any);
+    (lecteur as any).partie = ctx;
+
+    // aucun objet encore manipulé par une commande : pas d’avant-dernier
+    // (le « dernier » peut être l’objet mentionné en dernier dans la description)
+    expect(lecteur.avantDernierObjetInteragi).toBeUndefined();
+
+    // un seul objet manipulé : dernier = coffre, pas encore d’avant-dernier
+    ctx.com.executerCommande('examiner le coffre', false);
+    expect(lecteur.dernierObjetInteragi).toBe(coffre);
+    expect(lecteur.avantDernierObjetInteragi).toBeUndefined();
+
+    // deux objets distincts : dernier = clé, avant-dernier = coffre
+    ctx.com.executerCommande('prendre la clé', false);
+    expect(lecteur.dernierObjetInteragi).toBe(cle);
+    expect(lecteur.avantDernierObjetInteragi).toBe(coffre);
+
+    // re-manipuler le coffre : dernier = coffre, avant-dernier = clé (pas de doublon)
+    ctx.com.executerCommande('examiner le coffre', false);
+    expect(lecteur.dernierObjetInteragi).toBe(coffre);
+    expect(lecteur.avantDernierObjetInteragi).toBe(cle);
+  });
+
+  it('[F062-T222] aller : proposer le lieu de destination connu plutôt que la direction', () => {
+    const ctx = commencerPartie(`
+      La cuisine est un lieu au nord du salon.
+      Le jardin est un lieu au sud du salon.
+    `);
+
+    // visiter la cuisine puis revenir : la cuisine devient connue, pas le jardin
+    ctx.com.executerCommande('aller au nord', false);
+    ctx.com.executerCommande('aller au sud', false);
+    expect(ctx.eju.curLieu.nom).toEqual('salon');
+
+    const comp = new MenuTactileComponent();
+    comp.jeu = ctx.jeu;
+    comp.eju = ctx.eju;
+    comp.verbeChoisi = { infinitif: 'aller' } as any;
+
+    const nord = Localisation.getLocalisation(ELocalisation.nord);
+    const sud = Localisation.getLocalisation(ELocalisation.sud);
+
+    // destination connue (visitée) → on affiche le lieu
+    expect(comp.libelleCandidatDirection(nord)).toContain('cuisine');
+    // destination inconnue → on garde la direction
+    expect(comp.libelleCandidatDirection(sud)).toEqual('le sud');
+
+    // pour un autre verbe que « aller », on garde toujours la direction
+    comp.verbeChoisi = { infinitif: 'regarder' } as any;
+    expect(comp.libelleCandidatDirection(nord)).toEqual('le nord');
+  });
+
+  it('[F062-T223] « Les actions principales sont … » (défaut actions.djn) : règle globale sans cible', () => {
+    const ctx = commencerPartie();
+    // défaut actions.djn : « Les actions principales sont regarder, inventaire et aller. »
+    expect(ActionsTactilesUtils.resoudreGlobales('principales', ctx.jeu)).toEqual(['regarder', 'inventaire', 'aller']);
+    // une règle globale ne pollue pas la résolution par élément
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre']);
+    // « inventaire » (pseudo-infinitif → « afficher inventaire ») ne déclenche pas de conseil
+    expect(ctx.jeu.tamponConseils.some(c => c.includes('inventaire'))).toBeFalse();
+  });
+
+  it('[F062-T224] menu global : inventaire/aller/regarder toujours proposés après les dernières commandes', () => {
+    const ctx = commencerPartie(`La cuisine est un lieu au nord du salon.`);
+
+    const comp = new MenuTactileComponent();
+    comp.jeu = ctx.jeu;
+    comp.eju = ctx.eju;
+    comp.cible = null;
+    comp.cibleDirection = null;
+    comp.dernieresCommandes = ['regarder'];
+    comp.ngOnChanges();
+
+    const infinitifs = comp.groupesRecents.map(g => g.infinitif);
+    expect(infinitifs).toContain('inventaire');
+    expect(infinitifs).toContain('aller');
+    expect(infinitifs).toContain('regarder');
+    // « regarder » déjà présent via les dernières commandes : pas de doublon
+    expect(infinitifs.filter(i => i === 'regarder').length).toBe(1);
+
+    // « inventaire » est un raccourci vers « afficher inventaire », exécutable directement
+    const inventaire = comp.groupesRecents.find(g => g.infinitif === 'inventaire');
+    expect(inventaire.simple.commande).toEqual('afficher inventaire');
+    expect(inventaire.simple.attendCeci).toBeFalse();
+    expect(inventaire.simple.attendCela).toBeFalse();
+  });
+
+  it('[F062-T225] menu global : un verbe épinglé indisponible n’est pas proposé (« aller » sans sortie)', () => {
+    const ctx = commencerPartie(); // salon sans sortie visible
+    const comp = new MenuTactileComponent();
+    comp.jeu = ctx.jeu;
+    comp.eju = ctx.eju;
+    comp.ngOnChanges();
+
+    const infinitifs = comp.groupesRecents.map(g => g.infinitif);
+    expect(infinitifs).toContain('inventaire');
+    expect(infinitifs).toContain('regarder');
+    expect(infinitifs).not.toContain('aller');
   });
 
 });

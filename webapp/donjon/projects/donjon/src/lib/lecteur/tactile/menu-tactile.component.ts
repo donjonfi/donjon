@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 
+import { ActionsTactilesUtils } from '../../utils/jeu/tactile/actions-tactiles-utils';
 import { EClasseRacine } from '../../models/commun/constantes';
 import { ElementJeu } from '../../models/jeu/element-jeu';
 import { ElementsJeuUtils } from '../../utils/commun/elements-jeu-utils';
 import { Jeu } from '../../models/jeu/jeu';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
+import { RACCOURCIS_ACTIONS_TACTILES } from '../../models/jeu/regle-actions-tactiles';
 import { GroupeVerbe, SuggestionVerbe, VerbesElementsUtils } from '../../utils/jeu/tactile/verbes-elements-utils';
 
 /**
@@ -55,7 +57,7 @@ export class MenuTactileComponent implements OnChanges {
   @Output() saisieManuelle = new EventEmitter<void>();
 
   /** Étape du constructeur de phrase. */
-  etape: 'desambiguisation' | 'verbes' | 'variantes' | 'ceci' | 'ceciLibre' | 'cela' | 'apercu' = 'verbes';
+  etape: 'verbes' | 'variantes' | 'ceci' | 'ceciLibre' | 'cela' | 'apercu' = 'verbes';
   /** Verbes proposés, regroupés par infinitif (et par niveau en mode élément). */
   groupes: GroupeVerbe[] = [];
   /** Niveau d’affichage : 1 principales, 2 + secondaires, 3 toutes les actions. */
@@ -111,8 +113,10 @@ export class MenuTactileComponent implements OnChanges {
       if (this.cible) {
         this.chargerGroupesPourCible();
       } else if (this.candidatsAmbigus?.length) {
-        // libellé ambigu : laisser le joueur choisir l’objet avant d’afficher les actions
-        this.etape = 'desambiguisation';
+        // libellé ambigu : afficher directement les actions du premier objet,
+        // des onglets permettent de basculer sur les autres objets candidats
+        this.cible = this.candidatsAmbigus[0];
+        this.chargerGroupesPourCible();
       } else if (this.cibleDirection) {
         // sortie : actions ciblant une direction (aller, regarder, …)
         this.groupes = VerbesElementsUtils.listerGroupesVerbesDirection(this.cibleDirection, this.jeu, this.eju);
@@ -140,16 +144,30 @@ export class MenuTactileComponent implements OnChanges {
     this.etape = 'verbes';
   }
 
-  /** Choix d’un objet parmi les candidats ambigus : on bascule sur ses actions. */
+  /**
+   * Choix d’un objet candidat via les onglets de désambiguïsation : on bascule
+   * la cible et on réécrit les actions proposées pour ce nouvel objet.
+   */
   choisirCibleAmbigue(element: ElementJeu): void {
+    if (element.id === this.cible?.id) {
+      return;
+    }
     this.cible = element;
+    this.propositions = [];
+    this.groupeChoisi = null;
+    this.verbeChoisi = null;
     this.chargerGroupesPourCible();
   }
 
   /** Nombre de derniers verbes utilisés proposés en tête du constructeur global. */
   private static readonly NB_RECENTS = 5;
 
-  /** Les derniers verbes utilisés par le joueur, du plus récent au plus ancien. */
+  /**
+   * Les derniers verbes utilisés par le joueur (du plus récent au plus ancien),
+   * complétés par les actions principales globales du jeu (« Les actions
+   * principales sont … ») : ces verbes très utilisés sont toujours proposés
+   * juste après les dernières commandes, s’ils ne s’y trouvent pas déjà.
+   */
   private calculerGroupesRecents(): GroupeVerbe[] {
     const recents: GroupeVerbe[] = [];
     // la plus récente en dernier dans l’historique → parcourir à rebours
@@ -164,7 +182,47 @@ export class MenuTactileComponent implements OnChanges {
         recents.push(groupe);
       }
     }
+    // actions principales globales, toujours proposées en plus des dernières commandes
+    ActionsTactilesUtils.resoudreGlobales('principales', this.jeu).forEach(infinitif => {
+      const groupe = this.groupeEpingle(infinitif);
+      if (groupe && !recents.some(r => r.infinitif === groupe.infinitif)) {
+        recents.push(groupe);
+      }
+    });
     return recents;
+  }
+
+  /**
+   * Groupe de verbe pour une action principale globale toujours proposée : un
+   * verbe du constructeur global (aller, regarder, …) tel quel, ou un raccourci
+   * pseudo-infinitif (« inventaire » → « afficher inventaire ») construit dès
+   * que l’action sous-jacente est disponible. `null` si l’action n’est pas
+   * disponible actuellement (alors le verbe n’est pas proposé).
+   */
+  private groupeEpingle(infinitif: string): GroupeVerbe | null {
+    const groupe = this.groupes.find(g => g.infinitif === infinitif);
+    if (groupe) {
+      return groupe;
+    }
+    const raccourci = RACCOURCIS_ACTIONS_TACTILES[infinitif];
+    if (raccourci) {
+      const action = this.groupes.find(g => g.infinitif === raccourci.action);
+      if (!action) {
+        return null;
+      }
+      // commande complète prête à exécuter (pas de complément à choisir)
+      const simple: SuggestionVerbe = {
+        ...action.simple,
+        infinitif,
+        commande: raccourci.commande,
+        attendCeci: false,
+        ceciLibre: false,
+        ceciDirection: false,
+        attendCela: false,
+      };
+      return { infinitif, niveau: 'autre', simple, variantes: [] };
+    }
+    return null;
   }
 
   /**
@@ -188,18 +246,23 @@ export class MenuTactileComponent implements OnChanges {
     return groupe.infinitif;
   }
 
+  /** Nom du lieu de destination de la sortie ciblée par le menu (mode `cibleDirection`). */
+  private calculerNomLieuDirection(): string | null {
+    return this.nomLieuPourDirection(this.cibleDirection);
+  }
+
   /**
-   * Nom du lieu de destination d’une sortie, s’il est connu du joueur (lieu déjà
-   * visité, paramètre « afficher les lieux inconnus », ou sortie verticale /
+   * Nom du lieu de destination d’une direction, s’il est connu du joueur (lieu
+   * déjà visité, paramètre « afficher les lieux inconnus », ou sortie verticale /
    * intérieure dont la destination est toujours dévoilée). `null` sinon (la
    * destination reste masquée, comme dans la liste des sorties).
    */
-  private calculerNomLieuDirection(): string | null {
+  private nomLieuPourDirection(direction: Localisation | null): string | null {
     const curLieu = this.eju.curLieu;
-    if (!curLieu || !this.cibleDirection) {
+    if (!curLieu || !direction) {
       return null;
     }
-    const voisin = curLieu.voisins.find(v => v.type === EClasseRacine.lieu && v.localisation === this.cibleDirection.id);
+    const voisin = curLieu.voisins.find(v => v.type === EClasseRacine.lieu && v.localisation === direction.id);
     if (!voisin) {
       return null;
     }
@@ -209,7 +272,7 @@ export class MenuTactileComponent implements OnChanges {
     }
     const destinationDevoilee = this.jeu.etats.possedeEtatIdElement(lieu, this.jeu.etats.visiteID)
       || this.jeu.parametres.activerAffichageLieuxInconnus
-      || [ELocalisation.haut, ELocalisation.bas, ELocalisation.interieur].includes(this.cibleDirection.id);
+      || [ELocalisation.haut, ELocalisation.bas, ELocalisation.interieur].includes(direction.id);
     return destinationDevoilee ? VerbesElementsUtils.intituleCommande(lieu) : null;
   }
 
@@ -502,12 +565,34 @@ export class MenuTactileComponent implements OnChanges {
     this.saisieManuelle.emit();
   }
 
+  /** Raccourci « inventaire » du constructeur global. */
+  ouvrirInventaire(): void {
+    this.commandeChoisie.emit('afficher inventaire');
+  }
+
   intituleElement(element: ElementJeu): string {
     return VerbesElementsUtils.intituleCommande(element);
   }
 
   intituleDirection(direction: Localisation): string {
     return direction.intitule.determinant + direction.intitule.nom;
+  }
+
+  /**
+   * Libellé d’un candidat direction à l’étape « aller vers … » du constructeur
+   * global : le lieu de destination s’il est connu (visité, « afficher les lieux
+   * inconnus », sortie verticale/intérieure), sinon le nom de la direction. La
+   * commande émise reste basée sur la direction (« aller au nord ») ; seul
+   * l’affichage est simplifié pour le joueur.
+   */
+  libelleCandidatDirection(direction: Localisation): string {
+    if (this.verbeChoisi?.infinitif === 'aller') {
+      const nomLieu = this.nomLieuPourDirection(direction);
+      if (nomLieu) {
+        return nomLieu;
+      }
+    }
+    return this.intituleDirection(direction);
   }
 
 }

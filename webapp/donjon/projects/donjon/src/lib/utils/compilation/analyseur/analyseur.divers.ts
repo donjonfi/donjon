@@ -8,6 +8,7 @@ import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 import { StringUtils } from "../../commun/string.utils";
 import { TexteUtils } from "../../commun/texte-utils";
+import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { TypeListeActionsTactiles } from "../../../models/jeu/regle-actions-tactiles";
 
 export class AnalyseurDivers {
@@ -182,24 +183,31 @@ export class AnalyseurDivers {
 
     const declaration = ExprReg.xActionsTactiles.exec(phrase.morceaux[0]);
     const ajout = declaration ? null : ExprReg.xAjouterActionsTactiles.exec(phrase.morceaux[0]);
+    // règle globale (sans cible) : « Les actions principales sont … »
+    const globale = (declaration || ajout) ? null : ExprReg.xActionsTactilesGlobales.exec(phrase.morceaux[0]);
 
-    if (declaration || ajout) {
+    if (declaration || ajout || globale) {
       elementTrouve = ResultatAnalysePhrase.actionsTactiles;
 
-      const typeListe: TypeListeActionsTactiles = (declaration ? declaration[1] : ajout[2]).toLowerCase().startsWith('principale') ? 'principales' : 'secondaires';
+      const groupeType = declaration ? declaration[1] : (globale ? globale[1] : ajout[2]);
+      const typeListe: TypeListeActionsTactiles = groupeType.toLowerCase().startsWith('principale') ? 'principales' : 'secondaires';
       // « supplémentaires » : complète la liste héritée au lieu de la remplacer
-      const supplementaires = declaration ? !!declaration[2] : false;
-      const cibleBrute = (declaration ? declaration[3] : ajout[3]).trim();
-      const infinitifsBruts = (declaration ? declaration[4] : ajout[1]).trim();
+      const supplementaires = declaration ? !!declaration[2] : (globale ? !!globale[2] : false);
+      const infinitifsBruts = (declaration ? declaration[4] : (globale ? globale[3] : ajout[1])).trim();
 
-      const cible = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleBrute, true);
-      if (!cible) {
-        ctxAnalyse.probleme(phrase, undefined,
-          CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
-          'Cible pas comprise',
-          `Actions ${typeListe} : cible pas comprise : « ${cibleBrute} ».`,
-        );
-        return elementTrouve;
+      // règle globale : aucune cible (constructeur de commande global du menu tactile)
+      let cible: GroupeNominal | null = null;
+      if (!globale) {
+        const cibleBrute = (declaration ? declaration[3] : ajout[3]).trim();
+        cible = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleBrute, true);
+        if (!cible) {
+          ctxAnalyse.probleme(phrase, undefined,
+            CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+            'Cible pas comprise',
+            `Actions ${typeListe} : cible pas comprise : « ${cibleBrute} ».`,
+          );
+          return elementTrouve;
+        }
       }
 
       const infinitifs: string[] = [];
@@ -220,7 +228,7 @@ export class AnalyseurDivers {
         ctxAnalyse.actionsTactiles.push({
           typeListe,
           cible,
-          mode: (declaration && !supplementaires) ? 'remplacer' : 'ajouter',
+          mode: ((declaration || globale) && !supplementaires) ? 'remplacer' : 'ajouter',
           infinitifs,
         });
       }

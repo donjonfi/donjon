@@ -29,6 +29,7 @@ import { Nombre } from '../../models/commun/nombre.enum';
 import { Objet } from '../../models/jeu/objet';
 import { PhraseUtils } from '../commun/phrase-utils';
 import { ProprieteConcept } from '../../models/commun/propriete-element';
+import { RACCOURCIS_ACTIONS_TACTILES } from '../../models/jeu/regle-actions-tactiles';
 import { RechercheUtils } from '../commun/recherche-utils';
 import { Regle } from '../../interfaces/compilateur/regle';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
@@ -705,8 +706,12 @@ export class Generateur {
     // le bouton correspondant sera simplement absent du menu tactile.
     jeu.actionsTactiles.forEach(regle => {
       regle.infinitifs.forEach(infinitif => {
+        // un pseudo-infinitif (« inventaire » → « afficher inventaire ») est
+        // valide dès que l’action sous-jacente (« afficher ») existe
+        const raccourci = RACCOURCIS_ACTIONS_TACTILES[infinitif];
         const existe = jeu.actions.some(action => action.infinitif === infinitif
-          || action.synonymes?.includes(infinitif));
+          || action.synonymes?.includes(infinitif)
+          || (raccourci && action.infinitif === raccourci.action));
         if (!existe) {
           jeu.tamponConseils.push(`Actions ${regle.typeListe} (interface tactile) : « ${infinitif} » ne correspond à aucune action du jeu — ce verbe ne sera pas proposé dans le menu.`);
         }

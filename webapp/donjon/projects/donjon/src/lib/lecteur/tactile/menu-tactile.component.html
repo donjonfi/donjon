@@ -1,9 +1,7 @@
 <div class="djn-menu-tactile-fond" (click)="onFermer()"></div>
 <div class="djn-menu-tactile" role="dialog" aria-modal="true">
   <div class="djn-menu-tactile-entete">
-    @if (etape === 'desambiguisation') {
-      <span class="djn-menu-tactile-titre">Quel objet&nbsp;?</span>
-    } @else if (etape === 'verbes') {
+    @if (etape === 'verbes') {
       <span class="djn-menu-tactile-titre">{{ titreCible }}</span>
     } @else if (etape === 'variantes') {
       <span class="djn-menu-tactile-titre">{{ groupeChoisi?.infinitif }}</span>
@@ -17,18 +15,18 @@
     <button type="button" class="btn btn-sm btn-outline-secondary djn-menu-tactile-fermer" (click)="onFermer()" title="Fermer">✕</button>
   </div>
 
-  @if (etape === 'desambiguisation') {
-    <!-- un libellé ambigu (« porte ») désigne plusieurs objets : choisir lequel -->
-    <div class="djn-menu-tactile-boutons">
-      @for (c of candidatsAmbigus; track c.id) {
-        <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="choisirCibleAmbigue(c)">
-          {{ intituleElement(c) }}
-        </button>
-      }
-    </div>
-  }
-
   @if (etape === 'verbes') {
+    <!-- libellé ambigu (« porte ») désignant plusieurs objets : onglets pour basculer entre eux -->
+    @if (candidatsAmbigus.length > 1) {
+      <div class="djn-menu-tactile-onglets" role="tablist">
+        @for (c of candidatsAmbigus; track c.id) {
+          <button type="button" class="djn-menu-tactile-onglet" [class.actif]="c.id === cible?.id"
+            role="tab" [attr.aria-selected]="c.id === cible?.id" (click)="choisirCibleAmbigue(c)">
+            {{ intituleElement(c) }}
+          </button>
+        }
+      </div>
+    }
     <!-- constructeur global : les derniers verbes utilisés en premier -->
     @if (groupesRecents.length) {
       <div class="djn-menu-tactile-boutons">
@@ -58,8 +56,9 @@
       <p class="djn-menu-tactile-vide">Aucune action disponible pour cet élément.</p>
     }
     @if (!cible && !cibleDirection) {
-      <!-- filet de sécurité : taper soi-même une commande complète -->
+      <!-- raccourcis du constructeur global : inventaire, et saisie clavier de secours -->
       <div class="djn-menu-tactile-actions djn-menu-tactile-plus">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="ouvrirInventaire()">🎒 Inventaire</button>
         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="demanderSaisieManuelle()">⌨ Taper une commande…</button>
       </div>
     }
@@ -99,7 +98,7 @@
         <div class="djn-menu-tactile-boutons">
           @for (d of candidatsCeciDirections; track d.id) {
             <button type="button" class="btn btn-outline-primary djn-menu-tactile-bouton" (click)="choisirCeciDirection(d)">
-              {{ intituleDirection(d) }}
+              {{ libelleCandidatDirection(d) }}
             </button>
           }
         </div>

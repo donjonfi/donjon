@@ -20,10 +20,24 @@ export type TypeListeActionsTactiles = 'principales' | 'secondaires';
 export interface RegleActionsTactiles {
   /** Liste concernée (principales ou secondaires). */
   typeListe: TypeListeActionsTactiles;
-  /** Cible de la règle : élément précis ou classe d’éléments. */
-  cible: GroupeNominal;
+  /**
+   * Cible de la règle : élément précis ou classe d’éléments. `null` pour une
+   * règle globale (« Les actions principales sont … »), qui ne vise aucun
+   * élément mais le constructeur de commande global du menu tactile.
+   */
+  cible: GroupeNominal | null;
   /** Remplacer la liste héritée ou la compléter. */
   mode: 'remplacer' | 'ajouter';
   /** Infinitifs des actions, dans l’ordre de déclaration. */
   infinitifs: string[];
 }
+
+/**
+ * Pseudo-infinitifs acceptés dans les listes d’actions tactiles qui ne
+ * correspondent pas à une action de même nom mais à une commande complète
+ * d’une autre action. « inventaire » → commande « afficher inventaire »
+ * (action « afficher »), proposée dès que l’action sous-jacente existe.
+ */
+export const RACCOURCIS_ACTIONS_TACTILES: { [pseudoInfinitif: string]: { action: string, commande: string } } = {
+  inventaire: { action: 'afficher', commande: 'afficher inventaire' },
+};

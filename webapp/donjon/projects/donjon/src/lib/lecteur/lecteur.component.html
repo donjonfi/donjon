@@ -55,21 +55,23 @@
         (keydown)="onKeyDown($event)" (keydown.arrowdown)="onKeyDownArrowDown($event);"
         (keydown.escape)="onKeyDownEscape($event);" class="form-control"
         id="txtCommande" [placeholder]="placeHolder" [maxlength]="maxLen">
-        <!-- <button class="btn btn-outline-primary" (click)="onKeyDownEnter($event)" type="button"
-      id="btExecuter">Valider</button>
-      <button class="btn btn-outline-primary" (click)="onKeyDownArrowUp($event)" type="button"
-      id="btExecuter">↑</button> -->
+      <!-- saisie clavier demandée depuis le menu Actions : retour au menu -->
+      @if (tactileActif && saisieManuelleTactile && !saisieTactileRequise) {
+        <button type="button" class="btn btn-outline-secondary" (click)="annulerSaisieManuelle()" title="Retour au menu">← Retour</button>
+      }
     </div>
     <!-- barre tactile : commandes courantes + constructeur global -->
     @if (tactileActif && !saisieTactileRequise && !saisieManuelleTactile && !interruptionAttendreChoixEnCours) {
       <div class="djn-barre-tactile px-1 mt-2">
+        <button type="button" class="btn btn-primary djn-barre-tactile-bouton" (click)="ouvrirConstructeurTactile()">⚡ Actions</button>
         @if (dernierObjetInteragi) {
-          <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="interagirAvecDernierObjet()">👆 {{ libelleDernierObjet }}</button>
+          <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="interagirAvecDernierObjet()">{{ libelleDernierObjet }}</button>
         } @else {
           <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('regarder')">👁 Regarder</button>
         }
-        <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="executerCommandeTactile('afficher inventaire')">🎒 Inventaire</button>
-        <button type="button" class="btn btn-primary djn-barre-tactile-bouton" (click)="ouvrirConstructeurTactile()">⚡ Actions…</button>
+        @if (avantDernierObjetInteragi) {
+          <button type="button" class="btn btn-outline-primary djn-barre-tactile-bouton" (click)="interagirAvecAvantDernierObjet()">{{ libelleAvantDernierObjet }}</button>
+        }
       </div>
     }
     @if (tactileActif && interruptionAttendreChoixEnCours && choixPossibles.length) {
