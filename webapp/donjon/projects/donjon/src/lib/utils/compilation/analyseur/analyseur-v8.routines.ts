@@ -814,6 +814,15 @@ export class AnalyseurV8Routines {
     const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
     const phraseBrute = Phrase.retrouverPhraseBrute(phraseAnalysee);
 
+    // DÉFINITION DE PRÉPOSITION (principale / secondaires) pour ceci/cela.
+    // La syntaxe « préposition ceci principale: sur » est découpée par le « : » en
+    // deux phrases (étiquette + valeur) : on consomme donc aussi la phrase suivante.
+    const labelPreposition = ExprReg.rDefinitionActionPrepositionLabel.exec(phraseBrute);
+    if (labelPreposition) {
+      this.chercherEtTraiterDefinitionPreposition(phrases, routine, ctx, labelPreposition);
+      return;
+    }
+
     // sujet: ceci, cela, déplacement
     let sujet = SujetDefinitionAction.autre;
 
@@ -941,6 +950,86 @@ export class AnalyseurV8Routines {
     // pointer la phrase suivante
     ctx.indexProchainePhrase++;
 
+  }
+
+  /**
+   * Traiter une définition de préposition de complément (ceci/cela) :
+   *   préposition ceci principale: sur.
+   *   prépositions ceci secondaires: dans et sous.
+   * L’étiquette et sa valeur forment deux phrases distinctes (le « : » est un
+   * séparateur de phrase) : on consomme l’étiquette et la phrase-valeur suivante.
+   *
+   * La préposition principale remplace celle induite par l’en-tête ; les secondaires
+   * sont des prépositions également acceptées, mieux notées qu’une préposition non
+   * prévue lors du découpage des commandes du joueur (mais moins que la principale).
+   * @param label résultat de `rDefinitionActionPrepositionLabel` : [_, ceci|cela, principale(s)|secondaire(s)]
+   */
+  private static chercherEtTraiterDefinitionPreposition(phrases: Phrase[], routine: RoutineAction, ctx: ContexteAnalyseV8, label: RegExpExecArray): void {
+
+    const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
+    const sujet = label[1].toLocaleLowerCase();          // 'ceci' | 'cela'
+    const estPrincipale = /^principale/i.test(label[2]);
+    const intituleLabel = `préposition${estPrincipale ? '' : 's'} ${sujet} ${estPrincipale ? 'principale' : 'secondaires'}`;
+
+    // la valeur est la phrase suivante (préposition ou liste de prépositions).
+    // Elle est absente si la phrase suivante est une autre étiquette, une fin de
+    // routine ou vide. Quand elle est présente, on la consomme avec l’étiquette.
+    const phraseValeur = phrases[ctx.indexProchainePhrase + 1];
+    const valeurBrute = phraseValeur ? Phrase.retrouverPhraseBrute(phraseValeur).trim() : '';
+    const valeurPresente = !!valeurBrute
+      && !/:$/.test(valeurBrute)
+      && !ExprReg.rDefinitionActionPrepositionLabel.test(valeurBrute)
+      && !AnalyseurV8Utils.chercherFinRoutine(phraseValeur);
+    const phrasesConsommees = valeurPresente ? 2 : 1;
+
+    // le complément doit exister dans l’en-tête de l’action
+    const complementPresent = sujet === 'ceci' ? routine.action.ceci : routine.action.cela;
+    if (!complementPresent) {
+      ctx.logResultatKo(`définition action: préposition ${sujet} définie mais ${sujet} absent de l’entête`);
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeAction, CodeMessage.complementActionInexistant,
+        `${sujet} défini mais absent de l’entête de l’action`,
+        `Une préposition a été définie pour {@${sujet}@} mais l’entête de l’action n’inclut pas de complément {@${sujet}@}.`,
+      );
+      ctx.indexProchainePhrase += phrasesConsommees;
+      return;
+    }
+
+    if (!valeurPresente) {
+      ctx.logResultatKo(`définition action: valeur de préposition manquante pour « ${intituleLabel} »`);
+      ctx.probleme(phraseAnalysee, routine,
+        CategorieMessage.syntaxeAction, CodeMessage.definitionAction,
+        `préposition attendue`,
+        `Une préposition était attendue après « ${intituleLabel}: ». Exemple : {@préposition ${sujet} principale: sur.@}`,
+      );
+      // sauter la seule étiquette ; la phrase suivante sera analysée normalement
+      ctx.indexProchainePhrase++;
+      return;
+    }
+
+    if (estPrincipale) {
+      const principale = valeurBrute.toLocaleLowerCase();
+      if (sujet === 'ceci') {
+        routine.action.prepositionCeci = principale;
+      } else {
+        routine.action.prepositionCela = principale;
+      }
+      ctx.logResultatOk(`définition action: préposition ${sujet} principale = « ${principale} »`);
+    } else {
+      const secondaires = valeurBrute.toLocaleLowerCase()
+        .split(/\s*,\s*|\s+et\s+|\s+ou\s+/)
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+      if (sujet === 'ceci') {
+        routine.action.prepositionsCeciSecondaires = secondaires;
+      } else {
+        routine.action.prepositionsCelaSecondaires = secondaires;
+      }
+      ctx.logResultatOk(`définition action: prépositions ${sujet} secondaires = [${secondaires.join(', ')}]`);
+    }
+
+    // consommer l’étiquette ET la phrase-valeur
+    ctx.indexProchainePhrase += 2;
   }
 
   /**

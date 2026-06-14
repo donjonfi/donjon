@@ -112,6 +112,22 @@ ceci est une direction.
 ceci est un lieu.
 ```
 
+### `préposition` : préposition principale et secondaires d'un complément
+
+Une action peut accepter plusieurs prépositions pour un même complément. La **préposition principale** est celle de l'en-tête (`action crier sur ceci` → `sur`) ; on peut la redéfinir (elle remplace alors celle de l'en-tête) et déclarer des **prépositions secondaires** également acceptées. Le singulier (`préposition … principale:`) et le pluriel (`prépositions … secondaires:`) sont acceptés, pour `ceci` comme pour `cela`.
+
+```
+action crier sur ceci:
+  définitions:
+    préposition ceci principale: sur.       -- déjà induit par l'en-tête, facultatif
+    prépositions ceci secondaires: dans et sous.
+  phase épilogue:
+    dire "Vous criez sur [intitulé ceci]. (Ça ne sert à rien.)".
+fin action
+```
+
+Lors du découpage d'une commande du joueur, une découpe employant la préposition **principale** est mieux notée qu'une **secondaire**, elle-même mieux notée qu'une préposition **non prévue**. C'est un départage : si plusieurs découpes d'une commande sont possibles, la préposition oriente vers celle attendue par l'action.
+
 ### Action qui déplace le joueur
 
 En ajoutant `L'action déplace le joueur vers ceci.` dans les définitions, les variables `origine`, `destination` et `orientation` sont disponibles dans les règles.

@@ -710,6 +710,17 @@ export class ExprReg {
    */
   static readonly rDefinitionActionDeplacementJoueur = /^(?:Le joueur est d(?:é|e|è)plac(?:é|e|è) vers|L(?:'|\u2019)action d(?:é|e|è)place le joueur vers) (.+)$/i
 
+  /**
+   * définitions action: étiquette d’une préposition de complément (ceci/cela).
+   * La valeur suit dans la phrase suivante (le « : » est un séparateur de phrase).
+   * - Découpage : préposition(s)(_) (ceci|cela)(1) (principale|secondaires)(2) :
+   * - Exemples :
+   *   - préposition ceci principale:
+   *   - prépositions ceci secondaires:
+   *   - préposition cela principale:
+   */
+  static readonly rDefinitionActionPrepositionLabel = /^pr(?:é|e)positions? (ceci|cela) (principales?|secondaires?)\s*:?$/i
+
   // ================================================================================================
   //  COMMANDES
   // ================================================================================================

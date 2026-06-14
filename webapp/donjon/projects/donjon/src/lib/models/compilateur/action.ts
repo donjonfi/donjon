@@ -22,6 +22,48 @@ export class Action {
   public cibleCeci: CibleAction = null;
   public cibleCela: CibleAction = null;
 
+  /**
+   * Prépositions secondaires acceptées pour ceci/cela, en plus de la préposition
+   * principale (induite par l’en-tête ou redéfinie par « préposition ceci principale: … »).
+   * Une découpe de commande employant une préposition principale est mieux notée
+   * qu’une secondaire, elle-même mieux notée qu’une préposition non prévue.
+   */
+  public prepositionsCeciSecondaires: string[] = [];
+  public prepositionsCelaSecondaires: string[] = [];
+
+  /** Bonus de score pour une préposition principale employée par le joueur. */
+  public static readonly BONUS_PREPOSITION_PRINCIPALE = 10;
+  /** Bonus de score pour une préposition secondaire employée par le joueur. */
+  public static readonly BONUS_PREPOSITION_SECONDAIRE = 5;
+
+  /** Palier de correspondance (bonus de score) d’une préposition employée pour ceci. */
+  public bonusPrepositionCeci(preposition: string | undefined): number {
+    return Action.bonusPreposition(this.prepositionCeci, this.prepositionsCeciSecondaires, preposition);
+  }
+
+  /** Palier de correspondance (bonus de score) d’une préposition employée pour cela. */
+  public bonusPrepositionCela(preposition: string | undefined): number {
+    return Action.bonusPreposition(this.prepositionCela, this.prepositionsCelaSecondaires, preposition);
+  }
+
+  /**
+   * Bonus de score d’une préposition employée par le joueur, selon qu’elle est la
+   * préposition principale (meilleur score), une préposition secondaire (score
+   * intermédiaire) ou une préposition non prévue (aucun bonus). La comparaison est
+   * insensible à la casse ; « pas de préposition » des deux côtés vaut principale.
+   */
+  private static bonusPreposition(principale: string | undefined, secondaires: string[], employee: string | undefined): number {
+    const employeeNorm = employee ? employee.toLowerCase() : undefined;
+    const principaleNorm = principale ? principale.toLowerCase() : undefined;
+    if (employeeNorm === principaleNorm) {
+      return Action.BONUS_PREPOSITION_PRINCIPALE;
+    }
+    if (employeeNorm && secondaires.includes(employeeNorm)) {
+      return Action.BONUS_PREPOSITION_SECONDAIRE;
+    }
+    return 0;
+  }
+
   public verificationsBeta: Verification[] = [];
 
   /** instructions phase « prérequis » */

@@ -677,13 +677,21 @@ export class ActionsUtils {
     if (candidats.candidatsEnLice.length != 0) {
       // si action avec cet infinitif et ce nombre d'arguments existe, augmenter le score.
       score += 100;
-      // si les prépositions correspondent à celles prévues pour la commande, on augment le score.
-      if (candidats.candidatsEnLice.some(x =>
-        (x.prepositionCeci == prepositionCeci && x.prepositionCela == prepositionCela)
-      )) {
-        score += 10;
-      }
-
+      // bonus selon les prépositions employées : une découpe dont les prépositions
+      // sont celles prévues par l’action est mieux notée. Pour chaque complément, une
+      // préposition principale (induite par l’en-tête ou redéfinie) vaut mieux qu’une
+      // secondaire, elle-même mieux qu’une préposition non prévue. Au sein d’une action
+      // candidate, on retient le maillon faible (min des compléments présents) ; entre
+      // candidates, on retient la meilleure (max).
+      // Rétro-compatible : sans préposition secondaire déclarée, ce bonus vaut 10 ssi
+      // ceci ET cela emploient la préposition prévue, 0 sinon (comportement historique).
+      let meilleurBonus = 0;
+      candidats.candidatsEnLice.forEach(x => {
+        const bonusCeci = isCeci ? x.bonusPrepositionCeci(prepositionCeci) : Action.BONUS_PREPOSITION_PRINCIPALE;
+        const bonusCela = isCela ? x.bonusPrepositionCela(prepositionCela) : Action.BONUS_PREPOSITION_PRINCIPALE;
+        meilleurBonus = Math.max(meilleurBonus, Math.min(bonusCeci, bonusCela));
+      });
+      score += meilleurBonus;
     }
     return score;
   }
