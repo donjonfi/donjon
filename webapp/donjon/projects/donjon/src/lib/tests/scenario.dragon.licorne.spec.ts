@@ -3,7 +3,7 @@ import { CompilateurV8, Generateur } from "../../public-api";
 import { actions as scenarioActions } from "./scenario_actions";
 
 // Le scénario est inliné ici (les tests Karma ne peuvent pas lire le disque).
-// Ceci est le miroir de ressources/scenarios/tests/etats_personnalises_dragon_licorne.djn
+// Ceci est le miroir de ressources/scenarios/exemples/etats/etats_personnalises_dragon_licorne.djn
 const scenario = `
 Le titre du jeu est "Test − états personnalisés : dragon et licorne".
 L'auteur du jeu est "DonjonFI".

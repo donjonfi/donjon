@@ -280,7 +280,7 @@ fin action
   // ============================================================
 
   it("[F050-MAG-ATT-T007] dire contenant `@@attendre touche@@` inline : la chute doit s'afficher en magnéto (sans clic Suivant)", () => {
-    // Reproduit exactement ressources/scenarios/tests/magneto_blague.djn + .rec.
+    // Reproduit exactement ressources/scenarios/exemples/magneto/magneto_blague.djn + .rec.
     // Le `@@attendre touche@@` est un marqueur INLINE dans la string du dire — ce N'EST PAS
     // l'instruction `attendre touche.` (qui crée une interruption). C'est traité via
     // resteDeLaSortie / afficherSuiteSortie côté lecteur. Mon bypass via
@@ -293,7 +293,7 @@ action blaguer:
 fin action
 ` + actions;
 
-    // .rec capturé tel quel par l'utilisateur (cf. ressources/scenarios/tests/magneto_blague.rec).
+    // .rec capturé tel quel par l'utilisateur (cf. ressources/scenarios/exemples/magneto/magneto_blague.rec).
     const fichier = Object.assign(new FichierEnregistrement(), {
       type: 'enregistrement',
       version: 30800,

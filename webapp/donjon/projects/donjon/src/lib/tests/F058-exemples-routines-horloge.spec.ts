@@ -7,9 +7,9 @@ import { actions } from "./scenario_actions";
 /**
  * Vérifie que les scénarios d'exemple `.djn` (routines programmées + horloge) compilent
  * sans erreur et se comportent comme attendu. Le contenu doit rester identique aux fichiers :
- *   ressources/scenarios/exemples/test_routines_programmees.djn
- *   ressources/scenarios/exemples/test_horloge.djn
- *   ressources/scenarios/exemples/test_routines_programmees_et_horloge.djn
+ *   ressources/scenarios/exemples/temps/test_routines_programmees.djn
+ *   ressources/scenarios/exemples/temps/test_horloge.djn
+ *   ressources/scenarios/exemples/temps/test_routines_programmees_et_horloge.djn
  */
 
 function preparer(scenario: string): ContextePartie {

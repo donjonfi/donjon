@@ -502,7 +502,7 @@ fin règle
   });
 
   // ============================================================
-  //  Smoke tests : les scénarios .djn livrés dans ressources/scenarios/tests/
+  //  Smoke tests : les scénarios .djn livrés dans ressources/scenarios/exemples/
   //  doivent rester compilables (contenu inline pour ne pas dépendre du FS dans
   //  l’environnement karma).
   // ============================================================

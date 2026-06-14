@@ -288,7 +288,7 @@ Le joueur est dans la forge.
   });
 
   it('[F060-T014] DIAGNOSTIC : scénario 05-village-complet exact — clic forge déplie arrière-boutique', () => {
-    // Reproduction littérale du scénario livré dans ressources/scenarios/tests/map/05-village-complet.djn
+    // Reproduction littérale du scénario livré dans ressources/scenarios/exemples/map/05-village-complet.djn
     const scenario = `-- Scénario de test pour la carte du scénario.
 Le titre du jeu est "Carte — village complet".
 La version du jeu est "1.0".
