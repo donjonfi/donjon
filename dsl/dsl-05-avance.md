@@ -456,6 +456,12 @@ Cas automatiques (sans déclaration) :
 - une action définie pour un **élément précis** (`ceci est le fauteuil`) est proposée d’office dans les actions **secondaires** de cet élément (sauf si l’auteur l’a classée lui-même) ;
 - une action sur un **intitulé** (`ceci est un intitulé`, ex. `taper {code}`) est proposée dans le **constructeur global** (bouton ⚡) avec un champ de saisie libre pour le complément.
 
+#### Anti-spoiler : actions visant un sujet précis
+
+Quand une action vise un **sujet précis** dans son en-tête (`action coincer la rame dans la grille`, ou une surcharge d’un verbe intégré comme `action prendre la médaille avec la rame`), le menu ne propose **pas** seulement le sujet attendu : il propose **tous les éléments visibles de la même classe** que ce sujet (pour `ceci` comme pour `cela`). Sinon le joueur devinerait immédiatement que ce verbe va avec cet objet.
+
+💡 Le périmètre des leurres est donc piloté par la **classe** du sujet : pour proposer plusieurs candidats crédibles, regroupez vos objets dans une classe commune (`Un outil est une sorte d’objet. La rame est un outil. Le tournevis est un outil.`). Un sujet **seul de sa classe** ne peut, par construction, proposer aucun leurre ; un sujet **générique** (`un objet`) élargit au contraire à tous les objets visibles. Seuls les éléments **visibles** au moment du clic sont proposés.
+
 Les **sorties** sont aussi cliquables (y compris `monter`/`descendre`/`entrer`/`sortir`) et ouvrent un menu propre aux directions — par défaut `aller` et `regarder` (défini dans actions.djn) :
 
 ```
