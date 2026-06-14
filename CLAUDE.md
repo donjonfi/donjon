@@ -91,8 +91,10 @@ The Donjon FI DSL reference is split into thematic chunks under `dsl/`. Always l
 | `dsl/dsl-02-elements.md` | États, Propriétés, Paramètres du jeu |
 | `dsl/dsl-03-logique.md` | Synonymes, Actions personnalisées, Règles avant/après |
 | `dsl/dsl-04-texte.md` | Instructions courantes, Balises dynamiques, Mise en forme |
-| `dsl/dsl-05-avance.md` | Positions, Routines, Réactions (PNJ), Compteurs, Listes, Temps |
-| `dsl/dsl-06-exemple.md` | Exemple complet minimal |
+| `dsl/dsl-05-pnj.md` | Positions du joueur, Routines (paramètres, surcharge), Réactions (PNJ), Cartouche |
+| `dsl/dsl-06-memoire.md` | Compteurs, Listes/historique, Temps (programmer une routine) |
+| `dsl/dsl-07-monde-avance.md` | `inclure` (multi-fichiers), Interface tactile, Fonds, Locateur spatial |
+| `dsl/dsl-08-exemple.md` | Exemple complet minimal |
 
 ## Scripts (`scripts/`)
 

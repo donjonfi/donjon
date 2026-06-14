@@ -177,7 +177,7 @@ La couleur du bouclier en bois est "brun".
 ```
 [p prix ceci]          -- valeur numérique de la propriété "prix" de ceci
 [p prix la hache]      -- valeur numérique de la propriété "prix" de la hache
-[c score]              -- valeur du compteur "score" (voir dsl-05-avance.md)
+[c score]              -- valeur du compteur "score" (voir dsl-06-memoire.md)
 
 -- Exemple avec accord automatique du pluriel
 dire "[intitulé ceci] coûte [p prix ceci] pièce[s prix ceci] d'or.".
