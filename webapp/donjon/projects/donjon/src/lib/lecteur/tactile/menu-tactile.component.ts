@@ -69,8 +69,8 @@ export class MenuTactileComponent implements OnChanges {
   etape: 'verbes' | 'variantes' | 'ceci' | 'ceciLibre' | 'cela' | 'apercu' = 'verbes';
   /** Verbes proposés, regroupés par infinitif (et par niveau en mode élément). */
   groupes: GroupeVerbe[] = [];
-  /** Niveau d’affichage : 1 principales, 2 + secondaires, 3 toutes les actions. */
-  niveauAffiche: 1 | 2 | 3 = 1;
+  /** Niveau d’affichage : 2 principales + secondaires (1er écran), 3 toutes les actions. */
+  niveauAffiche: 2 | 3 = 2;
   /** Les derniers verbes utilisés par le joueur (constructeur global, plus récent d’abord). */
   groupesRecents: GroupeVerbe[] = [];
   /** Groupe de verbes choisi (étape variantes). */
@@ -111,7 +111,7 @@ export class MenuTactileComponent implements OnChanges {
     this.commandePartielle = '';
     this.apercu = '';
     this.prepositionApercu = undefined;
-    this.niveauAffiche = 1;
+    this.niveauAffiche = 2;
     this.groupeChoisi = null;
     this.propositions = [];
     this.groupesRecents = [];
@@ -130,7 +130,8 @@ export class MenuTactileComponent implements OnChanges {
         // sortie : actions ciblant une direction (aller, regarder, …)
         this.groupes = VerbesElementsUtils.listerGroupesVerbesDirection(this.cibleDirection, this.jeu, this.eju);
         this.nomLieuDirection = this.calculerNomLieuDirection();
-        if (!this.groupes.some(g => g.niveau === 'principale')) {
+        // rien en principale/secondaire : montrer directement toutes les actions
+        if (!this.groupes.some(g => g.niveau === 'principale' || g.niveau === 'secondaire')) {
           this.niveauAffiche = 3;
         }
       } else {
@@ -145,9 +146,10 @@ export class MenuTactileComponent implements OnChanges {
   /** Charger les verbes applicables à la cible courante et afficher l’étape des verbes. */
   private chargerGroupesPourCible(): void {
     this.groupes = VerbesElementsUtils.listerGroupesVerbes(this.cible, this.jeu, this.eju);
-    this.niveauAffiche = 1;
-    // pas de principale pour cet élément : montrer directement tous les niveaux
-    if (!this.groupes.some(g => g.niveau === 'principale')) {
+    // 1er écran : principales + secondaires ensemble (principales d’abord)
+    this.niveauAffiche = 2;
+    // rien en principale/secondaire pour cet élément : montrer directement toutes les actions
+    if (!this.groupes.some(g => g.niveau === 'principale' || g.niveau === 'secondaire')) {
       this.niveauAffiche = 3;
     }
     this.etape = 'verbes';
@@ -263,6 +265,12 @@ export class MenuTactileComponent implements OnChanges {
    */
   libelleVerbeParties(groupe: GroupeVerbe): { avant: string, infinitif: string, apres: string } {
     if (this.cible && this.libelleObjetCourt) {
+      // action « infinitif sur/sous/dans ceci » : adverbe (« monter dessus »)
+      // plutôt que pronom complément d’objet direct (« le monter », incorrect)
+      const adverbe = VerbesElementsUtils.adverbePrepositionCeci(groupe.simple);
+      if (adverbe) {
+        return { avant: '', infinitif: groupe.infinitif, apres: ' ' + adverbe };
+      }
       return { avant: this.pronomCibleAvantVerbe(groupe.infinitif), infinitif: groupe.infinitif, apres: '' };
     }
     return this.decouperLibelle(this.libelleVerbe(groupe));
@@ -324,34 +332,23 @@ export class MenuTactileComponent implements OnChanges {
     return destinationDevoilee ? VerbesElementsUtils.intituleCommande(lieu) : null;
   }
 
-  /** Groupes de verbes affichés au niveau courant (mode élément). */
+  /**
+   * Groupes de verbes affichés à l’écran courant : 1er écran principales +
+   * secondaires (principales d’abord, ordre garanti par le tri de
+   * listerGroupesVerbes), 2e écran « Toutes les actions » (+ les autres).
+   */
   get groupesAffiches(): GroupeVerbe[] {
-    return this.groupes.filter(g =>
-      g.niveau === 'principale'
-      || (this.niveauAffiche >= 2 && g.niveau === 'secondaire')
-      || (this.niveauAffiche >= 3));
+    return this.groupes.filter(g => g.niveau !== 'autre' || this.niveauAffiche >= 3);
   }
 
-  /** Reste-t-il des niveaux à déplier ? */
+  /** Reste-t-il des actions « autres » à déplier (« Toutes les actions ») ? */
   get plusDeCommandesDisponible(): boolean {
-    if (this.niveauAffiche >= 3) {
-      return false;
-    }
-    return this.groupes.some(g =>
-      (this.niveauAffiche < 2 && g.niveau === 'secondaire')
-      || g.niveau === 'autre');
+    return this.niveauAffiche < 3 && this.groupes.some(g => g.niveau === 'autre');
   }
 
-  /** Libellé du bouton qui déplie le niveau suivant. */
-  get libellePlusDeCommandes(): string {
-    return (this.niveauAffiche === 1 && this.groupes.some(g => g.niveau === 'secondaire'))
-      ? 'Plus d\u2019actions…'
-      : 'Toutes les actions';
-  }
-
-  /** Déplier le niveau suivant (secondaires, puis toutes les actions). */
+  /** Déplier le 2e écran : toutes les actions. */
   afficherPlusDeCommandes(): void {
-    this.niveauAffiche = (this.niveauAffiche === 1 && this.groupes.some(g => g.niveau === 'secondaire')) ? 2 : 3;
+    this.niveauAffiche = 3;
   }
 
   /**
@@ -606,6 +603,35 @@ export class MenuTactileComponent implements OnChanges {
 
   onFermer(): void {
     this.fermer.emit();
+  }
+
+  /** Clé de stockage de la préférence de position du panneau. */
+  private static readonly CLE_POSITION = 'djn-menu-tactile-position';
+  /** Préférence de position en cache (partagée entre ouvertures du menu). */
+  private static cachePositionHaut: boolean | null = null;
+
+  /** Le panneau s’affiche-t-il en haut (true) ou en bas (false) ? Défaut : en haut. */
+  get positionHaut(): boolean {
+    if (MenuTactileComponent.cachePositionHaut === null) {
+      let stockee: string | null = null;
+      try {
+        stockee = localStorage.getItem(MenuTactileComponent.CLE_POSITION);
+      } catch {
+        // localStorage indisponible : on garde le défaut
+      }
+      MenuTactileComponent.cachePositionHaut = stockee !== 'bas';
+    }
+    return MenuTactileComponent.cachePositionHaut;
+  }
+
+  /** Basculer le panneau entre le haut et le bas de l’écran (préférence persistée). */
+  basculerPosition(): void {
+    MenuTactileComponent.cachePositionHaut = !this.positionHaut;
+    try {
+      localStorage.setItem(MenuTactileComponent.CLE_POSITION, MenuTactileComponent.cachePositionHaut ? 'haut' : 'bas');
+    } catch {
+      // localStorage indisponible : préférence conservée en mémoire seulement
+    }
   }
 
   /** Le joueur préfère taper sa commande au clavier (« au cas où »). */

@@ -823,4 +823,137 @@ describe('Interface tactile — actions principales et secondaires', () => {
       .toEqual({ avant: '', infinitif: 'examiner', apres: ' le coffre' });
   });
 
+  it('[F062-T231] libellé court : préposition spatiale de ceci → adverbe (« monter dessus »), pas pronom COD', () => {
+    const ctx = commencerPartie();
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+
+    const comp = new MenuTactileComponent();
+    comp.jeu = ctx.jeu;
+    comp.eju = ctx.eju;
+    comp.libelleObjetCourt = true;
+    comp.cible = coffre;
+
+    // « infinitif sur/sous/dans ceci » : adverbe dessus/dessous/dedans (ceci n’est pas un complément direct)
+    expect(comp.libelleVerbeParties({ infinitif: 'monter', simple: { action: { prepositionCeci: 'sur' } } } as any))
+      .toEqual({ avant: '', infinitif: 'monter', apres: ' dessus' });
+    expect(comp.libelleVerbeParties({ infinitif: 'regarder', simple: { action: { prepositionCeci: 'sous' } } } as any))
+      .toEqual({ avant: '', infinitif: 'regarder', apres: ' dessous' });
+    expect(comp.libelleVerbeParties({ infinitif: 'fouiller', simple: { action: { prepositionCeci: 'dans' } } } as any))
+      .toEqual({ avant: '', infinitif: 'fouiller', apres: ' dedans' });
+
+    // sans préposition (complément direct) : le pronom COD est conservé
+    expect(comp.libelleVerbeParties({ infinitif: 'pousser', simple: { action: { prepositionCeci: undefined } } } as any))
+      .toEqual({ avant: 'le ', infinitif: 'pousser', apres: '' });
+    // préposition non spatiale (« parler à ceci ») : pronom COD conservé (pas d’adverbe)
+    expect(comp.libelleVerbeParties({ infinitif: 'parler', simple: { action: { prepositionCeci: 'à' } } } as any))
+      .toEqual({ avant: 'le ', infinitif: 'parler', apres: '' });
+  });
+
+  it('[F062-T227] une règle avant/après ciblant un élément précis propulse le verbe en secondaire', () => {
+    // contrôle : « pousser » (action par défaut, cible générique) est en « autre » sans règle
+    const ctxSans = commencerPartie();
+    const coffreSans = ctxSans.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const sans = VerbesElementsUtils.listerGroupesVerbes(coffreSans, ctxSans.jeu, ctxSans.eju)
+      .find(g => g.infinitif === 'pousser');
+    expect(sans).toBeDefined();
+    expect(sans.niveau).toEqual('autre');
+
+    // une règle avant ciblant le coffre précis → le verbe passe en secondaire
+    const ctxAvant = commencerPartie(`
+      règle avant pousser le coffre:
+        dire "Il ne bouge pas.".
+      fin règle
+    `);
+    const coffreAvant = ctxAvant.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const avant = VerbesElementsUtils.listerGroupesVerbes(coffreAvant, ctxAvant.jeu, ctxAvant.eju)
+      .find(g => g.infinitif === 'pousser');
+    expect(avant.niveau).toEqual('secondaire');
+
+    // la règle ne promeut pas le verbe pour un autre objet (la clé reste en « autre »)
+    const cle = ctxAvant.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const pousserCle = VerbesElementsUtils.listerGroupesVerbes(cle, ctxAvant.jeu, ctxAvant.eju)
+      .find(g => g.infinitif === 'pousser');
+    expect(pousserCle.niveau).toEqual('autre');
+  });
+
+  it('[F062-T228] menu objet : principales + secondaires sur le 1er écran (principales d’abord), autres au 2e', () => {
+    // « soulever » défini pour le coffre précis → secondaire ; « pousser » reste « autre »
+    const ctx = commencerPartie(`
+      action soulever ceci:
+        définitions:
+          ceci est le coffre.
+        phase exécution:
+          dire "Trop lourd.".
+      fin action
+    `);
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const comp = new MenuTactileComponent();
+    comp.jeu = ctx.jeu;
+    comp.eju = ctx.eju;
+    comp.cible = coffre;
+    comp.ngOnChanges();
+
+    // 1er écran : principales ET secondaires ensemble
+    expect(comp.niveauAffiche).toEqual(2);
+    const niveaux = comp.groupesAffiches.map(g => g.niveau);
+    expect(niveaux).toContain('principale');
+    expect(niveaux).toContain('secondaire');
+    expect(niveaux).not.toContain('autre');
+    // principales avant secondaires dans la liste
+    expect(niveaux.lastIndexOf('principale')).toBeLessThan(niveaux.indexOf('secondaire'));
+    // « pousser » (autre) pas encore affiché
+    expect(comp.groupesAffiches.some(g => g.infinitif === 'pousser')).toBeFalse();
+
+    // 2e écran : toutes les actions
+    expect(comp.plusDeCommandesDisponible).toBeTrue();
+    comp.afficherPlusDeCommandes();
+    expect(comp.niveauAffiche).toEqual(3);
+    expect(comp.groupesAffiches.some(g => g.infinitif === 'pousser')).toBeTrue();
+    expect(comp.plusDeCommandesDisponible).toBeFalse();
+  });
+
+  it('[F062-T229] switch de position du panneau : en haut par défaut, bascule persistée', () => {
+    localStorage.removeItem('djn-menu-tactile-position');
+    const comp = new MenuTactileComponent();
+    // en haut par défaut
+    expect(comp.positionHaut).toBeTrue();
+
+    // bascule en bas (préférence écrite)
+    comp.basculerPosition();
+    expect(comp.positionHaut).toBeFalse();
+    expect(localStorage.getItem('djn-menu-tactile-position')).toEqual('bas');
+
+    // une nouvelle ouverture du menu conserve la préférence
+    expect(new MenuTactileComponent().positionHaut).toBeFalse();
+
+    // rebascule en haut
+    comp.basculerPosition();
+    expect(comp.positionHaut).toBeTrue();
+    expect(localStorage.getItem('djn-menu-tactile-position')).toEqual('haut');
+
+    localStorage.removeItem('djn-menu-tactile-position');
+  });
+
+  it('[F062-T230] anti-spoiler : une action à sujet précis propose toute la classe, pas le seul objet', () => {
+    const ctx = commencerPartie(`
+      La bille est un objet dans le salon.
+      action coincer ceci:
+        définitions:
+          ceci est la bille.
+        phase exécution:
+          dire "Coincé.".
+      fin action
+    `);
+    const coincer = VerbesElementsUtils.listerVerbesGlobaux(ctx.jeu, ctx.eju).find(s => s.infinitif === 'coincer');
+    expect(coincer).toBeDefined();
+
+    const noms = VerbesElementsUtils.listerCandidatsCible(coincer.action.cibleCeci, ctx.jeu, ctx.eju)
+      .map(c => c.intitule.nom);
+    // la bille (le vrai sujet) est proposée…
+    expect(noms).toContain('bille');
+    // …mais aussi d’autres objets de la classe (le coffre), donc pas de spoiler
+    expect(noms).toContain('coffre');
+    expect(noms.length).toBeGreaterThan(1);
+  });
+
 });

@@ -13,6 +13,8 @@ import { ElementsJeuUtils } from '../../commun/elements-jeu-utils';
 import { Instruction } from '../../../models/compilateur/instruction';
 import { Jeu } from '../../../models/jeu/jeu';
 import { PhraseUtils } from '../../commun/phrase-utils';
+import { RechercheUtils } from '../../commun/recherche-utils';
+import { TypeRegle } from '../../../models/compilateur/type-regle';
 
 /**
  * Verbe applicable à un élément du jeu, proposé par l’interface tactile.
@@ -140,6 +142,8 @@ export class VerbesElementsUtils {
   public static listerGroupesVerbes(element: ElementJeu, jeu: Jeu, eju: ElementsJeuUtils): GroupeVerbe[] {
     const suggestions = VerbesElementsUtils.listerVerbes(element, jeu, eju);
     const { principales, secondaires } = ActionsTactilesUtils.resoudreToutes(element, jeu, eju);
+    // verbes ciblés par une règle avant/après/remplacer de cet élément précis
+    const verbesRegle = VerbesElementsUtils.verbesAvecRegleCiblee(element, jeu);
 
     // regrouper les variantes par infinitif (ordre de première apparition conservé)
     const parInfinitif = new Map<string, SuggestionVerbe[]>();
@@ -156,9 +160,10 @@ export class VerbesElementsUtils {
       let niveau: 'principale' | 'secondaire' | 'autre';
       if (principales.includes(infinitif)) {
         niveau = 'principale';
-        // une action définie pour cet élément précis (« ceci est le fauteuil ») est
+        // une action ou une règle avant/après définie pour cet élément précis
+        // (« ceci est le fauteuil », « règle avant pousser le fauteuil ») est
         // proposée d’office en secondaire si l’auteur ne l’a pas classée lui-même
-      } else if (secondaires.includes(infinitif) || variantes.some(v => !VerbesElementsUtils.cibleEstClasse(v.action.cibleCeci))) {
+      } else if (secondaires.includes(infinitif) || verbesRegle.has(infinitif) || variantes.some(v => !VerbesElementsUtils.cibleEstClasse(v.action.cibleCeci))) {
         niveau = 'secondaire';
       } else {
         niveau = 'autre';
@@ -191,6 +196,34 @@ export class VerbesElementsUtils {
     });
 
     return groupes;
+  }
+
+  /**
+   * Infinitifs des verbes ciblés par une règle avant/après/remplacer visant cet
+   * élément précis (« règle avant pousser le fauteuil ») : tout comme une action
+   * définie pour cet élément précis, ces verbes sont promus dans le menu tactile
+   * (l’auteur a manifesté son intérêt pour ce verbe sur cet objet).
+   *
+   * Seules les règles à sujet défini (« le fauteuil ») sont retenues — pas
+   * celles ciblant une classe (« un objet »), pour rester cohérent avec la
+   * promotion des actions à sujet précis. La condition de correspondance est la
+   * même que celle du déclencheur (intitulé exact), donc une règle sur « le
+   * fauteuil » ne promeut pas « le fauteuil rouge ».
+   */
+  public static verbesAvecRegleCiblee(element: ElementJeu, jeu: Jeu): Set<string> {
+    const infinitifs = new Set<string>();
+    const cible = RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(element.intitule.nomEpithete).trim();
+    (jeu.auditeurs ?? []).forEach(auditeur => {
+      if (auditeur.type !== TypeRegle.avant && auditeur.type !== TypeRegle.apres && auditeur.type !== TypeRegle.remplacer) {
+        return;
+      }
+      auditeur.evenements?.forEach(evenement => {
+        if (evenement.infinitif && evenement.isCeci && !evenement.classeCeci && evenement.ceci === cible) {
+          infinitifs.add(evenement.infinitif.toLowerCase());
+        }
+      });
+    });
+    return infinitifs;
   }
 
   /**
@@ -427,14 +460,36 @@ export class VerbesElementsUtils {
    * l’inventaire, puis les autres.
    */
   public static listerCandidatsCible(cible: CibleAction, jeu: Jeu, eju: ElementsJeuUtils, exclureIds: number[] = []): ElementJeu[] {
+    // anti-spoiler : si l’action cible un sujet précis (« coincer la rame »),
+    // on propose tous les objets de la classe de ce sujet plutôt que le seul
+    // objet attendu — sinon le joueur devine que ce verbe va avec cet objet.
+    const classeElargie = VerbesElementsUtils.classeDuSujetPrecis(cible, jeu);
     const candidats = jeu.objets.filter(obj =>
       !exclureIds.includes(obj.id)
       && obj.id !== jeu.joueur.id
       && obj.intitule?.nom
       && jeu.etats.estVisible(obj, eju)
-      && VerbesElementsUtils.cibleCorrespond(obj, cible, jeu, eju)
+      && (classeElargie
+        ? ClasseUtils.heriteDe(obj.classe, classeElargie)
+        : VerbesElementsUtils.cibleCorrespond(obj, cible, jeu, eju))
     );
     return VerbesElementsUtils.trierCandidats(candidats, jeu, eju);
+  }
+
+  /**
+   * Classe à proposer pour une cible « sujet précis » (« la rame ») : la classe
+   * de ce sujet, afin de proposer tous les objets de cette classe plutôt que
+   * dévoiler l’unique objet attendu (anti-spoiler du constructeur global).
+   * `null` si la cible est déjà une classe ou si le sujet est introuvable
+   * (on retombe alors sur la correspondance exacte).
+   */
+  private static classeDuSujetPrecis(cible: CibleAction, jeu: Jeu): string | null {
+    if (VerbesElementsUtils.cibleEstClasse(cible)) {
+      return null;
+    }
+    const sujet = jeu.objets.find(o =>
+      o.intitule?.nom === cible.nom && (o.intitule.epithete ?? null) === (cible.epithete ?? null));
+    return sujet?.classe?.nom ?? null;
   }
 
   /**
@@ -460,6 +515,25 @@ export class VerbesElementsUtils {
 
   /** Prépositions spatiales interchangeables au niveau de la commande (« mettre ceci sur/dans/sous cela »). */
   public static readonly PREPOSITIONS_SPATIALES = ['dans', 'sur', 'sous'];
+
+  /** Adverbe pronominal correspondant à une préposition spatiale du premier complément (« sur » → « dessus », …). */
+  public static readonly ADVERBES_PREPOSITION_CECI: { [preposition: string]: string } = {
+    'sur': 'dessus',
+    'sous': 'dessous',
+    'dans': 'dedans',
+  };
+
+  /**
+   * Adverbe pronominal de la préposition spatiale du premier complément, pour le
+   * libellé court d’un bouton tactile : « monter sur ceci » → « monter dessus »
+   * (plutôt que le pronom complément d’objet direct « le monter », incorrect car
+   * ceci n’est pas un complément direct). `undefined` si l’action n’attend pas
+   * son premier complément derrière une préposition spatiale.
+   */
+  public static adverbePrepositionCeci(suggestion: SuggestionVerbe): string | undefined {
+    const preposition = suggestion?.action?.prepositionCeci ?? undefined;
+    return preposition ? VerbesElementsUtils.ADVERBES_PREPOSITION_CECI[preposition] : undefined;
+  }
 
   /**
    * Construire la commande correspondant à l’action appliquée à ceci (et cela).

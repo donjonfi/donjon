@@ -100,7 +100,7 @@
         }
         @if (!tactileActif && !interruptionEnCours && dernieresCommandesDistinctes.length % 10 >= 5) {
           <p class="mb-0">
-            Naviguez dans l'historique de vos commandes avec les touches <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2 160 448c0 17.7 14.3 32 32 32s32-14.3 32-32l0-306.7L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg> et <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>.
+            Naviguez dans l'historique de vos commandes avec les touches <i class="djn-ico djn-ico-fleche-haut" aria-hidden="true"></i> et <i class="djn-ico djn-ico-fleche-bas" aria-hidden="true"></i>.
             @if (debogueur) {
               <br>Tapez : « <span class="t-commande">nombre mots</span> »
               pour connaître le nombre de mots de votre scénario.
@@ -109,7 +109,7 @@
         }
         @if (interruptionAttendreChoixEnCours && !tactileActif) {
           <p class="mb-0">
-            Naviguez entre les proposition avec les touches <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2 160 448c0 17.7 14.3 32 32 32s32-14.3 32-32l0-306.7L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg> et <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="height:1em;vertical-align:-0.125em;fill:currentColor;" aria-hidden="true"><path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>.
+            Naviguez entre les proposition avec les touches <i class="djn-ico djn-ico-fleche-haut" aria-hidden="true"></i> et <i class="djn-ico djn-ico-fleche-bas" aria-hidden="true"></i>.
             @if (debogueur) {
               <br>&nbsp;
               }
@@ -141,15 +141,19 @@
               </div>
             }
             <div class="col-auto p-1 pb-0">
-              <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="diminuerMarge()" title="Réduire les marges">◁</button>
+              <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="diminuerMarge()" title="Réduire les marges"><i class="djn-ico djn-ico-fleche-gauche" aria-hidden="true"></i></button>
               <small class="mx-1">Marges</small>
-              <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="augmenterMarge()" title="Agrandir les marges">▷</button>
+              <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="augmenterMarge()" title="Agrandir les marges"><i class="djn-ico djn-ico-fleche-droite" aria-hidden="true"></i></button>
             </div>
             @if (interfaceTactile !== 'desactive' && !tactileDesactiveParLeJeu) {
               <div class="col-auto p-1 pb-0">
                 <button class="btn btn-sm btn-outline-secondary py-0 px-1" (click)="basculerInterfaceTactile()"
                   [title]="tactileActif ? 'Basculer vers l’interface clavier' : 'Basculer vers l’interface tactile'">
-                  {{ tactileActif ? '⌨' : '👆' }}
+                  @if (tactileActif) {
+                    <i class="djn-ico djn-ico-clavier" aria-hidden="true"></i>
+                  } @else {
+                    <i class="djn-ico djn-ico-tactile" aria-hidden="true"></i>
+                  }
                 </button>
               </div>
             }

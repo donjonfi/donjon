@@ -1,5 +1,5 @@
 <div class="djn-menu-tactile-fond" (click)="onFermer()"></div>
-<div class="djn-menu-tactile" role="dialog" aria-modal="true">
+<div class="djn-menu-tactile" [class.djn-menu-tactile-bas]="!positionHaut" role="dialog" aria-modal="true">
   <div class="djn-menu-tactile-entete">
     @if (etape === 'verbes') {
       <!-- libellé ambigu : les onglets affichent déjà chaque objet → pas de titre redondant -->
@@ -15,6 +15,14 @@
     } @else {
       <span class="djn-menu-tactile-titre">Confirmer&nbsp;?</span>
     }
+    <button type="button" class="btn btn-sm btn-outline-secondary djn-menu-tactile-position" (click)="basculerPosition()"
+      [title]="positionHaut ? 'Afficher le panneau en bas' : 'Afficher le panneau en haut'">
+      @if (positionHaut) {
+        <i class="djn-ico djn-ico-fleche-bas" aria-hidden="true"></i>
+      } @else {
+        <i class="djn-ico djn-ico-fleche-haut" aria-hidden="true"></i>
+      }
+    </button>
     <button type="button" class="btn btn-sm btn-outline-secondary djn-menu-tactile-fermer" (click)="onFermer()" title="Fermer">✕</button>
   </div>
 
@@ -53,7 +61,7 @@
       </div>
       @if (plusDeCommandesDisponible) {
         <div class="djn-menu-tactile-actions djn-menu-tactile-plus">
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="afficherPlusDeCommandes()">{{ libellePlusDeCommandes }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="afficherPlusDeCommandes()">Toutes les actions</button>
         </div>
       }
     } @else {
