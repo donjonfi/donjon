@@ -40,11 +40,14 @@ Les actions principales du bandit sont attaquer et parler.
 L’action principale pour les lieux est regarder.
 Les actions principales supplémentaires pour les portes sont ouvrir et fermer.
 Les actions principales pour les objets ouvrables sont ouvrir et fermer.
+L’action principale supplémentaire pour un objet verrouillé est déverrouiller.
+Les actions secondaires supplémentaires pour un lieu visité sont penser et se souvenir.
 ```
 
 - **Héritage** : la déclaration la plus précise gagne (élément > classe + état > classe > classe parente > défauts du moteur).
 - **`supplémentaires`** : complète la liste héritée au lieu de la remplacer (équivaut à « Ajouter … aux actions … »).
 - **Classe + état** (« les objets ouvrables ») : ne s’applique qu’aux éléments possédant l’état, et prime sur la classe seule.
+- **Singulier ou pluriel** : la cible se déclare indifféremment au pluriel (« les objets verrouillés ») ou au singulier (« un objet verrouillé ») — c’est la même règle.
 - **Défauts du moteur** (fichier d’actions de base) : objets → examiner, prendre ; personnes → parler, montrer, donner ; portes et objets ouvrables → + ouvrir, fermer ; directions → aller, regarder.
 - **Compléter** la liste héritée (en définition ou en instruction dans une action/règle) :
 

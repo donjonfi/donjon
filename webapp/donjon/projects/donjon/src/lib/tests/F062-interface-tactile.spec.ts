@@ -956,4 +956,23 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(noms.length).toBeGreaterThan(1);
   });
 
+  it('[F062-T231b] cible au singulier (« un objet », « un objet ouvrable », « un lieu ») : équivalente au pluriel', () => {
+    const ctx = commencerPartie(`
+      Les actions principales supplémentaires pour un objet sont sentir.
+      Les actions principales supplémentaires pour un objet ouvrable sont peser.
+      Les actions secondaires supplémentaires pour un lieu sont penser et se souvenir.
+    `);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const salon = ctx.jeu.lieux.find(l => l.intitule.nom === 'salon');
+
+    // « un objet » = la classe objet (singulier strictement équivalent au pluriel « les objets »)
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'sentir']);
+    // « un objet ouvrable » = classe + état : seul le coffre (ouvrable) reçoit « peser », pas la clé
+    expect(ActionsTactilesUtils.resoudre(coffre, 'principales', ctx.jeu, ctx.eju)).toContain('peser');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).not.toContain('peser');
+    // « un lieu » en secondaire (verbe pronominal « se souvenir » accepté)
+    expect(ActionsTactilesUtils.resoudre(salon, 'secondaires', ctx.jeu, ctx.eju)).toEqual(['penser', 'se souvenir']);
+  });
+
 });
