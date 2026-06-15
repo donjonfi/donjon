@@ -1,11 +1,32 @@
 -- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-05-24-30801
+-- Version: 2026-06-10-31000
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
 --   Plus d'infos: https://creativecommons.org/licenses/by/4.0/
 
 désactiver les actions de base.
+
+-- ===================================================
+--   ACTIONS PRINCIPALES/SECONDAIRES (MODE MOBILE)
+-- ===================================================
+-- Actions proposées en premier par l’interface tactile (mode mobile).
+-- Le scénario peut remplacer ces listes (« Les actions principales pour
+-- les objets sont … ») ou les compléter (« Ajouter … aux actions
+-- principales du bandit. »).
+
+Les actions principales sont regarder, inventaire et aller.
+Les actions principales pour les objets sont examiner et prendre.
+Les actions principales pour les personnes sont parler, montrer et donner.
+Les actions principales pour les portes sont examiner, ouvrir et fermer.
+Les actions principales pour les directions sont aller et regarder.
+Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
+L'action principale supplémentaire pour les objets mangeables est manger.
+L'action principale supplémentaire pour les objets buvables est boire.
+Les actions principales supplémentaires pour les objets portables sont mettre et porter.
+Les actions principales supplémentaires pour les objets portés sont lâcher, jeter et poser.
+L'action principale supplémentaire pour les objets enfilables est enfiler.
+L'action principale supplémentaire pour les objets chaussables est chausser.
 
 -- =========================================
 --   AFFICHER (AIDE, INVENTAIRE et SORTIES)
@@ -576,9 +597,6 @@ action examiner ceci:
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
 
   phase exécution:
-      changer ceci est familier.
-      changer ceci n’est plus discret.
-      changer ceci n’est plus intact.
     -- objet
     si ceci est un objet:
       -- sous l’objet
@@ -615,7 +633,12 @@ action examiner ceci:
     -- inconnu
     sinon
       dire "Hum ceci [intitulé ceci] n’est ni un objet ni un lieu. Je ne connais pas.".
-    fin si    
+    fin si
+    -- marquer l’élément APRÈS l’avoir décrit : ainsi la 1re description emploie la forme
+    -- indéfinie (« C’est un parchemin. ») et les examens suivants la forme définie (« le parchemin »).
+    changer ceci est familier.
+    changer ceci n’est plus discret.
+    changer ceci n’est plus intact.
 fin action
 
 action examiner ceci:
@@ -972,7 +995,7 @@ action ouvrir ceci:
     ceci est prioritairement ouvrable.
   phase prérequis:
     si ceci est le joueur, refuser "Pardon ?".
-    si ceci n'est pas ouvrable, refuser "[Pronom ceci] [v s’ouvrir ipr pas ceci].".
+    si ceci n'est pas ouvrable, refuser "[si ceci est ouvert][Pronom ceci] [v être ipr ceci] déjà ouvert[es ceci][sinon][Pronom ceci] [v s’ouvrir ipr pas ceci][fin].".
     si ceci est verrouillé, refuser "[Pronom ceci] [v être ipr ceci] verrouillé[es ceci].".
   phase exécution:
     changer ceci est ouvert.
@@ -1094,8 +1117,11 @@ action poser ceci sur cela:
     -- si ceci n’est pas illimité et qu’on en demande plus que la quantité disponible
     si la quantité de ceci atteint 0 mais pas quantitéCeci, refuser "Il n’y en a pas autant !".
   phase exécution:
-    exécuter la commande "mettre [intitulé ceci] sur [intitulé cela]".
+    exécuter la commande "mettre [intitulé quantitéCeci] sur [intitulé cela]".
 fin action
+
+-- « déposer » est un synonyme de « poser »
+Interpréter déposer comme poser.
 
 -- ===========
 --   POUSSER

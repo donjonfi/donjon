@@ -360,15 +360,17 @@ describe('Interface tactile — actions principales et secondaires', () => {
     const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
 
     expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre']);
-    expect(ActionsTactilesUtils.resoudre(cle, 'secondaires', ctx.jeu, ctx.eju)).toEqual([]);
-    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner']);
-    expect(ActionsTactilesUtils.resoudre(garde, 'secondaires', ctx.jeu, ctx.eju)).toEqual([]);
+    expect(ActionsTactilesUtils.resoudre(cle, 'secondaires', ctx.jeu, ctx.eju)).toEqual(['pousser', 'tirer', 'toucher', 'secouer', 'utiliser']);
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['regarder', 'parler']);
+    expect(ActionsTactilesUtils.resoudre(garde, 'secondaires', ctx.jeu, ctx.eju)).toEqual(['montrer', 'donner', 'interroger']);
   });
 
   it('[F062-T202] une déclaration sur la classe remplace les défauts du moteur', () => {
     const ctx = commencerPartie(`Les actions principales pour les objets sont examiner et sentir.`);
     const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
-    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'sentir']);
+    // la classe remplace la base (examiner, sentir) ; « prendre » revient via la règle
+    // supplémentaire plus précise « un objet transportable est prendre »
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'sentir', 'prendre']);
   });
 
   it('[F062-T203] une déclaration sur un élément précis prime sur celle de sa classe', () => {
@@ -384,7 +386,7 @@ describe('Interface tactile — actions principales et secondaires', () => {
     const ctx = commencerPartie(`Ajouter pousser et sentir aux actions principales du garde.`);
     const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
     // défauts de la classe personne + ajouts de l'élément
-    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner', 'pousser', 'sentir']);
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['regarder', 'parler', 'pousser', 'sentir']);
   });
 
   it('[F062-T205] « ajouter … aux actions … » en cours de partie (élément et classe)', () => {
@@ -396,11 +398,11 @@ describe('Interface tactile — actions principales et secondaires', () => {
       fin action
     `);
     const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
-    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner']);
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['regarder', 'parler']);
 
     ctx.com.executerCommande('pratiquer', false);
     // ajout sur l'élément + ajout sur la classe, tous deux reflétés sur l'élément
-    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['parler', 'montrer', 'donner', 'chanter', 'pousser']);
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['regarder', 'parler', 'chanter', 'pousser']);
   });
 
   it('[F062-T206] « changer les actions principales de … sont … » remplace la liste en cours de partie', () => {
@@ -663,7 +665,8 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(porte).toBeTruthy();
     // défaut actions.djn : « Les actions principales pour les portes sont examiner, ouvrir et fermer. »
     // (remplace la liste héritée des objets : une porte ne se « prend » pas)
-    expect(ActionsTactilesUtils.resoudre(porte, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'ouvrir', 'fermer']);
+    // une porte est déverrouillée par défaut → « verrouiller » s’ajoute (règle « porte déverrouillée »)
+    expect(ActionsTactilesUtils.resoudre(porte, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'ouvrir', 'fermer', 'verrouiller']);
   });
 
   it('[F062-T220] historiqueElementIds : accumulation des objets manipulés (plus récent d’abord, dédoublonné)', () => {
@@ -850,34 +853,34 @@ describe('Interface tactile — actions principales et secondaires', () => {
   });
 
   it('[F062-T227] une règle avant/après ciblant un élément précis propulse le verbe en secondaire', () => {
-    // contrôle : « pousser » (action par défaut, cible générique) est en « autre » sans règle
+    // contrôle : « casser » (action par défaut, cible générique, hors listes) est en « autre » sans règle
     const ctxSans = commencerPartie();
     const coffreSans = ctxSans.jeu.objets.find(o => o.intitule.nom === 'coffre');
     const sans = VerbesElementsUtils.listerGroupesVerbes(coffreSans, ctxSans.jeu, ctxSans.eju)
-      .find(g => g.infinitif === 'pousser');
+      .find(g => g.infinitif === 'casser');
     expect(sans).toBeDefined();
     expect(sans.niveau).toEqual('autre');
 
     // une règle avant ciblant le coffre précis → le verbe passe en secondaire
     const ctxAvant = commencerPartie(`
-      règle avant pousser le coffre:
-        dire "Il ne bouge pas.".
+      règle avant casser le coffre:
+        dire "Il ne se casse pas.".
       fin règle
     `);
     const coffreAvant = ctxAvant.jeu.objets.find(o => o.intitule.nom === 'coffre');
     const avant = VerbesElementsUtils.listerGroupesVerbes(coffreAvant, ctxAvant.jeu, ctxAvant.eju)
-      .find(g => g.infinitif === 'pousser');
+      .find(g => g.infinitif === 'casser');
     expect(avant.niveau).toEqual('secondaire');
 
     // la règle ne promeut pas le verbe pour un autre objet (la clé reste en « autre »)
     const cle = ctxAvant.jeu.objets.find(o => o.intitule.nom === 'clé');
-    const pousserCle = VerbesElementsUtils.listerGroupesVerbes(cle, ctxAvant.jeu, ctxAvant.eju)
-      .find(g => g.infinitif === 'pousser');
-    expect(pousserCle.niveau).toEqual('autre');
+    const casserCle = VerbesElementsUtils.listerGroupesVerbes(cle, ctxAvant.jeu, ctxAvant.eju)
+      .find(g => g.infinitif === 'casser');
+    expect(casserCle.niveau).toEqual('autre');
   });
 
   it('[F062-T228] menu objet : principales + secondaires sur le 1er écran (principales d’abord), autres au 2e', () => {
-    // « soulever » défini pour le coffre précis → secondaire ; « pousser » reste « autre »
+    // « soulever » défini pour le coffre précis → secondaire ; « casser » reste « autre »
     const ctx = commencerPartie(`
       action soulever ceci:
         définitions:
@@ -901,14 +904,14 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(niveaux).not.toContain('autre');
     // principales avant secondaires dans la liste
     expect(niveaux.lastIndexOf('principale')).toBeLessThan(niveaux.indexOf('secondaire'));
-    // « pousser » (autre) pas encore affiché
-    expect(comp.groupesAffiches.some(g => g.infinitif === 'pousser')).toBeFalse();
+    // « casser » (autre) pas encore affiché
+    expect(comp.groupesAffiches.some(g => g.infinitif === 'casser')).toBeFalse();
 
     // 2e écran : toutes les actions
     expect(comp.plusDeCommandesDisponible).toBeTrue();
     comp.afficherPlusDeCommandes();
     expect(comp.niveauAffiche).toEqual(3);
-    expect(comp.groupesAffiches.some(g => g.infinitif === 'pousser')).toBeTrue();
+    expect(comp.groupesAffiches.some(g => g.infinitif === 'casser')).toBeTrue();
     expect(comp.plusDeCommandesDisponible).toBeFalse();
   });
 

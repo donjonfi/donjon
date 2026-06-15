@@ -1,6 +1,6 @@
-
+﻿
 export const actions = `-- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-06-10-31000
+-- Version: 2026-06-15-31001
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -17,17 +17,34 @@ désactiver les actions de base.
 -- principales du bandit. »).
 
 Les actions principales sont regarder, inventaire et aller.
+
 Les actions principales pour les objets sont examiner et prendre.
-Les actions principales pour les personnes sont parler, montrer et donner.
+Les actions secondaires pour les objets sont pousser, tirer, toucher, secouer et utiliser.
+L'action principale supplémentaire pour un objet transportable est prendre.
+Les actions principales supplémentaires pour un objet ouvrable est ouvrir et fermer.
+L'action principale supplémentaire pour un objet verrouillé est déverrouiller.
+L'action principale supplémentaire pour un objet déverrouillé est verrouiller.
+L'action principale supplémentaire pour un objet mangeable est manger.
+L'action principale supplémentaire pour un objet buvable est boire.
+L'action principale supplémentaire pour un objet lisible est lire.
+Les actions principales supplémentaires pour un objet portable sont mettre et porter.
+Les actions principales supplémentaires pour un objet porté sont enlever, lâcher, jeter et poser.
+L'action principale supplémentaire pour un objet enfilable est enfiler.
+L'action principale supplémentaire pour un objet chaussable est chausser.
+L'action principale supplémentaire pour un objet équipable est équiper.
+L'action principale supplémentaire pour un objet parlant est parler.
+Les actions secondaires supplémentaires pour un objet parlant sont montrer et donner.
+
+Les actions principales pour les personnes sont regarder et parler.
+Les actions secondaires pour les personnes sont montrer, donner et interroger.
+L'action principale pour les animaux est examiner.
+
 Les actions principales pour les portes sont examiner, ouvrir et fermer.
+L'action principale supplémentaire pour une porte verrouillée est déverrouiller.
+L'action principale supplémentaire pour une porte déverrouillée est verrouiller.
+
 Les actions principales pour les directions sont aller et regarder.
-Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
-L'action principale supplémentaire pour les objets mangeables est manger.
-L'action principale supplémentaire pour les objets buvables est boire.
-Les actions principales supplémentaires pour les objets portables sont mettre et porter.
-Les actions principales supplémentaires pour les objets portés sont lâcher, jeter et poser.
-L'action principale supplémentaire pour les objets enfilables est enfiler.
-L'action principale supplémentaire pour les objets chaussables est chausser.
+Les actions principales pour un lieu adjacent sont aller et regarder.
 
 -- =========================================
 --   AFFICHER (AIDE, INVENTAIRE et SORTIES)
