@@ -9,7 +9,7 @@
   "license": "MIT",
   "homepage": "https://donjon.fi",
   "description": "Aperçu, visualisation, erreurs et test du jeu Donjon FI directement dans VS Code.",
-  "version": "3.10.1",
+  "version": "3.10.0",
   "icon": "donjon128.png",
   "preview": false,
   "engines": {
