@@ -1,4 +1,5 @@
 import { RechercheUtils } from "../../utils/commun/recherche-utils";
+import { decomposerGroupeNominal } from "./gn-fragments";
 
 export class GroupeNominal {
 
@@ -28,27 +29,44 @@ export class GroupeNominal {
     public determinant: string,
     /** Nom */
     public nom: string,
-    /** Épithète */
-    public epithete: string = null
+    /**
+     * Épithète POSTPOSÉE (après le nom). Peut être coordonnée (« rouge et blanc »).
+     * Pour une {@link CibleAction} de classe, ce champ porte la liste d’états brute.
+     */
+    public epithete: string = null,
+    /** Attributs ANTÉPOSÉS (avant le nom), dans l’ordre. Ex. « grand » dans « le grand chat poilu ». */
+    public epithetesAvant: string[] = []
   ) { }
 
-  public toString(): string {
+  /**
+   * Décompose un intitulé brut en groupe nominal (déterminant, attributs avant, nom, attribut après).
+   * Remplace l’usage direct des regex `xGroupeNominal*` : gère l’attribut antéposé et les attributs
+   * postposés coordonnés.
+   * @returns le groupe nominal, ou undefined si la chaîne ne ressemble pas à un groupe nominal.
+   */
+  public static analyser(intituleBrut: string, options?: { indefini?: boolean, forcerMinuscules?: boolean }): GroupeNominal | undefined {
+    const deco = decomposerGroupeNominal(intituleBrut, options?.indefini ?? false, options?.forcerMinuscules ?? false);
+    if (!deco) { return undefined; }
+    // déterminant: undefined si absent (comme l’ancien getGroupeNominalDefini) ; epithete → null via défaut du constructeur.
+    return new GroupeNominal(deco.determinant, deco.nom, deco.epithete, deco.epithetesAvant);
+  }
 
-    let retVal: string
-    let determinant = this.determinant ?? '';
-    let epithete = (this.epithete ? (" " + this.epithete) : "");
-    retVal = determinant + this.nom + epithete;
-    return retVal;
+  private get fragmentAvant(): string {
+    return (this.epithetesAvant && this.epithetesAvant.length) ? (this.epithetesAvant.join(' ') + ' ') : '';
+  }
+
+  public toString(): string {
+    const determinant = this.determinant ?? '';
+    const epithete = (this.epithete ? (" " + this.epithete) : "");
+    return determinant + this.fragmentAvant + this.nom + epithete;
   }
 
   /**
-   * Renvoie une chaine avec le nom et l’épithète (sans le déterminant).
+   * Renvoie une chaine avec les attributs antéposés, le nom et l’épithète postposée (sans le déterminant).
    */
   public get nomEpithete(): string {
-    let retVal: string
-    let epithete = (this.epithete ? (" " + this.epithete) : "");
-    retVal = this.nom + epithete;
-    return retVal;
+    const epithete = (this.epithete ? (" " + this.epithete) : "");
+    return this.fragmentAvant + this.nom + epithete;
   }
 
   /** Transformer l’intitulé en mots clés (afin d’effectuer une recherche) */

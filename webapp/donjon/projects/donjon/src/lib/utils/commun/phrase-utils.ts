@@ -662,29 +662,8 @@ export class PhraseUtils {
    * Décomposer l’intitulé brut en un groupe nominal.
    */
   public static getGroupeNominalDefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
-
-    let determinant: string | undefined;
-    let nom: string | undefined;
-    let epithete: string | undefined;
-    let retVal: GroupeNominal | undefined;
-    if (intituleBrut) {
-      const resultatGn = ExprReg.xGroupeNominalArticleDefini.exec(intituleBrut);
-      if (resultatGn) {
-        // forcer minuscules
-        if (forcerMinuscules) {
-          determinant = resultatGn[1]?.toLowerCase() ?? undefined;
-          nom = resultatGn[2].toLowerCase();
-          epithete = resultatGn[3]?.toLowerCase() ?? undefined;
-          // garder casse originale
-        } else {
-          determinant = resultatGn[1] ?? undefined;
-          nom = resultatGn[2];
-          epithete = resultatGn[3] ?? undefined;
-        }
-        retVal = new GroupeNominal(determinant, nom, epithete);
-      }
-    }
-    return retVal;
+    // Délègue à l’analyseur central (déterminant défini/démonstratif + attribut antéposé + nom + attribut(s) après).
+    return GroupeNominal.analyser(intituleBrut, { indefini: false, forcerMinuscules });
   }
 
   /**
@@ -707,25 +686,7 @@ export class PhraseUtils {
  * Décomposer l’intitulé brut en un groupe nominal.
  */
   public static getGroupeNominalDefiniOuIndefini(intituleBrut: string, forcerMinuscules: boolean): GroupeNominal | undefined {
-    let determinant: string | undefined;
-    let nom: string | undefined;
-    let epithete: string | undefined;
-    let retVal: GroupeNominal | undefined;
-    const resultatGn = ExprReg.xGroupeNominalArticleDefiniEtIndefini.exec(intituleBrut);
-    if (resultatGn) {
-      // forcer minuscules
-      if (forcerMinuscules) {
-        determinant = resultatGn[1]?.toLowerCase() ?? undefined;
-        nom = resultatGn[2].toLowerCase();
-        epithete = resultatGn[3]?.toLowerCase() ?? undefined;
-        // garder casse originale
-      } else {
-        determinant = resultatGn[1] ?? undefined;
-        nom = resultatGn[2];
-        epithete = resultatGn[3] ?? undefined;
-      }
-      retVal = new GroupeNominal(determinant, nom, epithete);
-    }
-    return retVal;
+    // Délègue à l’analyseur central, déterminants définis ET indéfinis (un/une/des…) acceptés.
+    return GroupeNominal.analyser(intituleBrut, { indefini: true, forcerMinuscules });
   }
 }

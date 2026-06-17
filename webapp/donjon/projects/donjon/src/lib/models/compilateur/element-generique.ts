@@ -26,6 +26,8 @@ export class ElementGenerique implements ElementDonjon {
   public nomP: string = null;
   public epitheteS: string = null;
   public epitheteP: string = null;
+  /** Attributs ANTÉPOSÉS (placés avant le nom), ex. « grand » dans « le grand chat poilu ». */
+  public epithetesAvant: string[] = [];
 
   public positionAffichage?: 'haut-gauche' | 'haut-droite' | 'bas-gauche' | 'bas-droite';
 

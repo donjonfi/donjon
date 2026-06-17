@@ -146,7 +146,7 @@ export class Generateur {
     // ********************
     rc.monde.concepts.forEach(curEle => {
       // TODO: générer concepts
-      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
       let nouvConcept = new Concept(jeu.nextID++, intitule.nomEpithete, intitule);
       nouvConcept.genre = curEle.genre;
       nouvConcept.nombre = curEle.nombre;
@@ -216,7 +216,7 @@ export class Generateur {
       let titreSansAutoMaj = (curEle.determinant ? curEle.determinant : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
       // mettre majuscule en début d’intitulé (début de Phrase)
       let titre = titreSansAutoMaj[0].toUpperCase() + titreSansAutoMaj.slice(1);
-      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
       let nouvLieu = new Lieu(jeu.nextID++, intitule.nomEpithete, intitule, titre);
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
@@ -362,7 +362,7 @@ export class Generateur {
     rc.monde.objets.forEach(curEle => {
       // ignorer le joueur (on l'a déjà ajouté)
       if (curEle.nom.toLowerCase() != 'joueur') {
-        let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+        let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
         let newObjet = new Objet(jeu.nextID++, intitule.nomEpithete, intitule, curEle.classe, curEle.quantite, curEle.genre, curEle.nombre);
 
         // reporter l’unité de comptage (ressources) : singulier + pluriel
@@ -450,30 +450,30 @@ export class Generateur {
         if (curEle.nombre === Nombre.p) {
           // on a déjà le pluriel (nomP si fourni — utile quand le nom a été normalisé sur la forme
           //  singulière canonique d'une ressource ; sinon le nom lui-même).
-          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nomP ?? curEle.nom, curEle.epithete);
+          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nomP ?? curEle.nom, curEle.epithete, curEle.epithetesAvant);
           // le singulier est fourni
           if (curEle.nomS) {
-            newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS);
+            newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS, curEle.epithetesAvant);
             // le singulier est calculé (tête : « pommes de terre » → « pomme de terre »)
           } else {
-            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulierTete(curEle.nom), MotUtils.getSingulier(curEle.epithete));
+            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulierTete(curEle.nom), MotUtils.getSingulier(curEle.epithete), curEle.epithetesAvant);
           }
           // Déterminer PLURIEL à partir du singulier.
         } else if (curEle.nombre == Nombre.s) {
           // on a déjà le singulier
-          newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
           // le pluriel est fourni
           if (curEle.nomP) {
-            newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP);
+            newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP, curEle.epithetesAvant);
             // le pluriel est calculé (tête : « point de vie » → « points de vie »)
           } else {
-            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPlurielTete(curEle.nom), MotUtils.getPluriel(curEle.epithete));
+            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPlurielTete(curEle.nom), MotUtils.getPluriel(curEle.epithete), curEle.epithetesAvant);
           }
         } else if (curEle.nombre == Nombre.tp) {
           // on a déjà le pluriel
-          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
           // le singulier n’existe pas
-          newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete);
+          newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
         }
 
         // parcourir les propriétés de l’objet

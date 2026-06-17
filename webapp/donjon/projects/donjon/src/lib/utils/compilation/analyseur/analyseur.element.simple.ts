@@ -5,6 +5,8 @@ import { Definition } from "../../../models/compilateur/definition";
 import { EClasseRacine } from "../../../models/commun/constantes";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
+import { GroupeNominal } from "../../../models/commun/groupe-nominal";
+import { xDefinitionElement1GN, xDefinitionRessource1GN } from "../../../models/commun/gn-fragments";
 import { Genre } from "../../../models/commun/genre.enum";
 import { MotUtils } from "../../commun/mot-utils";
 import { Nombre } from "../../../models/commun/nombre.enum";
@@ -43,12 +45,14 @@ export class AnalyseurElementSimple {
     // élément générique simple avec type d'élément (ex: le champignon est un décor)
     //  Les RESSOURCES ont leur propre regex dédiée (tous déterminants : le/la/les/l’ ET un/une/des),
     //  essayée en premier ; sinon on retombe sur la regex générique (autres éléments, inchangée).
-    let result = ExprReg.xDefinitionRessource.exec(morceauPrincipal);
+    let result = xDefinitionRessource1GN.exec(morceauPrincipal);
     if (result === null) {
-      result = ExprReg.xDefinitionElementAvecType.exec(morceauPrincipal);
+      result = xDefinitionElement1GN.exec(morceauPrincipal);
     }
     if (result !== null) {
-      let genreSingPlur = result[4];
+      // Le groupe nominal est capturé entier (result[1]) puis re-découpé en déterminant/avant/nom/après.
+      const gnDef = GroupeNominal.analyser(result[1], { indefini: true });
+      let genreSingPlur = result[2];
       let estFeminin = false;
       let estToujoursPluriel = false;
       let autreForme: string = null;
@@ -73,17 +77,18 @@ export class AnalyseurElementSimple {
 
       }
 
-      determinant = result[1] ? result[1].toLowerCase() : null;
-      nom = result[2];
-      epithete = result[3];
-      intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[5]);
-      genre = MotUtils.getGenre(result[1], estFeminin);
-      nombre = MotUtils.getNombre(result[1], estToujoursPluriel);
-      quantite = MotUtils.getQuantite(result[1], 1);
-      attributsString = result[6];
-      initialiseA = result[7] ?? result[10];
-      const unite = result[8];
-      const uniteGenreMarqueur = result[9];
+      determinant = gnDef?.determinant ? gnDef.determinant.toLowerCase() : null;
+      nom = gnDef?.nom;
+      epithete = gnDef?.epithete ?? undefined; // préserve « undefined » quand absent (le constructeur ElementGenerique n’a pas de défaut)
+      const epithetesAvant = gnDef?.epithetesAvant ?? [];
+      intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[3]);
+      genre = MotUtils.getGenre(gnDef?.determinant, estFeminin);
+      nombre = MotUtils.getNombre(gnDef?.determinant, estToujoursPluriel);
+      quantite = MotUtils.getQuantite(gnDef?.determinant, 1);
+      attributsString = result[4];
+      initialiseA = result[5] ?? result[8];
+      const unite = result[6];
+      const uniteGenreMarqueur = result[7];
       attributs = PhraseUtils.separerListeIntitulesEt(attributsString, true);
       if (initialiseA) {
         attributs.push(initialiseA);
@@ -105,6 +110,8 @@ export class AnalyseurElementSimple {
         quantite,
         attributs,
       );
+      // attribut(s) antéposé(s) (« le grand chat » → avant=[grand])
+      nouvelElementGenerique.epithetesAvant = epithetesAvant;
 
       // FOND : poser la présence détectée inline (suffixe de portée déjà retiré ci-dessus).
       if (presenceInlineFond) {

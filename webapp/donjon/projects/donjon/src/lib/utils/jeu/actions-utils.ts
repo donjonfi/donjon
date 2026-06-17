@@ -956,7 +956,8 @@ export class ActionsUtils {
           // console.log("check for ele=", ele, "candidatCeciCela=", candidatCeciCela);
           // console.log("check for ele.intitule.nom=", ele.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
           // console.log("check for ele.intitule.epithete=", ele.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
-          if (ele.intitule.nom === candidatCeciCelaAction.nom && ele.intitule.epithete === candidatCeciCelaAction.epithete) {
+          // comparer sur nomEpithete (inclut les attributs antéposés) pour rester robuste à la position avant/après
+          if (ele.intitule.nomEpithete === candidatCeciCelaAction.nomEpithete) {
             let curScore = 1000;
             // si priorité respectée, score augmente
             if (candidatCeciCelaAction.priorite) {
@@ -983,7 +984,7 @@ export class ActionsUtils {
           // console.log("check for concept=", concept, "candidatCeciCela=", candidatCeciCelaAction);
           // console.log("check for concept.intitule.nom=", concept.intitule.nom, "candidatCeciCela.nom=", candidatCeciCelaAction.nom);
           // console.log("check for concept.intitule.epithete=", concept.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCelaAction.epithete);
-          if (concept.intitule.nom === candidatCeciCelaAction.nom && concept.intitule.epithete === candidatCeciCelaAction.epithete) {
+          if (concept.intitule.nomEpithete === candidatCeciCelaAction.nomEpithete) {
             let curScore = 500;
             if (curScore > meilleurScore) {
               meilleurScore = curScore;
@@ -1004,7 +1005,7 @@ export class ActionsUtils {
           // console.log("check for cpt.intitule.nom=", cpt.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
           // console.log("check for cpt.intitule.epithete=", cpt.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
-          if (compteur.intitule.nom === candidatCeciCelaAction.nom && compteur.intitule.epithete === candidatCeciCelaAction.epithete) {
+          if (compteur.intitule.nomEpithete === candidatCeciCelaAction.nomEpithete) {
             let curScore = 500;
             if (curScore > meilleurScore) {
               meilleurScore = curScore;
@@ -1027,7 +1028,7 @@ export class ActionsUtils {
         // console.log("check for intitule.intitule.nom=", intitule.intitule.nom, "candidatCeciCela.nom=", candidatCeciCela.nom);
         // console.log("check for intitule.intitule.epithete=", intitule.intitule.epithete, "candidatCeciCela.epithete=", candidatCeciCela.epithete);
 
-        if (intitule.intitule.nom === candidatCeciCelaAction.nom && intitule.intitule.epithete === candidatCeciCelaAction.epithete) {
+        if (intitule.intitule.nomEpithete === candidatCeciCelaAction.nomEpithete) {
           let curScore = 250;
           if (curScore > meilleurScore) {
             meilleurScore = curScore;
