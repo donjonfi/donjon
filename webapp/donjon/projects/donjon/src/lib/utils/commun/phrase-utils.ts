@@ -5,6 +5,17 @@ import { ElementsPhrase } from '../../models/commun/elements-phrase';
 import { Evenement } from '../../models/jouer/evenement';
 import { ExprReg } from '../compilation/expr-reg';
 import { GroupeNominal } from '../../models/commun/groupe-nominal';
+import { decomposerResteGN } from '../../models/commun/gn-fragments';
+import {
+  xCommandeInfinitif1GN,
+  xCommandeParlerSujetAvecInterlocuteur1GN,
+  xCommandeParlerAvecInterlocuteurConcernantSujet1GN,
+  xCommandeQuestionnerInterlocuteurConcernantSujet1GN,
+  xCommandeDemanderSujetAInterlocuteur1GN,
+  xCommandeDemanderAVerbeAInterlocuteur1GN,
+  xCommandeParlerAvecInterlocuteurDeSujet1GN,
+  xCommandeDemanderAInterlocuteurSujet1GN,
+} from '../compilation/gn-derivees';
 import { PositionObjet } from '../../models/jeu/position-objet';
 import { RechercheUtils } from './recherche-utils';
 import { TypeEvenement } from '../../models/jouer/type-evenement';
@@ -367,36 +378,36 @@ export class PhraseUtils {
 
     // => 1) PARLER DE SUJET AVEC INTERLOCUTEUR (formulation qui évite les ambiguïtés avec les noms composés)
     let sensInterlocSujet = false;
-    let res = ExprReg.xCommandeParlerSujetAvecInterlocuteur.exec(commande);
+    let res = xCommandeParlerSujetAvecInterlocuteur1GN.exec(commande);
     //  => 2) PARLER AVEC INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
     if (!res) {
       sensInterlocSujet = true;
-      res = ExprReg.xCommandeParlerAvecInterlocuteurConcernantSujet.exec(commande);
+      res = xCommandeParlerAvecInterlocuteurConcernantSujet1GN.exec(commande);
     }
     // => 3) INTERROGER INTERLOCUTEUR CONCERNANT SUJET (formulation qui évite les ambiguïtés avec les noms composés)
     if (!res) {
       sensInterlocSujet = true;
-      res = ExprReg.xCommandeQuestionnerInterlocuteurConcernantSujet.exec(commande);
+      res = xCommandeQuestionnerInterlocuteurConcernantSujet1GN.exec(commande);
     }
     // => 4a) DEMANDER/COMMANDER/DONNER/MONTRER SUJET À INTERLOCUTEUR
     if (!res) {
       sensInterlocSujet = false;
-      res = ExprReg.xCommandeDemanderSujetAInterlocuteur.exec(commande);
+      res = xCommandeDemanderSujetAInterlocuteur1GN.exec(commande);
     }
     // => 4b) DEMANDER/COMMANDER/DONNER À VERBE À INTERLOCUTEUR
     if (!res) {
       sensInterlocSujet = false;
-      res = ExprReg.xCommandeDemanderAVerbeAInterlocuteur.exec(commande);
+      res = xCommandeDemanderAVerbeAInterlocuteur1GN.exec(commande);
     }
     // => 5) PARLER AVEC INTERLOCUTEUR DE SUJET (formulation qui peut poser des soucis avec les noms composés)
     if (!res) {
       sensInterlocSujet = true;
-      res = ExprReg.xCommandeParlerAvecInterlocuteurDeSujet.exec(commande);
+      res = xCommandeParlerAvecInterlocuteurDeSujet1GN.exec(commande);
     }
     // => 6) MONTRER/DEMANDER/DONNER À INTERLOCUTEUR SUJET (formulation qui peut poser des soucis avec les noms composés de plus on privilégie infinitif + compl. direct + compl. indirect)
     if (!res) {
       sensInterlocSujet = true;
-      res = ExprReg.xCommandeDemanderAInterlocuteurSujet.exec(commande);
+      res = xCommandeDemanderAInterlocuteurSujet1GN.exec(commande);
     }
 
     // DIALOGUE TROUVÉ (parler, demander, montrer, …)
@@ -404,15 +415,20 @@ export class PhraseUtils {
       let interlocuteur: GroupeNominal = null;
       let sujetDialogue: GroupeNominal = null;
       const infinitif = res[1];
+      // disposition unifiée (GN « reste » en 1 groupe) : verbe(1) det1(2) reste1(3) milieu(4) det2(5) reste2(6).
+      // Chaque « reste » (avant + nom + après) est re-découpé ici ; le déterminant reste capturé à part.
+      const gnA = res[3] ? decomposerResteGN(res[3], false) : undefined;
+      const gnB = res[6] ? decomposerResteGN(res[6], false) : undefined;
+      const detB = res[5] ? res[5] : (res[4]?.trim() === 'au' ? 'au' : null);
       if (sensInterlocSujet) {
         // déterminant difficile à déterminer donc on met rien
-        interlocuteur = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
-        if (res[7]) {
-          sujetDialogue = new GroupeNominal((res[6] ? res[6] : (res[5]?.trim() === 'au' ? 'au' : null)), res[7], (res[8] ? res[8] : null));
+        interlocuteur = gnA ? new GroupeNominal((res[2] ? res[2] : null), gnA.nom, gnA.epithete ?? null, gnA.epithetesAvant) : null;
+        if (gnB) {
+          sujetDialogue = new GroupeNominal(detB, gnB.nom, gnB.epithete ?? null, gnB.epithetesAvant);
         }
       } else {
-        interlocuteur = new GroupeNominal((res[6] ? res[6] : (res[5]?.trim() === 'au' ? 'au' : null)), res[7], (res[8] ? res[8] : null));
-        sujetDialogue = new GroupeNominal((res[2] ? res[2] : null), res[3], (res[4] ? res[4] : null));
+        interlocuteur = gnB ? new GroupeNominal(detB, gnB.nom, gnB.epithete ?? null, gnB.epithetesAvant) : null;
+        sujetDialogue = gnA ? new GroupeNominal((res[2] ? res[2] : null), gnA.nom, gnA.epithete ?? null, gnA.epithetesAvant) : null;
       }
 
       // console.log("interlocuteur.determinant=,", interlocuteur.determinant, "interlocuteur=", interlocuteur);
@@ -462,13 +478,18 @@ export class PhraseUtils {
 
       // B. COMMANDE NORMALE (infinitif)
     } else {
-      res = ExprReg.xCommandeInfinitif.exec(commande);
+      res = xCommandeInfinitif1GN.exec(commande);
       if (res) {
-        const sujet = res[4] ? new GroupeNominal(res[3], res[4], res[5] ? res[5] : null) : null;
-        els = new ElementsPhrase(res[1], sujet, null, null, (res[6] ? res[6] : null));
+        // GN « reste » (avant + nom + après) capturés en 1 groupe, re-découpés ici ; le déterminant
+        // reste capturé à part (res[3] / res[7]). Disposition : verbe(1) prép0(2) det1(3) reste1(4)
+        // wrapper(5) prép2(6) det2(7) reste2(8).
+        const gn1 = res[4] ? decomposerResteGN(res[4], false) : undefined;
+        const sujet = gn1 ? new GroupeNominal(res[3], gn1.nom, gn1.epithete ?? null, gn1.epithetesAvant) : null;
+        els = new ElementsPhrase(res[1], sujet, null, null, (res[5] ? res[5] : null));
         els.preposition0 = res[2] ? res[2] : null;
-        els.preposition1 = res[7] ? res[7] : null;
-        els.sujetComplement1 = res[9] ? new GroupeNominal(res[8], res[9], res[10] ? res[10] : null) : null;
+        els.preposition1 = res[6] ? res[6] : null;
+        const gn2 = res[8] ? decomposerResteGN(res[8], false) : undefined;
+        els.sujetComplement1 = gn2 ? new GroupeNominal(res[7], gn2.nom, gn2.epithete ?? null, gn2.epithetesAvant) : null;
       }
     }
 

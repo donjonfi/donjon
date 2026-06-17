@@ -116,6 +116,32 @@ Le magazine est un objet ici.
 Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
 ```
 
+### Nom et attributs (groupe nominal)
+
+Un intitulé se décompose en `[déterminant] [attribut(s) avant] nom [attribut(s) après]`. Le **nom** peut être simple ou **composé** (avec `de`, `du`, `à`… : « tache de sang », « garde du corps »).
+
+```
+-- attribut APRÈS le nom (le plus courant)
+Le chat poilu est un objet ici.
+
+-- attribut(s) après COORDONNÉS (et / ou / virgule)
+Le chaton rouge et blanc est un objet ici.
+Le drapeau rouge, blanc et bleu est un objet ici.
+
+-- attribut AVANT le nom (adjectif antéposé courant : grand, petit, beau, vieux, joli, gros…)
+Le grand chat est un objet ici.
+
+-- combinés : attribut avant + nom + attribut(s) après
+Le grand chat poilu est un objet ici.   -- nom = chat ; avant = grand ; après = poilu
+
+-- nom composé + attribut après
+La tache de sang séchée est un objet ici.   -- nom = tache de sang ; après = séchée
+```
+
+ℹ️ **Adjectif antéposé** : seul un adjectif d'une liste fermée (taille / âge / beauté / qualité : `grand`, `petit`, `gros`, `beau`/`bel`/`belle`, `joli`, `vieux`/`vieille`, `jeune`, `nouveau`, `bon`, `mauvais`, `premier`, `dernier`…) est reconnu **avant** le nom. Tout autre mot avant le nom est considéré comme faisant partie du nom (composé). Ainsi « le grand chat » → nom `chat` (attribut `grand`), mais « le garde du corps » → nom composé `garde du corps`.
+
+ℹ️ **En cours de partie**, le joueur peut désigner un objet par un **morceau** de son intitulé, à condition de respecter l'ordre des mots : pour « le grand chat poilu », « le chat », « le grand chat » ou « le chat poilu » fonctionnent ; « le chat noir » (mauvais attribut) ou un ordre inversé ne fonctionnent pas. Une correspondance complète est toujours préférée à un morceau.
+
 ### Classes d'objets courantes
 
 | Classe       | Description                          |

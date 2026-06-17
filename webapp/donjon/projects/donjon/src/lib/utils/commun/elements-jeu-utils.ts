@@ -87,8 +87,10 @@ export class ElementsJeuUtils {
       let determinant = (ceci.intitule.determinant ? ceci.intitule.determinant : "");
       let nom = ceci.intitule.nom;
       let epithete = (ceci.intitule.epithete ? (" " + ceci.intitule.epithete) : "");
+      // attribut(s) antéposé(s) (« le grand rocher » → « grand » avant le nom)
+      let avant = (ceci.intitule.epithetesAvant && ceci.intitule.epithetesAvant.length) ? (ceci.intitule.epithetesAvant.join(" ") + " ") : "";
 
-      retVal = determinant + nom + epithete;
+      retVal = determinant + avant + nom + epithete;
     }
     // mettre majuscule en début d’intitulé (début de Phrase)
     if (forcerMajuscule) {
@@ -232,7 +234,9 @@ export class ElementsJeuUtils {
         }
       }
 
-      retVal = determinant + nom + (epithete ? (' ' + epithete) : '');
+      // attribut(s) antéposé(s) entre le déterminant et le nom (« le grand coffre »)
+      const avant = (ceci.intitule.epithetesAvant && ceci.intitule.epithetesAvant.length) ? (ceci.intitule.epithetesAvant.join(' ') + ' ') : '';
+      retVal = determinant + avant + nom + (epithete ? (' ' + epithete) : '');
     }
     // mettre majuscule en début d’intitulé (début de Phrase)
     if (forcerMajuscule) {
@@ -775,7 +779,7 @@ export class ElementsJeuUtils {
   /**
    * Trouver des correspondances dans le jeu pour le sujet spécifié (lieu, objet, direction, …).
    */
-  trouverCorrespondance(sujet: GroupeNominal, typeSujet: TypeSujet, prioriteObjetsPresents: boolean, prioriteLieuxAdjacents: boolean): Correspondance {
+  trouverCorrespondance(sujet: GroupeNominal, typeSujet: TypeSujet, prioriteObjetsPresents: boolean, prioriteLieuxAdjacents: boolean, tolerant: boolean = false): Correspondance {
     let cor: Correspondance = null;
     if (sujet) {
       cor = new Correspondance();
@@ -835,7 +839,7 @@ export class ElementsJeuUtils {
 
         if (typeSujet === TypeSujet.SujetEstIntitule) {
           // TODO: comparer score des objets avec score des autres types d’éléments.
-          cor.objets = this.trouverObjetSurIntituleAvecScore(sujet, prioriteObjetsPresents, nombre)[1];
+          cor.objets = this.trouverObjetSurIntituleAvecScore(sujet, prioriteObjetsPresents, nombre, tolerant)[1];
         } else {
           const objetTrouve = this.trouverObjetAvecNom(sujet.nomEpithete);
           if (objetTrouve) {
@@ -876,7 +880,7 @@ export class ElementsJeuUtils {
             cor.concepts = [];
           }
         } else {
-          cor.concepts = this.trouverConceptSurIntituleAvecScore(sujet)[1];
+          cor.concepts = this.trouverConceptSurIntituleAvecScore(sujet, tolerant)[1];
         }
         cor.nbCor += cor.concepts.length;
 
@@ -1010,7 +1014,15 @@ export class ElementsJeuUtils {
    *  - 0.375: correspondance proche partielle
    */
 
-  trouverConceptSurIntituleAvecScore(recherche: GroupeNominal): [number, Concept[]] {
+  trouverConceptSurIntituleAvecScore(recherche: GroupeNominal, tolerant: boolean = false): [number, Concept[]] {
+    const strict = this.chercherConceptsParIntitule(recherche, false);
+    if (strict[0] === 0.0 && tolerant) {
+      return this.chercherConceptsParIntitule(recherche, true);
+    }
+    return strict;
+  }
+
+  private chercherConceptsParIntitule(recherche: GroupeNominal, tolerant: boolean): [number, Concept[]] {
 
     let meilleursCandidats: Concept[] = [];
     let meilleurScore = 0.0;
@@ -1023,11 +1035,11 @@ export class ElementsJeuUtils {
         // A. regarder dans l'intitulé original de l’objet
         intituleOriginal = concept.intitule;
 
-        let meilleurScorePourCeConcept = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles, this.verbeux) : 0.0;
+        let meilleurScorePourCeConcept = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles, this.verbeux, tolerant) : 0.0;
         // si on n’a pas une correspondance exacte, essayer les synonymes
         if (meilleurScorePourCeConcept < 1.0 && concept.synonymes) {
           for (const synonyme of concept.synonymes) {
-            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles, this.verbeux);
+            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles, this.verbeux, tolerant);
             if (scoreSynonyme > meilleurScorePourCeConcept) {
               meilleurScorePourCeConcept = scoreSynonyme;
               if (scoreSynonyme == 1.0) {
@@ -1087,20 +1099,31 @@ export class ElementsJeuUtils {
    * Remarque: Il peut y avoir plus d’une correspondance.
    * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
    */
-  trouverObjetSurIntituleAvecScore(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre = Nombre.i): [number, Objet[]] {
+  trouverObjetSurIntituleAvecScore(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre = Nombre.i, tolerant: boolean = false): [number, Objet[]] {
+    // 1) résolution STRICTE (exacte / quasi complète) — priorité absolue, même en cours de partie
+    //    (une désambiguïsation entre intitulés complets ne doit pas être perturbée par le tolérant).
+    const strict = this.chercherObjetsParIntitule(recherche, prioriteObjetsPresents, nombre, false);
+    // 2) en partie (tolerant), si rien de strict, retenter en TOLÉRANT : le joueur a pu ne taper qu'un morceau.
+    if (strict[0] === 0.0 && tolerant) {
+      return this.chercherObjetsParIntitule(recherche, prioriteObjetsPresents, nombre, true);
+    }
+    return strict;
+  }
+
+  private chercherObjetsParIntitule(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre, tolerant: boolean): [number, Objet[]] {
 
     let objetsTrouvesPresents: [number, Objet[]];
     let objetsTrouvesNonPresents: [number, Objet[]];
 
     // chercher parmi les objets présents
     const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
-    objetsTrouvesPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsPresents, recherche, nombre);
+    objetsTrouvesPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsPresents, recherche, nombre, tolerant);
 
     // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
     if (objetsTrouvesPresents[0] == 0.0 || !prioriteObjetsPresents) {
       // chercher parmi les objets NON présents
       const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
-      objetsTrouvesNonPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsNonPresents, recherche, nombre);
+      objetsTrouvesNonPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsNonPresents, recherche, nombre, tolerant);
       // retourner le meilleur score parmi les objets trouvés
       if (objetsTrouvesPresents[0] > objetsTrouvesNonPresents[0]) {
         return objetsTrouvesPresents;
@@ -1126,7 +1149,7 @@ export class ElementsJeuUtils {
    *  - 0.5 : correspondance exacte partielle
    *  - 0.375: correspondance proche partielle
    */
-  private suiteTrouverObjetSurIntituleAvecScore(objets: Objet[], recherche: GroupeNominal, nombre: Nombre): [number, Objet[]] {
+  private suiteTrouverObjetSurIntituleAvecScore(objets: Objet[], recherche: GroupeNominal, nombre: Nombre, tolerant: boolean = false): [number, Objet[]] {
 
     let meilleursCandidats: Objet[] = [];
     let meilleurScore = 0.0;
@@ -1150,11 +1173,11 @@ export class ElementsJeuUtils {
             break;
         }
 
-        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles, this.verbeux) : 0.0;
+        let meilleurScorePourCetObjet = intituleOriginal ? RechercheUtils.correspondanceMotsCles(recherche.motsCles, intituleOriginal.motsCles, this.verbeux, tolerant) : 0.0;
         // si on n’a pas une correspondance exacte, essayer les synonymes
         if (meilleurScorePourCetObjet < 1.0 && obj.synonymes) {
           for (const synonyme of obj.synonymes) {
-            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles, this.verbeux);
+            const scoreSynonyme = RechercheUtils.correspondanceMotsCles(recherche.motsCles, synonyme.motsCles, this.verbeux, tolerant);
             if (scoreSynonyme > meilleurScorePourCetObjet) {
               meilleurScorePourCetObjet = scoreSynonyme;
               if (scoreSynonyme == 1.0) {

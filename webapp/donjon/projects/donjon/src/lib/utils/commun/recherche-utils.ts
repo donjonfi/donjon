@@ -137,7 +137,7 @@ export class RechercheUtils {
    *  - 0.5 : correspondance exacte partielle
    *  - 0.375: correspondance proche partielle
    */
-  public static correspondanceMotsCles(recherche: string[], candidat: string[], verbeux: boolean): number {
+  public static correspondanceMotsCles(recherche: string[], candidat: string[], verbeux: boolean, tolerant: boolean = false): number {
     let score = 0.0;
     // même nombre de mots clés
     if (recherche.length <= candidat.length) {
@@ -152,19 +152,38 @@ export class RechercheUtils {
       // =====================================================
       // on teste chaque mot dans le même ordre.
       // (si les mots sont inversés, on considère qu’ils sont différents.)
-      for (let indexMotCle = 0; indexMotCle < recherche.length; indexMotCle++) {
-        switch (RechercheUtils.ressemblanceMots(recherche[indexMotCle], candidat[indexMotCle])) {
-          case ERessemblance.egaux:
-            nbEgal++;
-            break;
-
-          case ERessemblance.ressemblants:
-            nbRessemblant++;
-            break
-
-          case ERessemblance.differents:
-            nbPasTrouve++;
-            break;
+      if (tolerant) {
+        // MODE TOLERANT (en cours de partie) : SOUS-SÉQUENCE ORDONNÉE. Chaque mot de la recherche
+        // doit se retrouver dans le candidat DANS LE MÊME ORDRE (pas forcément contigu) → un morceau
+        // de l'intitulé suffit (« le chat » ⊂ « grand chat poilu »), mais l'ordre est respecté
+        // (« capitaine … coffre » ne matche pas « coffre … capitaine »).
+        let posCandidat = 0;
+        for (const motCleRecherche of recherche) {
+          let trouve = ERessemblance.differents;
+          while (posCandidat < candidat.length) {
+            const r = RechercheUtils.ressemblanceMots(motCleRecherche, candidat[posCandidat]);
+            posCandidat++;
+            if (r === ERessemblance.egaux || r === ERessemblance.ressemblants) { trouve = r; break; }
+          }
+          if (trouve === ERessemblance.egaux) { nbEgal++; }
+          else if (trouve === ERessemblance.ressemblants) { nbRessemblant++; }
+          else { nbPasTrouve++; break; }
+        }
+      } else {
+        // MODE STRICT (references scenario) : comparaison positionnelle (ordre identique ;
+        // mots inverses = differents).
+        for (let indexMotCle = 0; indexMotCle < recherche.length; indexMotCle++) {
+          switch (RechercheUtils.ressemblanceMots(recherche[indexMotCle], candidat[indexMotCle])) {
+            case ERessemblance.egaux:
+              nbEgal++;
+              break;
+            case ERessemblance.ressemblants:
+              nbRessemblant++;
+              break;
+            case ERessemblance.differents:
+              nbPasTrouve++;
+              break;
+          }
         }
       }
 
@@ -215,8 +234,16 @@ export class RechercheUtils {
       // s’il y a au moins un mot qui ne ressemble pas > on ne prend pas
       if (nbPasTrouve > 0) {
         score = 0.0;
-        // sinon calculer la moyenne
+      } else if (tolerant) {
+        // MODE TOLÉRANT : un morceau de l'intitulé matche (score >= 0.75), MAIS une correspondance
+        // plus complète l'emporte (score -> 1.0). qualité = proportion de mots fournis exacts ;
+        // couverture = part de l'intitulé candidat fournie. « le chat » retrouve « le grand chat
+        // poilu » (~0.83) sans détrôner un objet « chat » exact (1.0).
+        const qualite = (nbEgal * 1.0 + nbRessemblant * 0.75) / recherche.length;
+        const couverture = recherche.length / candidat.length;
+        score = (0.75 * qualite) + (0.25 * qualite * couverture);
       } else {
+        // MODE STRICT : moyenne sur la longueur du candidat (correspondance quasi complète exigée).
         score = ((nbEgal * 1.0) / candidat.length) + ((nbRessemblant * 0.75) / candidat.length);
       }
 

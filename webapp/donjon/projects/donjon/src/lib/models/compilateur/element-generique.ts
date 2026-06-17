@@ -119,6 +119,12 @@ export class ElementGenerique implements ElementDonjon {
     return this.nom + (this.epithete ? (' ' + this.epithete) : '');
   }
 
+  /** Nom complet incluant l’attribut antéposé : « grand chat poilu » (utilisé pour la résolution/placement). */
+  public get nomEpithete(): string {
+    const avant = (this.epithetesAvant && this.epithetesAvant.length) ? (this.epithetesAvant.join(' ') + ' ') : '';
+    return avant + this.nom + (this.epithete ? (' ' + this.epithete) : '');
+  }
+
   public static elIntitule(el: ElementGenerique) {
     return el.nom + (el.epithete ? (' ' + el.epithete) : '');
   }

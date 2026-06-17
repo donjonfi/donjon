@@ -98,12 +98,13 @@ export class CommandeurDecomposer {
       candidat.isCeciV1 = candidat.els.sujet ? true : false;
       candidat.ceciIntituleV1 = candidat.els.sujet;
       candidat.ceciQuantiteV1 = candidat.isCeciV1 ? (MotUtils.getQuantite(candidat.els.sujet.determinant, (MotUtils.estFormePlurielle(candidat.els.sujet.nom) ? -1 : 1))) : 0;;
-      candidat.correspondCeci = candidat.isCeciV1 ? eju.trouverCorrespondance(candidat.ceciIntituleV1, TypeSujet.SujetEstIntitule, true, true) : null;
+      // tolerant=true : en cours de partie le joueur peut ne taper qu'un morceau de l'intitulé.
+      candidat.correspondCeci = candidat.isCeciV1 ? eju.trouverCorrespondance(candidat.ceciIntituleV1, TypeSujet.SujetEstIntitule, true, true, true) : null;
       // 2e argument
       candidat.isCelaV1 = candidat.els.sujetComplement1 ? true : false;
       candidat.celaIntituleV1 = candidat.els.sujetComplement1;
       candidat.celaQuantiteV1 = candidat.isCelaV1 ? (MotUtils.getQuantite(candidat.els.sujetComplement1.determinant, (MotUtils.estFormePlurielle(candidat.els.sujetComplement1.nom) ? -1 : 1))) : 0;
-      candidat.correspondCela = candidat.isCelaV1 ? eju.trouverCorrespondance(candidat.celaIntituleV1, TypeSujet.SujetEstIntitule, true, true) : null;
+      candidat.correspondCela = candidat.isCelaV1 ? eju.trouverCorrespondance(candidat.celaIntituleV1, TypeSujet.SujetEstIntitule, true, true, true) : null;
 
       // si 1er argument à 1 correspondance et que le 2e en a plusieurs, dont 1 qui est la même que le premier argument, 
       // on peut l’effacer car le joueur ne va pas nommer de manière différentes le même objet!

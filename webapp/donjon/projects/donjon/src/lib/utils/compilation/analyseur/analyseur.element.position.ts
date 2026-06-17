@@ -4,6 +4,8 @@ import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
 import { EClasseRacine } from "../../../models/commun/constantes";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
+import { GroupeNominal } from "../../../models/commun/groupe-nominal";
+import { xPositionElementGeneriqueDefini1GN } from "../gn-derivees";
 import { Genre } from "../../../models/commun/genre.enum";
 import { MotUtils } from "../../commun/mot-utils";
 import { Nombre } from "../../../models/commun/nombre.enum";
@@ -48,10 +50,11 @@ export class AnalyseurElementPosition {
     newElementGenerique = AnalyseurElementPosition.testerPlacementRessource(phrase, ctx);
 
     // élément positionné défini (la, le, les)
-    let result = newElementGenerique ? null : ExprReg.xPositionElementGeneriqueDefini.exec(phrase.morceaux[0]);
+    let result = newElementGenerique ? null : xPositionElementGeneriqueDefini1GN.exec(phrase.morceaux[0]);
     if (result !== null) {
-      // console.log("testerPosition", result);
-      genreSingPlur = result[4];
+      // GN capturé en 1 groupe (result[1]), re-découpé en déterminant/avant/nom/après.
+      const gnDef = GroupeNominal.analyser(result[1], { indefini: true });
+      genreSingPlur = result[2];
       estFeminin = false;
       estToujoursPluriel = false;
       autreForme = null;
@@ -76,13 +79,16 @@ export class AnalyseurElementPosition {
 
       }
 
-      determinant = result[1] ? result[1].toLowerCase() : null;
-      nom = result[2];
-      epithete = result[3],
-        intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[5]);
+      determinant = gnDef?.determinant ? gnDef.determinant.toLowerCase() : null;
+      nom = gnDef?.nom;
+      epithete = gnDef?.epithete ?? undefined;
+      const epithetesAvant = gnDef?.epithetesAvant ?? [];
+      // intitulé complet (avec attribut antéposé) pour les sujets de position et les comparaisons.
+      const sujetIntitule = (gnDef ? gnDef.nomEpithete : nom).toLowerCase();
+      intituleClasseNormalise = ClasseUtils.getIntituleNormalise(result[3]);
 
-      if (result[6]) {
-        attributs = PhraseUtils.separerListeIntitulesEt(result[6], true);
+      if (result[4]) {
+        attributs = PhraseUtils.separerListeIntitulesEt(result[4], true);
       } else {
         attributs = [];
       }
@@ -90,18 +96,18 @@ export class AnalyseurElementPosition {
       position = null;
 
       // => ici (dernier lieu défini) ou dessus/dedans/dessous (dernier objet défini)
-      const iciDedansDessusDessous = result[9];
+      const iciDedansDessusDessous = result[7];
       if (iciDedansDessusDessous) {
         switch (iciDedansDessusDessous) {
           // ICI
           case 'ici':
             if (ctx.dernierLieu) {
-              if (ctx.dernierLieu.nom !== nom || ctx.dernierLieu.epithete !== epithete) {
+              if (ctx.dernierLieu.nomEpithete.toLowerCase() !== sujetIntitule) {
                 position = new PositionSujetString(
                   // sujet
-                  nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+                  sujetIntitule,
                   // complément
-                  ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete.toLowerCase()) : ''),
+                  ctx.dernierLieu.nomEpithete.toLowerCase(),
                   // position
                   'dans'
                 );
@@ -116,12 +122,12 @@ export class AnalyseurElementPosition {
           case 'dedans':
           case 'dessus':
           case 'dessous':
-            if (ctx.dernierElementGenerique && (ctx.dernierElementGenerique.nom !== nom || ctx.dernierElementGenerique.epithete !== epithete)) {
+            if (ctx.dernierElementGenerique && (ctx.dernierElementGenerique.nomEpithete.toLowerCase() !== sujetIntitule)) {
               position = new PositionSujetString(
                 // sujet
-                nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+                sujetIntitule,
                 // complément
-                ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''),
+                ctx.dernierElementGenerique.nomEpithete.toLowerCase(),
                 // position
                 PositionSujetString.getPosition(iciDedansDessusDessous)
               );
@@ -131,18 +137,18 @@ export class AnalyseurElementPosition {
             break;
 
           default:
-            ctx.ajouterErreur(phrase.ligne, "Il/Elle est iciDedansDessusDessous : mot clé non pris en charge : " + result[9]);
+            ctx.ajouterErreur(phrase.ligne, "Il/Elle est iciDedansDessusDessous : mot clé non pris en charge : " + result[7]);
             break;
         }
         // Position relative classique
       } else {
         position = new PositionSujetString(
           // sujet
-          nom.toLowerCase() + (epithete ? (' ' + epithete.toLowerCase()) : ''),
+          sujetIntitule,
           // complément
-          result[8].toLowerCase(),
+          result[6].toLowerCase(),
           // position
-          result[7]
+          result[5]
         );
       }
 
@@ -161,6 +167,8 @@ export class AnalyseurElementPosition {
         MotUtils.getQuantite(determinant, 1),
         attributs,
       );
+      // attribut(s) antéposé(s) (« le grand chat poilu dans le salon » → avant=[grand])
+      newElementGenerique.epithetesAvant = epithetesAvant;
 
       if (autreForme) {
         if (newElementGenerique.nombre === Nombre.s) {

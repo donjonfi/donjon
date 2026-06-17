@@ -1,0 +1,17 @@
+-- Groupe nominal : attribut AVANT le nom, attributs APRÈS coordonnés, nom composé.
+-- En partie : « examiner le chat » retrouve « le grand chat poilu » (morceau de l'intitulé,
+-- dans l'ordre) ; « examiner le grand chat poilu » fonctionne aussi (intitulé complet).
+
+Le salon est un lieu.
+
+-- attribut antéposé + attribut postposé : nom = chat, avant = grand, après = poilu
+Le grand chat poilu est un objet ici.
+Sa description est "Un grand matou au pelage touffu.".
+
+-- attributs postposés coordonnés (et / ou / virgule)
+Le chaton rouge et blanc est un objet ici.
+Sa description est "Une petite boule de poils bicolore.".
+
+-- nom composé (« tache de sang ») + attribut après
+La tache de sang séchée est un objet ici.
+Sa description est "Une vieille tache brunâtre sur le parquet.".

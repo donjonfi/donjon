@@ -141,7 +141,7 @@ export function srcGroupeNominalUnGroupe(srcDeterminant: string): string {
 }
 
 // Déterminant accepté dans une définition d’ÉLÉMENT (le/la/les/du/de la/de l’), sans un/une/des (→ ressource).
-const SRC_DET_DEFINITION_ELEMENT = /le |(?:de )?(?:la |l'|l\u2019)|les |du /.source;
+export const SRC_DET_DEFINITION_ELEMENT = /le |(?:de )?(?:la |l'|l\u2019)|les |du /.source;
 // Déterminant accepté dans une définition de RESSOURCE (élargi à un/une/des).
 const SRC_DET_DEFINITION_RESSOURCE = /le |(?:de )?(?:la |l'|l\u2019)|les |du |un |une |des /.source;
 
@@ -177,3 +177,47 @@ export const xDefinitionRessource1GN = new RegExp(
   srcQueueDefinition("ressources?") + "$",
   "i"
 );
+
+// ---------------------------------------------------------------------------------------------
+//  GN « reste » (SANS déterminant) — pour les COMMANDES : le déterminant y est capturé à part,
+//  on ne re-découpe que « [attribut avant] nom [attribut(s) après] ».
+// ---------------------------------------------------------------------------------------------
+
+/** Nom accepté par le 1er complément (« ceci ») de xCommandeInfinitif : SRC_NOM + forme « objets dans/sous/sur X ». */
+export const SRC_NOM_CMD1 = SRC_NOM + "|(?:objets (?:dans|sous|sur) \\S+)";
+/** Nom (composé simplifié) accepté par le 2e complément (« cela ») de xCommandeInfinitif. */
+export const SRC_NOM_CMD2 = /\S+?|(?:\S+? (?:à |en |de(?: la)? |du |des |d'|d\u2019)\S+?)/.source;
+
+/** Le « reste » d’un GN (sans déterminant) capturé dans UN groupe : avant + nom + après. */
+export function srcResteGNUnGroupe(srcNom: string): string {
+  return "(" +
+    "(?:" + SRC_AVANT + ")" +
+    SRC_GARDE_NOM +
+    "(?:" + srcNom + ")" +
+    "(?:(?: )" + SRC_EXCL_APRES + "(?:" + SRC_APRES_CORPS + "))?" +
+    ")";
+}
+
+/** Regex de re-découpage d’un « reste » isolé. Groupes : 1=avant, 2=nom, 3=après. */
+export const xGroupeNominalReste = new RegExp(
+  "^(" + SRC_AVANT + ")" + SRC_GARDE_NOM + "(" + SRC_NOM_CMD1 + ")" +
+  "(?:(?: )" + SRC_EXCL_APRES + "(" + SRC_APRES_CORPS + "))?$",
+  "i"
+);
+
+/** Décompose un « reste » de GN (sans déterminant), ex. « grand chat poilu » → {avant:[grand], nom:chat, après:poilu}. */
+export function decomposerResteGN(texte: string, forcerMinuscules: boolean): { epithetesAvant: string[], nom: string, epithete?: string } | undefined {
+  if (!texte) { return undefined; }
+  const r = xGroupeNominalReste.exec(texte.trim());
+  if (!r) { return undefined; }
+  let avantBrut = r[1] || "";
+  let nom = r[2];
+  let epithete: string | undefined = r[3] || undefined;
+  if (forcerMinuscules) {
+    avantBrut = avantBrut.toLowerCase();
+    nom = nom.toLowerCase();
+    epithete = epithete?.toLowerCase();
+  }
+  const avantTrim = avantBrut.trim();
+  return { epithetesAvant: avantTrim ? avantTrim.split(/ +/) : [], nom, epithete };
+}

@@ -12,6 +12,8 @@ import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { Evenement } from "../../../models/jouer/evenement";
 import { ExprReg } from "../expr-reg";
+import { xCommandeInfinitif1GN } from "../gn-derivees";
+import { decomposerResteGN } from "../../../models/commun/gn-fragments";
 import { Genre } from "../../../models/commun/genre.enum";
 import { GroupeNominal } from "../../../models/commun/groupe-nominal";
 import { Nombre } from "../../../models/commun/nombre.enum";
@@ -508,14 +510,17 @@ export class AnalyseurV8Routines {
         routine.action.remplace = estRemplacement;
       } else {
         // ii. COMPLÉMENT DIRECT, COMPLÉMENT INDIRECT
-        let enteteDecomposeCommande = ExprReg.xCommandeInfinitif.exec(enteteAction);
+        let enteteDecomposeCommande = xCommandeInfinitif1GN.exec(enteteAction);
         if (enteteDecomposeCommande) {
+          // disposition (reste GN en 1 groupe) : verbe(1) prép0(2) det1(3) reste1(4) wrapper(5) prép2(6) det2(7) reste2(8)
+          const gnCeci = enteteDecomposeCommande[4] ? decomposerResteGN(enteteDecomposeCommande[4], false) : undefined;
+          const gnCela = enteteDecomposeCommande[8] ? decomposerResteGN(enteteDecomposeCommande[8], false) : undefined;
 
           const infinitif = enteteDecomposeCommande[1];
           const isCeci = enteteDecomposeCommande[4] ? true : false;
-          const isCela = enteteDecomposeCommande[9] ? true : false;
+          const isCela = enteteDecomposeCommande[8] ? true : false;
           const prepositionCeci = enteteDecomposeCommande[2] ?? undefined;
-          const prepositionCela = enteteDecomposeCommande[7] ?? undefined;
+          const prepositionCela = enteteDecomposeCommande[6] ?? undefined;
 
           // création de l’action
           routine = new RoutineAction(infinitif, prepositionCeci, isCeci, prepositionCela, isCela, phraseAnalysee.ligne);
@@ -523,8 +528,8 @@ export class AnalyseurV8Routines {
 
           if (isCeci) {
             const determinantCeci = enteteDecomposeCommande[3] ?? undefined;
-            const nomCeci = enteteDecomposeCommande[4];
-            const epitheteCeci = enteteDecomposeCommande[5] ?? undefined;
+            const nomCeci = gnCeci ? gnCeci.nom : enteteDecomposeCommande[4];
+            const epitheteCeci = gnCeci?.epithete ?? undefined;
             // j. COMPLÉMENT DIRECT CECI
             if (nomCeci.toLocaleLowerCase() == 'ceci') {
               // (C’est la valeur par défaut, rien à préciser ici.)
@@ -540,13 +545,14 @@ export class AnalyseurV8Routines {
               // jjj. COMPLÉMENT DIRECT SPÉCIFIQUE
             } else {
               const cibleCeci = new CibleAction(determinantCeci, nomCeci, epitheteCeci);
+              cibleCeci.epithetesAvant = gnCeci?.epithetesAvant ?? [];
               routine.action.cibleCeci = cibleCeci;
             }
 
             if (isCela) {
-              const determinantCela = enteteDecomposeCommande[8] ?? undefined;
-              const nomCela = enteteDecomposeCommande[9];
-              const epitheteCela = enteteDecomposeCommande[10] ?? undefined;
+              const determinantCela = enteteDecomposeCommande[7] ?? undefined;
+              const nomCela = gnCela ? gnCela.nom : enteteDecomposeCommande[8];
+              const epitheteCela = gnCela?.epithete ?? undefined;
 
               // k. COMPLÉMENT INDIRECT CELA
               if (nomCela.toLocaleLowerCase() == 'cela') {
@@ -563,6 +569,7 @@ export class AnalyseurV8Routines {
                 // kkk. COMPLÉMENT DIRECT SPÉCIFIQUE
               } else {
                 const cibleCela = new CibleAction(determinantCela, nomCela, epitheteCela);
+                cibleCela.epithetesAvant = gnCela?.epithetesAvant ?? [];
                 routine.action.cibleCela = cibleCela;
                 }
             }
