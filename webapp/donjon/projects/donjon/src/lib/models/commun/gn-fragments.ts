@@ -90,6 +90,23 @@ export interface DecompositionGN {
 }
 
 /**
+ * Cœur commun de décomposition : à partir des fragments capturés bruts (avant / nom / après),
+ * applique la minusculisation et découpe la zone « avant » en attributs. Partagé par
+ * {@link decomposerGroupeNominal} (avec déterminant) et {@link decomposerResteGN} (sans).
+ */
+function construireDecompositionGN(avantBrut: string | undefined, nom: string, epitheteBrut: string | undefined, forcerMinuscules: boolean): { epithetesAvant: string[], nom: string, epithete?: string } {
+  let avant = avantBrut || "";
+  let epithete: string | undefined = epitheteBrut || undefined;
+  if (forcerMinuscules) {
+    avant = avant.toLowerCase();
+    nom = nom.toLowerCase();
+    epithete = epithete?.toLowerCase();
+  }
+  const avantTrim = avant.trim();
+  return { epithetesAvant: avantTrim ? avantTrim.split(/ +/) : [], nom, epithete };
+}
+
+/**
  * Décompose une sous-chaîne de groupe nominal isolée en {déterminant, attributs avant, nom,
  * attributs après}. Retourne undefined si la chaîne ne ressemble pas à un groupe nominal.
  *
@@ -104,21 +121,8 @@ export function decomposerGroupeNominal(intituleBrut: string, indefiniAussi: boo
   if (!r) { return undefined; }
 
   let determinant: string | undefined = r[1] || undefined; // conserve l’espace de fin
-  let avantBrut = r[2] || "";
-  let nom = r[3];
-  let epithete: string | undefined = r[4] || undefined;
-
-  if (forcerMinuscules) {
-    determinant = determinant?.toLowerCase();
-    avantBrut = avantBrut.toLowerCase();
-    nom = nom.toLowerCase();
-    epithete = epithete?.toLowerCase();
-  }
-
-  const avantTrim = avantBrut.trim();
-  const epithetesAvant = avantTrim ? avantTrim.split(/ +/) : [];
-
-  return { determinant, epithetesAvant, nom, epithete };
+  if (forcerMinuscules) { determinant = determinant?.toLowerCase(); }
+  return { determinant, ...construireDecompositionGN(r[2], r[3], r[4], forcerMinuscules) };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -210,14 +214,5 @@ export function decomposerResteGN(texte: string, forcerMinuscules: boolean): { e
   if (!texte) { return undefined; }
   const r = xGroupeNominalReste.exec(texte.trim());
   if (!r) { return undefined; }
-  let avantBrut = r[1] || "";
-  let nom = r[2];
-  let epithete: string | undefined = r[3] || undefined;
-  if (forcerMinuscules) {
-    avantBrut = avantBrut.toLowerCase();
-    nom = nom.toLowerCase();
-    epithete = epithete?.toLowerCase();
-  }
-  const avantTrim = avantBrut.trim();
-  return { epithetesAvant: avantTrim ? avantTrim.split(/ +/) : [], nom, epithete };
+  return construireDecompositionGN(r[1], r[2], r[3], forcerMinuscules);
 }

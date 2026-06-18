@@ -98,6 +98,40 @@ describe("[F077] Résolution annexe d'un élément à attribut antéposé", () =
   });
 
   // ----------------------------------------------------------------------------------------------
+  //  Condition d'identité « si ceci est <élément> » : doit distinguer l'attribut antéposé.
+  //  (verifierConditionEst comparait nom+épithète champ à champ, ignorant epithetesAvant → « le
+  //  grand chat » et « le petit chat », tous deux nom=chat, étaient confondus.)
+  // ----------------------------------------------------------------------------------------------
+  const SCN_IDENTITE = `
+    La caverne est un lieu.
+    Le grand chat est un objet ici.
+    Le petit chat est un objet ici.
+
+    règle après examiner ceci:
+      si ceci est le grand chat:
+        dire "Identité GRAND.".
+      sinon
+        dire "Identité AUTRE.".
+      fin si
+    fin règle
+  `;
+
+  it("[F077-T140] « si ceci est le grand chat » est VRAI pour le grand chat", () => {
+    const ctx = compilerAvecActions(SCN_IDENTITE);
+    ctx.com.executerCommande("commencer le jeu", false);
+    const sortie = ctx.com.executerCommande("examiner le grand chat", false).sortie;
+    expect(sortie).toContain("GRAND");
+  });
+
+  it("[F077-T141] « si ceci est le grand chat » est FAUX pour le petit chat (attribut antéposé distinct)", () => {
+    const ctx = compilerAvecActions(SCN_IDENTITE);
+    ctx.com.executerCommande("commencer le jeu", false);
+    const sortie = ctx.com.executerCommande("examiner le petit chat", false).sortie;
+    expect(sortie).toContain("AUTRE");
+    expect(sortie).not.toContain("GRAND");
+  });
+
+  // ----------------------------------------------------------------------------------------------
   //  A3 — Génération du singulier/pluriel : l'attribut antéposé doit s'accorder en nombre
   // ----------------------------------------------------------------------------------------------
   it("[F077-T133] pluriel → singulier : « Les grands coffres » → intituléS = « grand coffre »", () => {

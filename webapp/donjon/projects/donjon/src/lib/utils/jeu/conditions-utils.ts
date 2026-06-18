@@ -799,7 +799,9 @@ export class ConditionsUtils {
           case 'vaut':
             // remarque: négation appliquée plus loin.
             if (condition.sujetComplement) {
-              if (sujet.intitule.nom == condition.sujetComplement.nom && (sujet.intitule.epithete == condition.sujetComplement.epithete)) {
+              // comparaison sur l'intitulé COMPLET (avant + nom + après) — sinon « le grand chat » et
+              // « le petit chat » seraient confondus (nom/épithète identiques, attribut antéposé ignoré).
+              if (sujet.intitule.nomEpithete == condition.sujetComplement.nomEpithete) {
                 retVal = true;
               }
             } else if (sujet.intitule.toString() == condition.complement) {
@@ -989,8 +991,8 @@ export class ConditionsUtils {
       // « état introuvable » dans la console quand le complément est un élément valide.
       if (ClasseUtils.heriteDe(sujet.classe, EClasseRacine.intitule)) {
         if (condition.sujetComplement) {
-          resultCondition = (sujet.intitule.nom === condition.sujetComplement.nom)
-            && (sujet.intitule.epithete === condition.sujetComplement.epithete);
+          // comparaison sur l'intitulé COMPLET (avant + nom + après) — sinon l'attribut antéposé est ignoré.
+          resultCondition = (sujet.intitule.nomEpithete === condition.sujetComplement.nomEpithete);
         } else {
           resultCondition = (sujet.intitule.toString() == condition.complement);
         }
@@ -1038,12 +1040,12 @@ export class ConditionsUtils {
         case "l’":
         case "l'":
         case "les ":
-          resultCondition = (sujet.intitule.nom === condition.sujetComplement.nom) && (sujet.intitule.epithete === condition.sujetComplement.epithete);
+          resultCondition = (sujet.intitule.nomEpithete === condition.sujetComplement.nomEpithete);
           // si le complément est un groupe nominal, vérifier également les synonymes du sujet
           if (!resultCondition && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.element)) {
             if ((sujet as ElementJeu).synonymes?.length) {
               (sujet as ElementJeu).synonymes.forEach(syn => {
-                if (!resultCondition && (syn.nom === condition.sujetComplement.nom) && (syn.epithete === condition.sujetComplement.epithete)) {
+                if (!resultCondition && (syn.nomEpithete === condition.sujetComplement.nomEpithete)) {
                   resultCondition = true;
                 }
               });

@@ -303,9 +303,10 @@ export class AnalyseurElementPosition {
       // normalement l’élément concerné est le nouveau
       elementConcerne = newElementGenerique;
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      let newEleNom = newElementGenerique.nom.toLowerCase();
-      let newEleEpi = newElementGenerique.epithete?.toLowerCase() ?? null;
-      const filtered = ctx.elementsGeneriques.filter(x => x.nom.toLowerCase() == newEleNom && x.epithete?.toLowerCase() == newEleEpi);
+      // dédup sur l'intitulé COMPLET (avant + nom + après) : « le grand chat » et « le petit chat »
+      // sont des éléments distincts (même nom/épithète, attribut antéposé différent).
+      const newEleIntitule = newElementGenerique.nomEpithete.toLowerCase();
+      const filtered = ctx.elementsGeneriques.filter(x => x.nomEpithete.toLowerCase() == newEleIntitule);
 
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.

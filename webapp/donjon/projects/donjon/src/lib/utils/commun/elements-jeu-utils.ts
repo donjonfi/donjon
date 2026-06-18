@@ -1100,29 +1100,30 @@ export class ElementsJeuUtils {
    * @param nombre: Si indéfini on recherche dans intitulé par défaut, sinon on tient compte du genre pour recherche l’intitulé.
    */
   trouverObjetSurIntituleAvecScore(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre = Nombre.i, tolerant: boolean = false): [number, Objet[]] {
+    // Partition présents / non-présents calculée UNE fois (réutilisée par la passe stricte ET la passe tolérante).
+    const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
+    const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
     // 1) résolution STRICTE (exacte / quasi complète) — priorité absolue, même en cours de partie
     //    (une désambiguïsation entre intitulés complets ne doit pas être perturbée par le tolérant).
-    const strict = this.chercherObjetsParIntitule(recherche, prioriteObjetsPresents, nombre, false);
+    const strict = this.chercherObjetsParIntitule(recherche, prioriteObjetsPresents, nombre, false, objetsPresents, objetsNonPresents);
     // 2) en partie (tolerant), si rien de strict, retenter en TOLÉRANT : le joueur a pu ne taper qu'un morceau.
     if (strict[0] === 0.0 && tolerant) {
-      return this.chercherObjetsParIntitule(recherche, prioriteObjetsPresents, nombre, true);
+      return this.chercherObjetsParIntitule(recherche, prioriteObjetsPresents, nombre, true, objetsPresents, objetsNonPresents);
     }
     return strict;
   }
 
-  private chercherObjetsParIntitule(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre, tolerant: boolean): [number, Objet[]] {
+  private chercherObjetsParIntitule(recherche: GroupeNominal, prioriteObjetsPresents: boolean, nombre: Nombre, tolerant: boolean, objetsPresents: Objet[], objetsNonPresents: Objet[]): [number, Objet[]] {
 
     let objetsTrouvesPresents: [number, Objet[]];
     let objetsTrouvesNonPresents: [number, Objet[]];
 
     // chercher parmi les objets présents
-    const objetsPresents = this.jeu.objets.filter(x => x.etats.includes(this.jeu.etats.presentID));
     objetsTrouvesPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsPresents, recherche, nombre, tolerant);
 
     // si rien trouvé dans les objets présents ou si pas priorité présents, chercher dans les autres
     if (objetsTrouvesPresents[0] == 0.0 || !prioriteObjetsPresents) {
       // chercher parmi les objets NON présents
-      const objetsNonPresents = this.jeu.objets.filter(x => !x.etats.includes(this.jeu.etats.presentID));
       objetsTrouvesNonPresents = this.suiteTrouverObjetSurIntituleAvecScore(objetsNonPresents, recherche, nombre, tolerant);
       // retourner le meilleur score parmi les objets trouvés
       if (objetsTrouvesPresents[0] > objetsTrouvesNonPresents[0]) {

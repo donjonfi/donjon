@@ -20,6 +20,8 @@ export class GroupeNominal {
 
   /** Mots clés correspondants au groupe nominal (pour effectuer une recherche) */
   private _motsCles: string[];
+  /** Cache de {@link nomEpithete} (le GN est immuable après construction, comme pour _motsCles). */
+  private _nomEpithete: string;
 
   // un groupe nominal peut-être composé :
   // - [déterminant +] nom [+ épithète]
@@ -65,8 +67,11 @@ export class GroupeNominal {
    * Renvoie une chaine avec les attributs antéposés, le nom et l’épithète postposée (sans le déterminant).
    */
   public get nomEpithete(): string {
-    const epithete = (this.epithete ? (" " + this.epithete) : "");
-    return this.fragmentAvant + this.nom + epithete;
+    if (this._nomEpithete === undefined) {
+      const epithete = (this.epithete ? (" " + this.epithete) : "");
+      this._nomEpithete = this.fragmentAvant + this.nom + epithete;
+    }
+    return this._nomEpithete;
   }
 
   /** Transformer l’intitulé en mots clés (afin d’effectuer une recherche) */

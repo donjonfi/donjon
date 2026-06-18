@@ -209,9 +209,10 @@ export class AnalyseurElementSimple {
       elementConcerne = nouvelElementGenerique;
 
       // avant d'ajouter l'élément vérifier s'il existe déjà
-      let nomLower = nouvelElementGenerique.nom.toLowerCase();
-      let epiLower = nouvelElementGenerique.epithete?.toLowerCase();
-      const filtered = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == nomLower && x.epithete?.toLowerCase() == epiLower);
+      // dédup sur l'intitulé COMPLET (avant + nom + après) : « le grand chat » et « le petit chat »
+      // sont des éléments distincts (même nom/épithète, attribut antéposé différent).
+      const newIntitule = nouvelElementGenerique.nomEpithete.toLowerCase();
+      const filtered = ctxAnalyse.elementsGeneriques.filter(x => x.nomEpithete.toLowerCase() == newIntitule);
 
       if (filtered.length > 0) {
         // mettre à jour l'élément existant le plus récent.
