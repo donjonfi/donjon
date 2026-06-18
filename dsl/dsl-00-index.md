@@ -32,3 +32,4 @@
 - Actions de base : `regarder`, `examiner`, `prendre`, `poser`, `inventaire`, `aller`, `ouvrir`, `fermer`, `parler à`, `donner`... (si le fichier d'actions est inclus).
 - Accord grammatical automatique selon le genre et le nombre des éléments.
 - Gestion des états `vu`, `présent`, `adjacent`, `visité` automatiquement lors des déplacements.
+- État `lisible` automatique : un objet doté d'un `texte` non vide devient `lisible` (action `lire` activée) sans avoir à poser l'état ; vider le texte le retire. Vaut à la compilation et en cours de partie (`changer le texte de ...`).

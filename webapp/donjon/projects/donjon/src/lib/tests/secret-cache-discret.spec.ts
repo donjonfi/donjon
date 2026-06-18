@@ -6,7 +6,11 @@ import { CompilateurV8Utils } from "../utils/compilation/compilateur-v8-utils";
 import { Generateur } from "../utils/compilation/generateur";
 import { actions } from "./scenario_actions";
 
-const scenario = `        
+/** Retirer les marqueurs de lien tactile `@@lien:<id>@@` que les mentions [#/@/&] laissent dans la
+ *  sortie brute (le lecteur les transforme en liens / les retire) — pour comparer le texte visible. */
+const sansLiens = (s: string) => s.replace(/@@lien:\d+@@/g, '');
+
+const scenario = `
 Le salon est un lieu.
 
 La bibliothèque est un contenant ici.
@@ -111,7 +115,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
       .toEqual("Je ne l’ai pas encore vu.{N}");
 
     ctxCommande = ctxPartie.com.executerCommande("examiner la bibliothèque", false);
-    expect(ctxCommande.sortie)
+    expect(sansLiens(ctxCommande.sortie))
       .withContext("Le livre, déjà mentionné dans bibliothèque, ne doit pas être décrit une seconde fois.")
       .toEqual("Une bibliothèque. Un livre de cuisine dépasse.{N}");
 
@@ -213,7 +217,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
       .toEqual("Je n’ai pas trouvé {/parchemin/}.{N}{u}{/Entrez « {-aide examiner-} » pour afficher l’aide de cette action./}");
 
     ctxCommande = ctxPartie.com.executerCommande("lire lettre", false);
-    expect(ctxCommande.sortie).toEqual("La saviez-vous ? Sous le bureau il y a un parchemin");
+    expect(sansLiens(ctxCommande.sortie)).toEqual("La saviez-vous ? Sous le bureau il y a un parchemin");
     // => mentionné mais toujours caché
     expect(parchemin.etats).not.toContain(ctxPartie.jeu.etats.secretID);
     expect(parchemin.etats).toContain(ctxPartie.jeu.etats.cacheID);
@@ -272,7 +276,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
 
     // === action balleDecrire : balle devient vue mais reste discrète ===
     ctxCommande = ctxPartie.com.executerCommande("balleDecrire", false);
-    expect(ctxCommande.sortie).toEqual("Vous regardez autour de vous et apercevez une balle.{N}");
+    expect(sansLiens(ctxCommande.sortie)).toEqual("Vous regardez autour de vous et apercevez une balle.{N}");
     expect(balle.etats).toContain(ctxPartie.jeu.etats.discretID);
     expect(balle.etats).toContain(ctxPartie.jeu.etats.vuID);
     expect(balle.etats).toContain(ctxPartie.jeu.etats.mentionneID);
@@ -335,7 +339,7 @@ describe('Test du jeu avec secret, caché et discret', () => {
       .toEqual("Je ne l’ai pas encore vue.{N}");
 
     ctxCommande = ctxPartie.com.executerCommande("examiner lettre", false);
-    expect(ctxCommande.sortie).toEqual("En examinant la lettre vous remarquez une pièce cachée dessous.{N}"); // [@pièce][&pièce]
+    expect(sansLiens(ctxCommande.sortie)).toEqual("En examinant la lettre vous remarquez une pièce cachée dessous.{N}"); // [@pièce][&pièce]
 
     // mention « vue » et « familière » sur la pièce quand on lit la lettre
     expect(piece.etats).not.toContain(ctxPartie.jeu.etats.secretID);

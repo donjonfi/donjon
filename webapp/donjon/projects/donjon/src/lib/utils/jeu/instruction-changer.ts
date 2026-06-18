@@ -202,6 +202,20 @@ export class InstructionChanger {
                 break;
             }
 
+            // TEXTE ↔ LISIBLE automatique (parité avec la compilation, cf. Generateur) : donner un
+            //  texte non vide à un objet en cours de partie le rend « lisible » (action « lire »
+            //  disponible + verbe proposé en interface tactile) sans déclarer l’état explicitement ;
+            //  à l’inverse, vider le texte retire l’état « lisible ».
+            if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement
+                && propSujetTrouvee.nom === 'texte'
+                && ClasseUtils.heriteDe(instruction.proprieteSujet.element.classe, EClasseRacine.objet)) {
+              if (propSujetTrouvee.valeur?.trim()) {
+                this.jeu.etats.ajouterEtatElement(instruction.proprieteSujet.element, EEtatsBase.lisible, this.eju);
+              } else {
+                this.jeu.etats.retirerEtatElement(instruction.proprieteSujet.element, EEtatsBase.lisible, this.eju);
+              }
+            }
+
             // si suite à la modification de la quantité d’un objet, la quantité atteint 0, effacer l’objet.
             if (instruction.proprieteSujet.type === TypeProprieteJeu.proprieteElement && RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(propSujetTrouvee.nom) === RechercheUtils.transformerCaracteresSpeciauxEtMajuscules('quantité')) {
               if (ClasseUtils.heriteDe(instruction.proprieteSujet.element.classe, EClasseRacine.objet) && (instruction.proprieteSujet.element as Objet).quantite === 0) {

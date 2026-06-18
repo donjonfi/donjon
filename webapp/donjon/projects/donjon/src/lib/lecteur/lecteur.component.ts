@@ -572,6 +572,12 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.interfaceTactile !== 'desactive' && !this.tactileDesactiveParLeJeu) {
       this.partie.ecran.enrichisseurLiens = (html: string) =>
         LiensElementsUtils.enrichirLiens(html, LiensElementsUtils.construireCibles(this.partie.jeu, this.partie.eju));
+    } else {
+      // Tactile désactivé : pas d’enrichissement générique, mais on crée quand même les liens des
+      // mentions (`mot[@nom]`) — comme les autres liens, ils restent invisibles/inertes (CSS) tant
+      // que le tactile n’est pas réactivé. Cela évite aussi que le marqueur s’affiche au joueur.
+      this.partie.ecran.enrichisseurLiens = (html: string) =>
+        LiensElementsUtils.appliquerLiensMentions(html);
     }
 
     // Si le magnéto est actif (cas typique : reload après annuler), restaurer le flag

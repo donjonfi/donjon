@@ -511,6 +511,13 @@ export class Generateur {
         });
         newObjet.proprietes.push(...nouvellesProp);
 
+        // LISIBLE automatique : un objet doté d’un texte non vide devient « lisible » (action
+        //  « lire » disponible + verbe proposé en interface tactile) sans devoir déclarer l’état
+        //  explicitement. (Ne s’applique qu’au texte défini à la compilation.)
+        if (newObjet.texte?.trim()) {
+          jeu.etats.ajouterEtatElement(newObjet, EEtatsBase.lisible, ctx);
+        }
+
         // synonymes définis par l’auteur
         if (curEle.synonymes?.length) {
           newObjet.addSynonymes(curEle.synonymes)

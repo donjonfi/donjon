@@ -83,11 +83,6 @@
     }
     <small class="row m-0 p-0 pb-1">
       <div class="col p-1 astuce">
-        @if (tactileActif && !interruptionEnCours) {
-          <p class="mb-0">
-            Touchez un mot souligné pour interagir, ou le bouton « ⚡ Actions… » pour toutes les actions.
-          </p>
-        }
         @if (!tactileActif && !interruptionEnCours && dernieresCommandesDistinctes.length % 10 < 5) {
           <p class="mb-0">
             Tapez « <span class="t-commande">aide</span> » suivi de [<small>ENTER</small>] pour afficher les actions les

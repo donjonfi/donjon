@@ -347,11 +347,22 @@ export class VerbesElementsUtils {
   public static listerGroupesVerbesDirection(direction: Localisation, jeu: Jeu, eju: ElementsJeuUtils): GroupeVerbe[] {
     const parInfinitif = new Map<string, SuggestionVerbe>();
 
+    // Une direction est « regardable » s’il y a un aperçu à voir (aperçu du lieu de destination).
+    //  Sans aperçu, les verbes de simple observation (« regarder », « examiner »…) n’ont rien à
+    //  montrer : on ne propose alors que les verbes qui AGISSENT (déplacement). Parallèle à
+    //  « texte ⇒ lisible » : « aperçu ⇒ regardable ». Un verbe de déplacement reste toujours proposé.
+    const voisinLieuID = eju.getVoisinDirectionID(direction, EClasseRacine.lieu);
+    const directionAUnApercu = voisinLieuID !== -1 ? !!eju.getLieu(voisinLieuID)?.apercu : false;
+    const verbePertinentPourDirection = (action: Action) => directionAUnApercu || !!action.destinationDeplacement;
+
     jeu.actions.forEach(action => {
       if (!action.ceci || !action.cibleCeci || action.cela) {
         return;
       }
       if (!VerbesElementsUtils.cibleEstDirection(action.cibleCeci)) {
+        return;
+      }
+      if (!verbePertinentPourDirection(action)) {
         return;
       }
       if (!parInfinitif.has(action.infinitif)) {
@@ -379,7 +390,7 @@ export class VerbesElementsUtils {
       const action = jeu.actions.find(a => a.ceci && !a.cela && a.cibleCeci
         && (a.infinitif === infinitif || a.synonymes?.includes(infinitif))
         && VerbesElementsUtils.cibleEstIntitule(a.cibleCeci));
-      if (action) {
+      if (action && verbePertinentPourDirection(action)) {
         parInfinitif.set(infinitif, {
           infinitif,
           action,
@@ -436,8 +447,11 @@ export class VerbesElementsUtils {
   public static construireCommandeDirection(action: Action, direction: Localisation): string {
     let commande = action.infinitif;
     if (action.ceci) {
-      commande += ' ' + (action.prepositionCeci ? (action.prepositionCeci + ' ') : '')
-        + direction.intitule.determinant + direction.intitule.nom;
+      // Une direction se désigne naturellement avec « vers » (« regarder vers le nord »). Si
+      //  l’action déclare déjà une préposition pour ceci (ex. « aller vers »), on la conserve ;
+      //  sinon on insère « vers » par défaut (le moteur l’accepte, cf. « examiner vers le nord »).
+      const preposition = action.prepositionCeci || 'vers';
+      commande += ' ' + preposition + ' ' + direction.intitule.determinant + direction.intitule.nom;
     }
     return VerbesElementsUtils.contracter(commande);
   }

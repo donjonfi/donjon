@@ -15,7 +15,7 @@ désactiver les actions de base.
 -- les objets sont … ») ou les compléter (« Ajouter … aux actions
 -- principales du bandit. »).
 
-Les actions principales sont regarder, inventaire et aller.
+Les actions principales sont regarder, examiner, inventaire et aller.
 
 Les actions principales pour les objets sont examiner et prendre.
 Les actions secondaires pour les objets sont pousser, tirer, toucher, secouer et utiliser.

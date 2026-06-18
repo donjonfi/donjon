@@ -8,6 +8,10 @@ import { Generateur } from "../utils/compilation/generateur";
 
 import { actions } from "./scenario_actions";
 
+/** Retirer les marqueurs de lien tactile `@@lien:<id>@@` que les mentions [#/@/&] laissent dans la
+ *  sortie brute (le lecteur les transforme en liens / les retire) — pour comparer le texte visible. */
+const sansLiens = (s: string) => s.replace(/@@lien:\d+@@/g, '');
+
 const scenario = `        
 La caverne est un lieu.
 
@@ -131,7 +135,7 @@ describe('Test obstacle discret', () => {
 
     // regarder : fossé mentionné dans la description via [@fossé], pas affiché une deuxième fois
     let ctxCommande = ctxPartie.com.executerCommande("regarder", true);
-    expect(ctxCommande.sortie).toEqual(
+    expect(sansLiens(ctxCommande.sortie)).toEqual(
       "{_{*Le carrefour*}_}" +
       "{n}Un carrefour en pleine forêt. Vous remarquez un fossé à l'est.{N}" +
       "{U}Le grand rocher bloque la sortie (nord).{N}" +
@@ -161,7 +165,7 @@ describe('Test obstacle discret', () => {
 
     // regarder : grand rocher cité dans la description, pas affiché une deuxième fois en section obstacle
     let ctxCommande = ctxPartie.com.executerCommande("regarder", true);
-    expect(ctxCommande.sortie).toEqual(
+    expect(sansLiens(ctxCommande.sortie)).toEqual(
       "{_{*Le carrefour*}_}" +
       "{n}Un carrefour en pleine forêt. Le grand rocher barre le passage au nord.{N}" +
       "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- sud : ?{N}"
@@ -176,7 +180,7 @@ describe('Test obstacle discret', () => {
 
     // regarder à nouveau : grand rocher toujours absent de la section auto (description du lieu le mentionne déjà)
     ctxCommande = ctxPartie.com.executerCommande("regarder", true);
-    expect(ctxCommande.sortie).toEqual(
+    expect(sansLiens(ctxCommande.sortie)).toEqual(
       "{_{*Le carrefour*}_}" +
       "{n}Un carrefour en pleine forêt. Le grand rocher barre le passage au nord.{N}" +
       "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- sud : ?{N}"

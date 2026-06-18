@@ -3,6 +3,10 @@ import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 import { Generateur } from "../utils/compilation/generateur";
 import { actions } from "./scenario_actions";
 
+/** Retirer les marqueurs de lien tactile `@@lien:<id>@@` que les mentions [#/@/&] laissent dans la
+ *  sortie brute (le lecteur les transforme en liens / les retire) — pour comparer le texte visible. */
+const sansLiens = (s: string) => s.replace(/@@lien:\d+@@/g, '');
+
 const scenarioListerContenu = `
   Le salon est un lieu.
   Sa description est "Vous êtes dans un salon. Une chaise[#chaise] est adossée à la table.[#table]".
@@ -66,13 +70,13 @@ describe('Lister et décrire le contenu', () => {
 
     let ctxCommande = ctxPartie.com.executerCommande("examiner table", false);
 
-    expect(ctxCommande.sortie)
+    expect(sansLiens(ctxCommande.sortie))
       .withContext("Le contenu de la table doit être listé. Le livre ne doit être mentionné qu’une fois.")
       .toEqual('Une table en bois couverte de livres sur laquelle est adossée une chaise.{N}');
 
     ctxCommande = ctxPartie.com.executerCommande("regarder", false);
 
-      expect(ctxCommande.sortie)
+      expect(sansLiens(ctxCommande.sortie))
         .withContext("La chaise et la table ne doivent pas être mentionnées 2x.")
         .toEqual('{_{*Le salon*}_}{n}Vous êtes dans un salon. Une chaise est adossée à la table.{N}{P}Il n’y a pas de sortie.{N}');
 

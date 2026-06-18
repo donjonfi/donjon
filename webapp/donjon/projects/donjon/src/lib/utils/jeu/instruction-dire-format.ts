@@ -1,6 +1,7 @@
 import { Concept } from "../../models/compilateur/concept";
 import { ContexteTour } from "../../models/jouer/contexte-tour";
-import { EEtatsBase } from "../../models/commun/constantes";
+import { EClasseRacine, EEtatsBase } from "../../models/commun/constantes";
+import { ClasseUtils } from "../commun/classe-utils";
 import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { InstructionsUtils } from "./instructions-utils";
@@ -46,6 +47,10 @@ export class InstructionDireFormat {
         const type = decoupe[1];
         const elementJeu = decoupe[2];
         const correspondance = this.eju.trouverCorrespondance(PhraseUtils.getGroupeNominalDefini(elementJeu, false), TypeSujet.SujetEstNom, false, false);
+        // Remplacement de la balise : vide par défaut ; pour un objet résolu, un marqueur de lien
+        //  tactile `@@lien:<id>@@`. Le lecteur (enrichisseurLiens) transforme « mot@@lien:id@@ » en
+        //  lien cliquable sur le mot qui précède (interface tactile) ; il est retiré sinon.
+        let remplacement = "";
         if (correspondance.nbCor == 1) {
           const conceptCible = correspondance.unique as Concept;
           if (type == '#') {
@@ -61,6 +66,10 @@ export class InstructionDireFormat {
           } else {
             throw new Error(`Type balise pas prise en charge type=${type}`);
           }
+          // lien tactile uniquement vers un objet (les `#E<id>` du lecteur ciblent des objets)
+          if (ClasseUtils.heriteDe(conceptCible.classe, EClasseRacine.objet)) {
+            remplacement = '@@lien:' + conceptCible.id + '@@';
+          }
         } else {
           if (correspondance.nbCor == 0) {
             ctxTour.ajouterErreurDerniereInstruction(`Mention « ${curBalise} »: aucune correspondance.`);
@@ -68,7 +77,7 @@ export class InstructionDireFormat {
             ctxTour.ajouterErreurDerniereInstruction(`Mention « ${curBalise} »: plusieurs correspondances.`);
           }
         }
-        texteDynamique = texteDynamique.replace(new RegExp("\\[" + type + "\\s?" + elementJeu + "\\]", "g"), "");
+        texteDynamique = texteDynamique.replace(new RegExp("\\[" + type + "\\s?" + elementJeu + "\\]", "g"), remplacement);
       }
     }
     return texteDynamique;
