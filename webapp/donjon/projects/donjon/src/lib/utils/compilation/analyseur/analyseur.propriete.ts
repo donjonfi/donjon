@@ -60,13 +60,10 @@ export class AnalyseurPropriete {
           // sinon (base ≠ fond propre) : on laisse le flux normal (qui signalera « élément pas trouvé »).
         }
 
-        const elementConcerneIntitule = ExprReg.xGroupeNominalArticleDefini.exec(elementConcerneBrut);
-        if (elementConcerneIntitule) {
-          const elementConcerneNom = elementConcerneIntitule[2].toLowerCase();
-          const elementConcerneEpithete = elementConcerneIntitule[3] ? elementConcerneIntitule[3].toLowerCase() : null;
-          // retrouver l’élément générique concerné
-          const elementsTrouves = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == elementConcerneNom && x.epithete?.toLowerCase() == elementConcerneEpithete);
-
+        // Résolution par intitulé COMPLET (gère l’attribut antéposé « le grand chat poilu » via
+        // GroupeNominal.analyser, là où xGroupeNominalArticleDefini échouait à le découper).
+        const { gn: gnConcerne, elements: elementsTrouves } = ctxAnalyse.trouverElementsGeneriquesParIntitule(elementConcerneBrut);
+        if (gnConcerne) {
           if (elementsTrouves.length === 1) {
             elementCible = elementsTrouves[0];
           } else {
@@ -75,10 +72,10 @@ export class AnalyseurPropriete {
             // - phrase multi-morceaux (valeur entre guillemets)
             const estSurementUnePropriete = (result[6] === "vaut" || result[6] === "valent") || phrase.morceaux.length > 1;
             if (estSurementUnePropriete) {
-              const elementsSuggeres = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == elementConcerneNom);
+              const elementsSuggeres = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == gnConcerne.nom);
               let corps = "L'élément « " + elementConcerneBrut + " » n'a pas été trouvé.";
               if (elementsSuggeres.length > 0) {
-                const noms = elementsSuggeres.map(x => x.epithete ? x.epithete + " " + x.nom : x.nom);
+                const noms = elementsSuggeres.map(x => x.nomEpithete);
                 corps += " Élément(s) portant ce nom : « " + noms.join("», «") + " ».";
               }
               ctxAnalyse.erreur(phrase, undefined,

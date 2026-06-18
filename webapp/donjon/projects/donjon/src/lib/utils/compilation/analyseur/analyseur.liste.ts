@@ -65,7 +65,8 @@ export class AnalyseurListe {
               ctxAnalyse.dernierElementGenerique.valeursNombre.push(Number.parseInt(morceau));
             } else if (morceau.match(ExprReg.xNombreDecimal)) {
               ctxAnalyse.dernierElementGenerique.valeursNombre.push(Number.parseFloat(morceau));
-            } else if (morceau.match(ExprReg.xGroupeNominalArticleDefini)) {
+            } else if (PhraseUtils.getGroupeNominalDefini(morceau, false)) {
+              // intitulé : découpage via l'analyseur central (gère l'attribut antéposé « le grand chat poilu »).
               ctxAnalyse.dernierElementGenerique.valeursIntitule.push(PhraseUtils.getGroupeNominalDefini(morceau, false));
             } else {
               ctxAnalyse.ajouterErreur(phrase.ligne, 'Format attendu pour les valeurs à ajouter à la liste: élément1, élément2 et élément3. Il doit s’agir soit de nombres, soit d’intitulés, soit de textes.');

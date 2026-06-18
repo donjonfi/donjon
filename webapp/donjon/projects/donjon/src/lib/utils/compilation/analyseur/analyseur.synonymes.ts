@@ -113,23 +113,20 @@ export class AnalyseurSynonymes {
         }
       } else {
         // tester si l’original est un GROUPE NOMINAL
-        let resultatGn = ExprReg.xGroupeNominalArticleDefini.exec(originalBrut);
-        if (resultatGn) {
-          let determinant = resultatGn[1] ? resultatGn[1] : null;
-          let nom = resultatGn[2];
-          let epithete = resultatGn[3] ? resultatGn[3] : null;
-          // retrouver l’élément générique correspondant
-          let nomLower = nom.toLowerCase();
-          let epiLower = epithete?.toLowerCase();
-          let elementsTrouves = ctxAnalyse.elementsGeneriques.filter(x => x.nom.toLowerCase() == nomLower && x.epithete?.toLowerCase() == epiLower);
+        const { gn: gnOriginal, elements: elementsExacts } = ctxAnalyse.trouverElementsGeneriquesParIntitule(originalBrut);
+        if (gnOriginal) {
+          let elementsTrouves = elementsExacts;
           // repli tolérant au singulier/pluriel : utile pour les ressources déclarées au pluriel
           //  (« les points de vie ») référencées au singulier (« interpréter pv comme point de vie »),
           //  y compris les groupes « X de Y » où le pluriel porte sur le mot de tête. La forme de tête
           //  est appliquée des deux côtés (comparaison symétrique → fiable même si imparfaite).
           if (elementsTrouves.length === 0) {
-            const teteOriginal = MotUtils.getSingulierTete(nomLower);
+            const teteOriginal = MotUtils.getSingulierTete(gnOriginal.nom);
+            const epiLower = gnOriginal.epithete?.toLowerCase() ?? null;
+            const avantLower = gnOriginal.epithetesAvant.join(' ');
             elementsTrouves = ctxAnalyse.elementsGeneriques.filter(x => {
-              if ((x.epithete?.toLowerCase() ?? null) !== (epiLower ?? null)) { return false; }
+              if ((x.epithete?.toLowerCase() ?? null) !== epiLower) { return false; }
+              if (x.epithetesAvant.join(' ').toLowerCase() !== avantLower) { return false; }
               return [x.nom, x.nomS, x.nomP]
                 .filter(Boolean)
                 .some(forme => MotUtils.getSingulierTete(forme.toLowerCase()) === teteOriginal);
@@ -139,13 +136,9 @@ export class AnalyseurSynonymes {
           if (elementsTrouves.length === 1) {
             let elementTrouve = elementsTrouves[0];
             listeSynonymesBruts.forEach(synonymeBrut => {
-              // s’il s’agit d’un verbe, l’ajouter la liste des synonymes
-              resultatGn = ExprReg.xGroupeNominalArticleDefini.exec(synonymeBrut);
-              if (resultatGn) {
-                determinant = resultatGn[1] ? resultatGn[1] : null;
-                nom = resultatGn[2];
-                epithete = resultatGn[3] ? resultatGn[3] : null;
-                const synonyme = new GroupeNominal(determinant, nom, epithete);
+              // le synonyme doit lui-même être un groupe nominal (éventuellement à attribut antéposé)
+              const synonyme = GroupeNominal.analyser(synonymeBrut);
+              if (synonyme) {
                 // ajouter le synonyme à l’élément
                 elementTrouve.synonymes.push(synonyme);
               } else {

@@ -3,6 +3,7 @@ import { CategorieMessage, CodeMessage, EMessageAnalyse, MessageAnalyse } from "
 import { BlocInstructions } from "./bloc-instructions";
 import { ContexteAnalyse } from "./contexte-analyse";
 import { ElementGenerique } from "./element-generique";
+import { GroupeNominal } from "../commun/groupe-nominal";
 import { Phrase } from "./phrase";
 import { Routine } from "./routine";
 import { RoutineAction } from "./routine-action";
@@ -197,6 +198,23 @@ export class ContexteAnalyseV8 extends ContexteAnalyse {
       this.logResultatKo(`trouverElement: plusieurs résultats trouvés pour « ${nom}${epithete ? (' ' + epithete) : ''} »`);
     }
     return retVal;
+  }
+
+  /**
+   * Retrouve les éléments génériques dont l’intitulé complet (attribut antéposé + nom + épithète
+   * postposée) correspond à l’intitulé brut fourni. Contrairement à {@link trouverElementGenerique}
+   * (qui compare nom/épithète champ à champ), accepte un intitulé portant un attribut ANTÉPOSÉ
+   * (« le grand chat poilu ») : il est découpé via {@link GroupeNominal.analyser} puis comparé sur
+   * {@link ElementGenerique.nomEpithete}. Le déterminant est optionnel (« grand chat poilu » comme
+   * « le grand chat poilu »).
+   * @returns le GN analysé (undefined si la chaîne n’est pas un groupe nominal) et les éléments correspondants.
+   */
+  public trouverElementsGeneriquesParIntitule(intituleBrut: string): { gn: GroupeNominal | undefined, elements: ElementGenerique[] } {
+    const gn = GroupeNominal.analyser(intituleBrut, { forcerMinuscules: true });
+    if (!gn) { return { gn: undefined, elements: [] }; }
+    const cible = gn.nomEpithete;
+    const elements = this.elementsGeneriques.filter(x => x.nomEpithete.toLowerCase() === cible);
+    return { gn, elements };
   }
 
 }

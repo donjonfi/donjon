@@ -453,10 +453,10 @@ export class Generateur {
           newObjet.intituleP = new GroupeNominal(curEle.determinant, curEle.nomP ?? curEle.nom, curEle.epithete, curEle.epithetesAvant);
           // le singulier est fourni
           if (curEle.nomS) {
-            newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS, curEle.epithetesAvant);
+            newObjet.intituleS = new GroupeNominal(null, curEle.nomS, curEle.epitheteS, curEle.epithetesAvant.map(a => MotUtils.getSingulier(a)));
             // le singulier est calculé (tête : « pommes de terre » → « pomme de terre »)
           } else {
-            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulierTete(curEle.nom), MotUtils.getSingulier(curEle.epithete), curEle.epithetesAvant);
+            newObjet.intituleS = new GroupeNominal(null, MotUtils.getSingulierTete(curEle.nom), MotUtils.getSingulier(curEle.epithete), curEle.epithetesAvant.map(a => MotUtils.getSingulier(a)));
           }
           // Déterminer PLURIEL à partir du singulier.
         } else if (curEle.nombre == Nombre.s) {
@@ -464,10 +464,10 @@ export class Generateur {
           newObjet.intituleS = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
           // le pluriel est fourni
           if (curEle.nomP) {
-            newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP, curEle.epithetesAvant);
+            newObjet.intituleP = new GroupeNominal(null, curEle.nomP, curEle.epitheteP, curEle.epithetesAvant.map(a => MotUtils.getPluriel(a)));
             // le pluriel est calculé (tête : « point de vie » → « points de vie »)
           } else {
-            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPlurielTete(curEle.nom), MotUtils.getPluriel(curEle.epithete), curEle.epithetesAvant);
+            newObjet.intituleP = new GroupeNominal(null, MotUtils.getPlurielTete(curEle.nom), MotUtils.getPluriel(curEle.epithete), curEle.epithetesAvant.map(a => MotUtils.getPluriel(a)));
           }
         } else if (curEle.nombre == Nombre.tp) {
           // on a déjà le pluriel
