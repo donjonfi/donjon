@@ -576,23 +576,37 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(html).toContain('href="#D-h"');
   });
 
-  it('[F062-T214] listerGroupesVerbesDirection : aller et regarder principales (défauts actions.djn)', () => {
+  it('[F062-T214] listerGroupesVerbesDirection : direction sans aperçu → seul « aller » (pas « regarder »)', () => {
+    // la cave n’a pas d’aperçu → rien à voir : on ne propose pas « regarder vers le nord ».
     const ctx = commencerPartie(`La cave est un lieu au nord du salon.`);
+    const groupes = VerbesElementsUtils.listerGroupesVerbesDirection(Localisation.Nord, ctx.jeu, ctx.eju);
+
+    const infinitifs = groupes.map(g => g.infinitif);
+    expect(infinitifs).toContain('aller');
+    expect(infinitifs).not.toContain('regarder');
+    expect(infinitifs).not.toContain('examiner');
+
+    const aller = groupes.find(g => g.infinitif === 'aller');
+    expect(aller.simple.commande).toEqual('aller vers le nord');
+    ctx.com.executerCommande('aller vers le nord', false);
+    expect(ctx.eju.curLieu.nom).toEqual('cave');
+  });
+
+  it('[F062-T214b] listerGroupesVerbesDirection : direction avec aperçu → « aller » ET « regarder »', () => {
+    // la cave a un aperçu (« regardable ») → « regarder vers le nord » a du sens et est proposé.
+    const ctx = commencerPartie(`La cave est un lieu au nord du salon.
+Son aperçu est "Une cave sombre et humide.".`);
     const groupes = VerbesElementsUtils.listerGroupesVerbesDirection(Localisation.Nord, ctx.jeu, ctx.eju);
 
     const principales = groupes.filter(g => g.niveau === 'principale').map(g => g.infinitif);
     expect(principales).toEqual(['aller', 'regarder']);
 
-    const aller = groupes.find(g => g.infinitif === 'aller');
-    expect(aller.simple.commande).toEqual('aller vers le nord');
     const regarder = groupes.find(g => g.infinitif === 'regarder');
-    expect(regarder.simple.commande).toEqual('regarder le nord');
+    expect(regarder.simple.commande).toEqual('regarder vers le nord');
 
-    // les commandes construites sont comprises par le moteur
-    const sortieRegarder = ctx.com.executerCommande('regarder le nord', false).sortie;
-    expect(sortieRegarder.length).toBeGreaterThan(0);
-    ctx.com.executerCommande('aller vers le nord', false);
-    expect(ctx.eju.curLieu.nom).toEqual('cave');
+    // la commande construite est comprise par le moteur et affiche l’aperçu
+    const sortieRegarder = ctx.com.executerCommande('regarder vers le nord', false).sortie;
+    expect(sortieRegarder).withContext(sortieRegarder).toContain('Une cave sombre et humide.');
   });
 
   it('[F062-T215] listerVerbesGlobaux : « aller » proposé avec choix de direction quand une sortie existe', () => {
@@ -748,8 +762,8 @@ describe('Interface tactile — actions principales et secondaires', () => {
 
   it('[F062-T223] « Les actions principales sont … » (défaut actions.djn) : règle globale sans cible', () => {
     const ctx = commencerPartie();
-    // défaut actions.djn : « Les actions principales sont regarder, inventaire et aller. »
-    expect(ActionsTactilesUtils.resoudreGlobales('principales', ctx.jeu)).toEqual(['regarder', 'inventaire', 'aller']);
+    // défaut actions.djn : « Les actions principales sont regarder, examiner, inventaire et aller. »
+    expect(ActionsTactilesUtils.resoudreGlobales('principales', ctx.jeu)).toEqual(['regarder', 'examiner', 'inventaire', 'aller']);
     // une règle globale ne pollue pas la résolution par élément
     const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
     expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre']);
@@ -772,6 +786,7 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(infinitifs).toContain('inventaire');
     expect(infinitifs).toContain('aller');
     expect(infinitifs).toContain('regarder');
+    expect(infinitifs).toContain('examiner');
     // « regarder » déjà présent via les dernières commandes : pas de doublon
     expect(infinitifs.filter(i => i === 'regarder').length).toBe(1);
 
@@ -780,6 +795,25 @@ describe('Interface tactile — actions principales et secondaires', () => {
     expect(inventaire.simple.commande).toEqual('afficher inventaire');
     expect(inventaire.simple.attendCeci).toBeFalse();
     expect(inventaire.simple.attendCela).toBeFalse();
+  });
+
+  it('[F062-T227] « afficher inventaire » dans l’historique ne fait pas doublon « afficher » (inventaire déjà épinglé)', () => {
+    const ctx = commencerPartie(`La cuisine est un lieu au nord du salon.`);
+
+    const comp = new MenuTactileComponent();
+    comp.jeu = ctx.jeu;
+    comp.eju = ctx.eju;
+    comp.cible = null;
+    comp.cibleDirection = null;
+    // le joueur vient d’ouvrir l’inventaire (via le bouton inventaire forcé)
+    comp.dernieresCommandes = ['afficher inventaire'];
+    comp.ngOnChanges();
+
+    const infinitifs = comp.groupesRecents.map(g => g.infinitif);
+    // le verbe brut « afficher » n’est PAS répété dans les dernières actions…
+    expect(infinitifs).not.toContain('afficher');
+    // …car l’inventaire reste accessible via son raccourci épinglé
+    expect(infinitifs).toContain('inventaire');
   });
 
   it('[F062-T225] menu global : un verbe épinglé indisponible n’est pas proposé (« aller » sans sortie)', () => {

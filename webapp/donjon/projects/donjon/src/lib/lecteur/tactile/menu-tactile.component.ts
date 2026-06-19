@@ -181,6 +181,10 @@ export class MenuTactileComponent implements OnChanges {
    */
   private calculerGroupesRecents(): GroupeVerbe[] {
     const recents: GroupeVerbe[] = [];
+    // Verbes sous-jacents aux raccourcis épinglés (ex. « afficher » pour « inventaire ») : déjà
+    //  représentés par leur propre bouton-raccourci, on ne les répète pas dans les dernières
+    //  actions (sinon « afficher inventaire » ferait doublon avec le bouton inventaire forcé).
+    const actionsRaccourcis = new Set(Object.values(RACCOURCIS_ACTIONS_TACTILES).map(r => r.action));
     // la plus récente en dernier dans l’historique → parcourir à rebours
     for (let i = (this.dernieresCommandes?.length ?? 0) - 1; i >= 0 && recents.length < MenuTactileComponent.NB_RECENTS; i--) {
       const premierMot = this.dernieresCommandes[i]?.trim().toLowerCase().split(' ')[0];
@@ -189,7 +193,7 @@ export class MenuTactileComponent implements OnChanges {
       }
       const groupe = this.groupes.find(g => g.infinitif === premierMot
         || [g.simple, ...g.variantes].some(v => v.action.synonymes?.includes(premierMot)));
-      if (groupe && !recents.includes(groupe)) {
+      if (groupe && !actionsRaccourcis.has(groupe.infinitif) && !recents.includes(groupe)) {
         recents.push(groupe);
       }
     }

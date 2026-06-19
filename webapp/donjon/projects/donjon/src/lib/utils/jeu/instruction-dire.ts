@@ -102,9 +102,11 @@ export class InstructionDire {
     // > RETOURS CONDITIONNELS
     // ===================================================
 
-    // retirer toutes les balises de style
-    // => cela permet de savoir s’il y a du texte autre que les balises de style.
-    const texteDynamiqueSansBaliseStyle = TexteUtils.enleverBalisesStyleDonjon(texteDynamique);
+    // retirer toutes les balises de style (+ les marqueurs de lien tactile `@@lien:<id>@@`, qui ne
+    // sont pas du texte visible) => permet de savoir s’il y a du texte réel et de détecter la
+    // ponctuation finale même quand une mention `[@nom]` termine la phrase (sinon le retour à la
+    // ligne automatique du « point final » serait supprimé par le marqueur en fin de texte).
+    const texteDynamiqueSansBaliseStyle = TexteUtils.enleverBalisesStyleDonjon(texteDynamique).replace(/@@lien:\d+@@/g, "");
 
     if (texteDynamique.includes("{N}")) {
       // texte vide

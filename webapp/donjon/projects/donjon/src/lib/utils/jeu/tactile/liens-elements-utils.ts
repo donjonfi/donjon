@@ -100,7 +100,16 @@ export class LiensElementsUtils {
    * qu’une seule fois.
    */
   public static enrichirLiens(html: string, cibles: CibleLien[]): string {
-    if (!html || !cibles.length || !html.length) {
+    if (!html || !html.length) {
+      return html;
+    }
+
+    // Liens « annotés » par une mention dans le texte de l’auteur (`mot[@nom]`, `[#nom]`, `[&nom]`) :
+    //  le moteur a résolu l’élément et laissé un marqueur `@@lien:<id>@@`. On rend le MOT QUI PRÉCÈDE
+    //  cliquable. Fait AVANT l’enrichissement générique (le mot, déjà dans un <a>, ne sera pas re-traité).
+    html = LiensElementsUtils.appliquerLiensMentions(html);
+
+    if (!cibles.length) {
       return html;
     }
 
@@ -169,6 +178,32 @@ export class LiensElementsUtils {
     }
 
     return retVal;
+  }
+
+  /**
+   * Marqueur de lien tactile « annoté » laissé par le moteur (cf. instruction-dire-format) :
+   * `mot@@lien:<id>@@`. Le groupe optionnel capture le mot qui précède immédiatement le marqueur
+   * (lettres/chiffres accentués, apostrophe, trait d’union) — c’est lui qui devient cliquable.
+   */
+  private static readonly REGEX_MARQUEUR_LIEN = /([\p{L}\p{N}'’-]+)?@@lien:(\d+)@@/gu;
+
+  /**
+   * Transformer les marqueurs de mention `mot@@lien:<id>@@` en lien tactile sur le MOT qui précède
+   * (« fruit@@lien:5@@ » → « <a href="#E5">fruit</a> »). Sans mot précédent (début de texte ou
+   * juste après une balise, ex. `</span>@@lien:5@@`), le marqueur est simplement retiré.
+   *
+   * Public car appelé seul (sans enrichissement générique) quand le tactile est momentanément
+   * désactivé : comme les autres liens, le `<a>` est créé mais rendu invisible/inerte par le CSS
+   * tant que `.tactile-actif` est absent — la bascule clavier ⇄ tactile le révèle sans re-rendu.
+   */
+  public static appliquerLiensMentions(html: string): string {
+    if (!html || !html.includes('@@lien:')) {
+      return html;
+    }
+    return html.replace(LiensElementsUtils.REGEX_MARQUEUR_LIEN, (_m, mot, id) =>
+      mot
+        ? '<a class="djn-lien-tactile" href="#E' + id + '" role="button">' + mot + '</a>'
+        : '');
   }
 
   /** Entourer les libellés trouvés dans le texte d’un lien cliquable. */
