@@ -8,8 +8,11 @@
   },
   "scripts": {
     "ng": "ng",
+    "ensure-standalone": "node ensure-standalone.js",
+    "prestart": "node ensure-standalone.js",
     "start": "ng serve donjon-creer --configuration development",
     "start:compagnon": "ng serve donjon-compagnon --configuration development",
+    "prebuild": "node ensure-standalone.js",
     "build": "ng build",
     "build:compagnon": "ng build donjon-compagnon --configuration bundle && node ../../scripts/sync-compagnon.js",
     "watch": "ng build --watch --configuration development",
