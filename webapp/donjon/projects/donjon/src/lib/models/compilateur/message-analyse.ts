@@ -19,8 +19,8 @@ export class MessageAnalyse {
   constructor(
     /** Type de message (conseil, probleme, erreur) */
     public type: EMessageAnalyse,
-    /** Phrase du scénario concernée */
-    phrase: Phrase,
+    /** Phrase du scénario concernée (peut être absente pour un message de génération) */
+    phrase: Phrase | undefined,
     /** Catégorie du message */
     public categorie: CategorieMessage,
     /** Code du message */
@@ -33,9 +33,11 @@ export class MessageAnalyse {
     routine: Routine | undefined = undefined,
     /** La phrase provient-elle du fichier avec les actions de base ? */
     public fichierAction: boolean,
+    /** Numéro de ligne de repli quand aucune phrase n’est associée (ex. génération). */
+    ligne: number | undefined = undefined,
   ) {
-    this.numeroLigne = phrase.ligne;
-    this.phrase = phrase.toString();
+    this.numeroLigne = phrase ? phrase.ligne : (ligne ?? 0);
+    this.phrase = phrase ? phrase.toString() : "";
     this.titreRoutine = routine?.titre ?? undefined;
   }
 
@@ -91,6 +93,8 @@ export enum CategorieMessage {
 
   placement = "placement",
   type = "type",
+
+  generation = "generation",
 
 }
 
@@ -200,5 +204,36 @@ export enum CodeMessage {
 
   /** type: le type parent d’un type personnalisé a été défini plusieurs fois. */
   typeParentRedefini = "type/type_parent_redefini",
+
+  /** génération: intitulé d’une valeur de propriété non supporté. */
+  generationIntituleNonSupporte = "generation/intitule_non_supporte",
+  /** génération: position d’un élément introuvable. */
+  generationPositionIntrouvable = "generation/position_introuvable",
+  /** génération: élément positionné à plusieurs endroits (non autorisé hors lieux/obstacles). */
+  generationPositionsMultiples = "generation/positions_multiples",
+  /** génération: une action est définie plusieurs fois. */
+  generationActionDupliquee = "generation/action_dupliquee",
+  /** génération: « règle remplacer » correspond à plusieurs actions (ambiguë). */
+  generationRegleRemplacerAmbigue = "generation/regle_remplacer_ambigue",
+  /** génération: deux « règle remplacer » pour la même action. */
+  generationRegleRemplacerMultiple = "generation/regle_remplacer_multiple",
+  /** génération: aucune commande trouvée pour la règle. */
+  generationRegleSansCommande = "generation/regle_sans_commande",
+  /** génération: plusieurs commandes trouvées pour la règle. */
+  generationRegleCommandesMultiples = "generation/regle_commandes_multiples",
+  /** génération: positionnement d’un lieu — position relative pas trouvée. */
+  generationLieuPositionIntrouvable = "generation/lieu_position_introuvable",
+  /** génération: positionnement d’un lieu — lieu lié pas trouvé. */
+  generationLieuLieIntrouvable = "generation/lieu_lie_introuvable",
+  /** génération: négation d’un état qui n’existe pas. */
+  generationEtatNegationInexistant = "generation/etat_negation_inexistant",
+  /** génération: état déjà déclaré (moteur ou déclaration précédente). */
+  generationEtatDejaDeclare = "generation/etat_deja_declare",
+  /** génération: bascule sur un état déjà déclaré. */
+  generationBasculeEtatDejaDeclare = "generation/bascule_etat_deja_declare",
+  /** génération: groupe « se contredisent » sur un état déjà déclaré. */
+  generationGroupeEtatDejaDeclare = "generation/groupe_etat_deja_declare",
+  /** génération: état utilisé dans une relation inexistant (création auto désactivée). */
+  generationEtatRelationInexistant = "generation/etat_relation_inexistant",
 
 }

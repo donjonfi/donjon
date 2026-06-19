@@ -33,6 +33,7 @@ import { RACCOURCIS_ACTIONS_TACTILES } from '../../models/jeu/regle-actions-tact
 import { RechercheUtils } from '../commun/recherche-utils';
 import { Regle } from '../../interfaces/compilateur/regle';
 import { ResultatCompilation } from '../../models/compilateur/resultat-compilation';
+import { CategorieMessage, CodeMessage } from '../../models/compilateur/message-analyse';
 import { StringUtils } from '../commun/string.utils';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 import { Voisin } from '../../models/jeu/voisin';
@@ -491,7 +492,7 @@ export class Generateur {
                 newObjet.intituleS = newObjet.intitule;
               }
             } else {
-              ctx.ajouterErreur("L’intitulé « " + pro.valeur + " » n’est pas supporté (" + pro.nom + " => " + newObjet.nom + ")");
+              ctx.probleme(CategorieMessage.generation, CodeMessage.generationIntituleNonSupporte, "Intitulé non supporté", "L’intitulé « " + pro.valeur + " » n’est pas supporté (" + pro.nom + " => " + newObjet.nom + ")");
             }
             // autres propriétés
           } else {
@@ -608,12 +609,12 @@ export class Generateur {
                 // >> pas trouvé de contenant
               } else {
                 //console.warn("position élément jeu pas trouvé:", (curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "")), curPositionString);
-                ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curPositionString.positionToString());
+                ctx.probleme(CategorieMessage.generation, CodeMessage.generationPositionIntrouvable, "Position introuvable", 'Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curPositionString.positionToString());
               }
             }
 
             if (curEle.positionString.length > 1) {
-              ctx.ajouterErreur('L’élément « ' + curEle.elIntitule + ' » : a été positionné à plusieurs endroits. Seuls les lieux et les obstacles peuvent avoir plusieurs positions (relatives).');
+              ctx.probleme(CategorieMessage.generation, CodeMessage.generationPositionsMultiples, "Positions multiples non autorisées", 'L’élément « ' + curEle.elIntitule + ' » : a été positionné à plusieurs endroits. Seuls les lieux et les obstacles peuvent avoir plusieurs positions (relatives).');
             }
 
           };
@@ -636,7 +637,7 @@ export class Generateur {
     //  introuvable (vraie faute d'auteur : nom inexistant / faute de frappe).
     placementsADifferer.forEach(({ newObjet, curEle, curPositionString }) => {
       if (!Generateur.resoudrePositionSurContenant(jeu, ctx, newObjet, curPositionString)) {
-        ctx.ajouterErreur('Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curPositionString.positionToString());
+        ctx.probleme(CategorieMessage.generation, CodeMessage.generationPositionIntrouvable, "Position introuvable", 'Élément « ' + curEle.elIntitule + ' » : position pas trouvée : ' + curPositionString.positionToString());
       }
     });
 
@@ -675,7 +676,7 @@ export class Generateur {
       if (action.remplace) return;
       const doublon = jeu.actions.find(a => memeSignature(a, action));
       if (doublon) {
-        ctx.ajouterErreur(`L’action « ${signatureLisible(action)} »${detailCibleLisible(action)} est définie plusieurs fois. Pour modifier le comportement d’une action existante, utilisez « règle remplacer ${signatureLisible(action)} ».`);
+        ctx.probleme(CategorieMessage.generation, CodeMessage.generationActionDupliquee, "Action définie plusieurs fois", `L’action « ${signatureLisible(action)} »${detailCibleLisible(action)} est définie plusieurs fois. Pour modifier le comportement d’une action existante, utilisez « règle remplacer ${signatureLisible(action)} ».`);
         return;
       }
       jeu.actions.push(action);
@@ -694,12 +695,12 @@ export class Generateur {
         jeu.tamponConseils.push(`« règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} ne correspond à aucune action existante — une nouvelle action est créée.`);
         jeu.actions.push(action);
       } else if (indexMatches.length > 1) {
-        ctx.ajouterErreur(`« règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} correspond à ${indexMatches.length} actions existantes — précisez davantage le bloc « définitions: » pour lever l’ambiguïté.`);
+        ctx.probleme(CategorieMessage.generation, CodeMessage.generationRegleRemplacerAmbigue, "Règle remplacer ambiguë", `« règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} correspond à ${indexMatches.length} actions existantes — précisez davantage le bloc « définitions: » pour lever l’ambiguïté.`);
       } else {
         // Vérifier qu’aucune autre « règle remplacer » n’a déjà ciblé cette action.
         const dejaRemplacee = jeu.actions[indexMatches[0]].remplace;
         if (dejaRemplacee) {
-          ctx.ajouterErreur(`Deux « règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} pour la même action : une seule règle de remplacement est autorisée par action.`);
+          ctx.probleme(CategorieMessage.generation, CodeMessage.generationRegleRemplacerMultiple, "Règle remplacer en double", `Deux « règle remplacer ${signatureLisible(action)} »${detailCibleLisible(action)} pour la même action : une seule règle de remplacement est autorisée par action.`);
         } else {
           // garder une référence vers l’action originale écrasée pour traçabilité dans l’aperçu.
           action.actionRemplacee = jeu.actions[indexMatches[0]];
@@ -829,7 +830,7 @@ export class Generateur {
                 let ctxCom = com.decomposerCommande(ev.commandeComprise);
                 // aucune commande trouvée
                 if (ctxCom.candidats.length == 0) {
-                  ctx.ajouterErreur(`❌ Pas trouvé de commande pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
+                  ctx.probleme(CategorieMessage.generation, CodeMessage.generationRegleSansCommande, "Règle sans commande associée", `❌ Pas trouvé de commande pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
                   // une commande se démarque
                 } else if ((ctxCom.candidats.length == 1) || (ctxCom.candidats[0].score > ctxCom.candidats[1].score)) {
                   const cmd = ctxCom.candidats[0];
@@ -855,7 +856,7 @@ export class Generateur {
 
                   // aucune commande ne se démarque
                 } else {
-                  ctx.ajouterErreur(`❌ Plusieurs commandes trouvées pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
+                  ctx.probleme(CategorieMessage.generation, CodeMessage.generationRegleCommandesMultiples, "Règle : plusieurs commandes", `❌ Plusieurs commandes trouvées pour la règle ${regle.typeRegle} ${regle.evenements[0].commandeComprise}`)
                 }
               } else {
                 //TODO: check si on peut complètement supprimer l'erreur ou si elle est pertinante dans certains cas
@@ -877,6 +878,11 @@ export class Generateur {
     // ajouter les erreurs
     if (ctx.erreurs.length) {
       jeu.tamponErreurs.push(...ctx.erreurs);
+    }
+    // ajouter les messages codés de génération au résultat de compilation
+    //  (affichés par l'éditeur avec un lien vers la page wiki correspondante)
+    if (ctx.messages.length) {
+      rc.messages.push(...ctx.messages);
     }
 
     return jeu;
@@ -900,9 +906,9 @@ export class Generateur {
       const lieuTrouveID = Generateur.getLieuID(lieux, curPositionString.complement, true);
 
       if (localisation === ELocalisation.inconnu) {
-        ctx.ajouterErreur(`positionnement lieu « ${elVoisin.elIntitule} » : position relative pas trouvée : « ${curPositionString.position} »`, elVoisin.numeroLigne);
+        ctx.probleme(CategorieMessage.generation, CodeMessage.generationLieuPositionIntrouvable, "Position de lieu introuvable", `positionnement lieu « ${elVoisin.elIntitule} » : position relative pas trouvée : « ${curPositionString.position} »`, elVoisin.numeroLigne);
       } else if (lieuTrouveID === -1) {
-        ctx.ajouterErreur(`positionnement lieu « ${elVoisin.elIntitule} » : lieu lié pas trouvé : « ${curPositionString.complement} »`, elVoisin.numeroLigne);
+        ctx.probleme(CategorieMessage.generation, CodeMessage.generationLieuLieIntrouvable, "Lieu lié introuvable", `positionnement lieu « ${elVoisin.elIntitule} » : lieu lié pas trouvé : « ${curPositionString.complement} »`, elVoisin.numeroLigne);
       } else {
         // on met la classe racine lieu, porte ou obstacle:
         let classeRacine: string;
@@ -1152,7 +1158,7 @@ export class Generateur {
             );
           }
         } else {
-          ctx.ajouterErreur(`Négation « ${attribut} » : l’état « ${nomEtatNie} » n’existe pas.`);
+          ctx.probleme(CategorieMessage.generation, CodeMessage.generationEtatNegationInexistant, "Négation d’un état inexistant", `Négation « ${attribut} » : l’état « ${nomEtatNie} » n’existe pas.`);
         }
       } else {
         jeu.etats.ajouterEtatElement(cibleEle, attribut, ctx);
@@ -1185,7 +1191,7 @@ export class Generateur {
           case TypeDeclarationEtat.simple: {
             const nom = decl.etats[0];
             if (etats.trouverEtatSilencieux(nom)) {
-              ctx.ajouterErreur(`L’état « ${nom} » est déjà déclaré (état moteur ou déclaration précédente).`, decl.ligne);
+              ctx.probleme(CategorieMessage.generation, CodeMessage.generationEtatDejaDeclare, "État déjà déclaré", `L’état « ${nom} » est déjà déclaré (état moteur ou déclaration précédente).`, decl.ligne);
             } else {
               etats.creerEtat(nom);
             }
@@ -1195,7 +1201,7 @@ export class Generateur {
             const [a, b] = decl.etats;
             const conflit = [a, b].find(n => etats.trouverEtatSilencieux(n));
             if (conflit) {
-              ctx.ajouterErreur(`L’état « ${conflit} » est déjà déclaré, impossible de créer la bascule « ${a} et ${b} forment une bascule ».`, decl.ligne);
+              ctx.probleme(CategorieMessage.generation, CodeMessage.generationBasculeEtatDejaDeclare, "Bascule sur un état déjà déclaré", `L’état « ${conflit} » est déjà déclaré, impossible de créer la bascule « ${a} et ${b} forment une bascule ».`, decl.ligne);
             } else {
               etats.creerBasculeEtats(a, b);
             }
@@ -1204,7 +1210,7 @@ export class Generateur {
           case TypeDeclarationEtat.groupe: {
             const conflit = decl.etats.find(n => etats.trouverEtatSilencieux(n));
             if (conflit) {
-              ctx.ajouterErreur(`L’état « ${conflit} » est déjà déclaré, impossible de créer le groupe « ${decl.etats.join(", ")} se contredisent ».`, decl.ligne);
+              ctx.probleme(CategorieMessage.generation, CodeMessage.generationGroupeEtatDejaDeclare, "Groupe sur un état déjà déclaré", `L’état « ${conflit} » est déjà déclaré, impossible de créer le groupe « ${decl.etats.join(", ")} se contredisent ».`, decl.ligne);
             } else {
               etats.creerGroupeEtats(decl.etats);
             }
@@ -1244,7 +1250,7 @@ export class Generateur {
       etats.creerEtat(nom);
       return true;
     }
-    ctx.ajouterErreur(`L’état « ${nom} » utilisé dans une relation entre états n’existe pas et la création automatique des états est désactivée. Déclarez-le (« ${nom} est un état. ») avant la relation.`, decl.ligne);
+    ctx.probleme(CategorieMessage.generation, CodeMessage.generationEtatRelationInexistant, "État de relation inexistant", `L’état « ${nom} » utilisé dans une relation entre états n’existe pas et la création automatique des états est désactivée. Déclarez-le (« ${nom} est un état. ») avant la relation.`, decl.ligne);
     return false;
   }
 
