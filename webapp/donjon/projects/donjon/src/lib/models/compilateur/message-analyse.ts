@@ -89,6 +89,9 @@ export enum CategorieMessage {
 
   referenceElementGenerique = "reference_element_generique",
 
+  placement = "placement",
+  type = "type",
+
 }
 
 /**
@@ -98,8 +101,6 @@ export enum CodeMessage {
 
   /** structure bloc: sinonsi se trouve après un sinon */
   sinonsiSuitSinon = "structure_bloc/sinonsi_suit_sinon",
-  /** structure bloc: sinon se trouve après un sinon */
-  sinonSuitSinon = "structure_bloc/sinon_suit_sinon",
   /** structure bloc: fin bloc différent de celui attendu (ex: fin choix au lieu de fin si) */
   finBlocDifferent = "structure_bloc/fin_bloc_different",
   /** structure bloc: fin bloc manquant */
@@ -156,14 +157,20 @@ export enum CodeMessage {
 
   /** Le même mot est utilisé comme synonyme de plusieurs vebres différents. */
   synonymeDefiniPourPlusieursVerbes = "synonyme/utilise_pour_plusieurs_verbes",
+  /** synonyme: le synonyme d’une action n’est pas un verbe à l’infinitif. */
+  synonymePasVerbe = "synonyme/synonyme_pas_verbe",
+  /** synonyme: le synonyme d’un élément du jeu n’est pas un groupe nominal. */
+  synonymePasGroupeNominal = "synonyme/synonyme_pas_groupe_nominal",
+  /** synonyme: l’élément du jeu auquel attribuer des synonymes n’a pas été trouvé. */
+  synonymeElementOriginalIntrouvable = "synonyme/element_original_introuvable",
+  /** synonyme: plusieurs éléments correspondent à l’intitulé à synonymer (ambigu). */
+  synonymeElementOriginalAmbigu = "synonyme/element_original_ambigu",
 
   /** Une définition était attendue mais on n’a pas pur interpréter cette phrase comme une définition */
   definitionAttendue = "syntaxe_definition/definition_attendue",
 
   /** Référence élément générique: élément ciblé pas trouvé */
   elementCiblePasTrouve = "reference_element_generique/element_cible_pas_trouve",
-  /** Référence élément générique: nom de l’élément pas supporté */
-  nomElementPasSupporte = "reference_element_generique/nom_element_pas_supporte",
   /** Référence élément générique: nom de l’autre élément pas supporté */
   nomElementCiblePasSupporte = "reference_element_generique/nom_element_cible_pas_supporte",
   /** Référence élément générique: position de l’autre élément pas supportée */
@@ -181,5 +188,17 @@ export enum CodeMessage {
   sinonApresSinon = "syntaxe_dynamique/sinon_apres_sinon",
   /** syntaxe dynamique: cadre conditionnel ouvert non fermé en fin de texte. */
   cadreNonFerme = "syntaxe_dynamique/cadre_non_ferme",
+
+  /** placement: « ici » utilisé alors qu’aucun lieu n’a été défini auparavant. */
+  lieuPrealableIntrouvable = "placement/lieu_prealable_introuvable",
+  /** placement: « dessus/dedans/dessous » utilisé alors qu’aucun élément n’a été défini auparavant. */
+  elementPrealableIntrouvable = "placement/element_prealable_introuvable",
+  /** placement: le lieu précédent porte le même nom que l’élément à placer « ici ». */
+  conflitNomLieuElement = "placement/conflit_nom_lieu_element",
+  /** placement: mot-clé de position non reconnu. */
+  motClePositionInconnu = "placement/mot_cle_position_inconnu",
+
+  /** type: le type parent d’un type personnalisé a été défini plusieurs fois. */
+  typeParentRedefini = "type/type_parent_redefini",
 
 }

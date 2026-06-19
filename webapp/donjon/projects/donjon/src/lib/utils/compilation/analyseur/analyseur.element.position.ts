@@ -1,6 +1,8 @@
 import { AnalyseurFond } from "./analyseur.fond";
 import { ClasseUtils } from "../../commun/classe-utils";
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { EClasseRacine } from "../../../models/commun/constantes";
 import { ElementGenerique } from "../../../models/compilateur/element-generique";
 import { ExprReg } from "../expr-reg";
@@ -15,6 +17,40 @@ import { PositionSujetString } from "../../../models/compilateur/position-sujet"
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
 
 export class AnalyseurElementPosition {
+
+  /**
+   * Signaler un problème de placement d’un élément (référence à un lieu/élément
+   * pas encore défini, conflit de nom, mot-clé de position inconnu).
+   * Émet un message codé (avec lien wiki) si le contexte est un ContexteAnalyseV8,
+   * sinon retombe sur le canal d’erreurs historique.
+   */
+  private static signalerPlacement(ctx: ContexteAnalyse, phrase: Phrase, code: CodeMessage) {
+    let titre: string;
+    let corps: string;
+    switch (code) {
+      case CodeMessage.lieuPrealableIntrouvable:
+        titre = "Aucun lieu défini précédemment";
+        corps = "Pour placer un élément « ici », un lieu doit avoir été défini auparavant dans le scénario.";
+        break;
+      case CodeMessage.elementPrealableIntrouvable:
+        titre = "Aucun élément défini précédemment";
+        corps = "Pour placer un élément « dessus », « dedans » ou « dessous », un autre élément doit avoir été défini auparavant.";
+        break;
+      case CodeMessage.conflitNomLieuElement:
+        titre = "Conflit de nom lieu / élément";
+        corps = "Le lieu défini précédemment porte le même nom que l’élément à placer « ici ». Donnez-leur des noms différents.";
+        break;
+      default: // motClePositionInconnu
+        titre = "Mot-clé de position non pris en charge";
+        corps = "Ce mot-clé de position n’est pas reconnu. Utilisez « ici », « dessus », « dedans » ou « dessous », ou une préposition (« dans », « sur »…).";
+        break;
+    }
+    if (ctx instanceof ContexteAnalyseV8) {
+      ctx.probleme(phrase, undefined, CategorieMessage.placement, code, titre, corps);
+    } else {
+      ctx.ajouterErreur(phrase.ligne, titre + " — " + corps);
+    }
+  }
 
   // Tester phrase avec élement générique + position
   public static testerElementAvecPosition(phrase: Phrase, ctx: ContexteAnalyse): ElementGenerique {
@@ -112,10 +148,10 @@ export class AnalyseurElementPosition {
                   'dans'
                 );
               } else {
-                ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : le lieu créé précédemment porte le nom même nom que l'élément à ajouter (" + nom + ").")
+                AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.conflitNomLieuElement);
               }
             } else {
-              ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+              AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.lieuPrealableIntrouvable);
             }
             break;
 
@@ -132,12 +168,12 @@ export class AnalyseurElementPosition {
                 PositionSujetString.getPosition(iciDedansDessusDessous)
               );
             } else {
-              ctx.ajouterErreur(phrase.ligne, "Il/Elle est ici : un « élément » doit avoir été défini précédemment.")
+              AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.elementPrealableIntrouvable);
             }
             break;
 
           default:
-            ctx.ajouterErreur(phrase.ligne, "Il/Elle est iciDedansDessusDessous : mot clé non pris en charge : " + result[7]);
+            AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.motClePositionInconnu);
             break;
         }
         // Position relative classique
@@ -416,13 +452,13 @@ export class AnalyseurElementPosition {
         if (ctx.dernierLieu) {
           position = new PositionSujetString(sujet, ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete.toLowerCase()) : ''), 'dans');
         } else {
-          ctx.ajouterErreur(phrase.ligne, "« ici » : un lieu doit avoir été défini précédemment.");
+          AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.lieuPrealableIntrouvable);
         }
       } else {
         if (ctx.dernierElementGenerique) {
           position = new PositionSujetString(sujet, ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''), PositionSujetString.getPosition(mot));
         } else {
-          ctx.ajouterErreur(phrase.ligne, "« " + mot + " » : un élément doit avoir été défini précédemment.");
+          AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.elementPrealableIntrouvable);
         }
       }
     } else {
@@ -474,14 +510,14 @@ export class AnalyseurElementPosition {
       if (ctx.dernierLieu) {
         position = new PositionSujetString(nomCanonique, ctx.dernierLieu.nom + (ctx.dernierLieu.epithete ? (' ' + ctx.dernierLieu.epithete.toLowerCase()) : ''), 'dans');
       } else {
-        ctx.ajouterErreur(phrase.ligne, "« ici » : un lieu doit avoir été défini précédemment.");
+        AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.lieuPrealableIntrouvable);
         return null;
       }
     } else {
       if (ctx.dernierElementGenerique && ctx.dernierElementGenerique.nom.toLowerCase() !== nomCanonique.toLowerCase()) {
         position = new PositionSujetString(nomCanonique, ctx.dernierElementGenerique.nom + (ctx.dernierElementGenerique.epithete ? (' ' + ctx.dernierElementGenerique.epithete.toLowerCase()) : ''), PositionSujetString.getPosition(mot));
       } else {
-        ctx.ajouterErreur(phrase.ligne, "« " + mot + " » : un élément (distinct de la ressource) doit avoir été défini précédemment.");
+        AnalyseurElementPosition.signalerPlacement(ctx, phrase, CodeMessage.elementPrealableIntrouvable);
         return null;
       }
     }
@@ -545,7 +581,7 @@ export class AnalyseurElementPosition {
             )
           );
         } else {
-          ctxAnalyse.ajouterErreur(phrase.ligne, "Il/Elle est ici : un « lieu » doit avoir été défini précédemment.")
+          AnalyseurElementPosition.signalerPlacement(ctxAnalyse, phrase, CodeMessage.lieuPrealableIntrouvable);
         }
       }
       elementTrouve = ResultatAnalysePhrase.pronomPersonnelPosition;

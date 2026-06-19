@@ -1,5 +1,7 @@
 import { AnalyseurUtils } from "./analyseur.utils";
+import { CategorieMessage, CodeMessage } from "../../../models/compilateur/message-analyse";
 import { ContexteAnalyse } from "../../../models/compilateur/contexte-analyse";
+import { ContexteAnalyseV8 } from "../../../models/compilateur/contexte-analyse-v8";
 import { Definition } from "../../../models/compilateur/definition";
 import { EClasseRacine } from "../../../models/commun/constantes";
 import { ExprReg } from "../expr-reg";
@@ -47,10 +49,9 @@ export class AnalyseurType {
                 nouveauxAttributs = PhraseUtils.separerListeIntitulesEt(attributsBruts, true);
             }
 
-            // vérifier si le type parent est déjà défini
-            if (!ctxAnalyse.typesUtilisateur.has(typeParent)) {
-                ctxAnalyse.erreurs.push();
-            }
+            // Note: le type parent peut être une classe racine (objet, lieu…) — jamais présente
+            //  dans typesUtilisateur — ou une classe « par nom ». Sa validité est vérifiée à la
+            //  génération, pas ici (l'ancien contrôle était un no-op : erreurs.push() sans argument).
 
             // si le type est déjà défini
             if (ctxAnalyse.typesUtilisateur.has(nouveauTypeNom)) {
@@ -62,7 +63,14 @@ export class AnalyseurType {
 
                 // si type parent a déjà été précisé, ajouter une erreur
                 if (typeExistant.typeParent !== EClasseRacine.objet) {
-                    ctxAnalyse.ajouterErreur(phrase.ligne, "Le type parent de « " + typeExistant.intitule + " » a été défini plusieurs fois. Seul le plus récent sera conservé : « " + typeExistant.typeParent + " ».");
+                if (ctxAnalyse instanceof ContexteAnalyseV8) {
+                    ctxAnalyse.probleme(phrase, undefined,
+                        CategorieMessage.type, CodeMessage.typeParentRedefini,
+                        "Type parent redéfini",
+                        `Le type parent de « ${typeExistant.intitule} » a été défini plusieurs fois. Seul le plus récent sera conservé : « ${typeExistant.typeParent} ».`);
+                } else {
+                    ctxAnalyse.ajouterErreur(phrase.ligne, "Le type parent de « " + typeExistant.intitule + " » a été défini plusieurs fois.");
+                }
                 }
 
                 // ajouter les nouveaux attributs
