@@ -28,7 +28,8 @@ ng build donjon-jouer            # build player app (default config)
 ng build donjon-jouer --configuration=one   # single-game player build
 
 # Single-file distribution (after building donjon-jouer --configuration=one)
-npx gulp                         # inlines CSS/JS into a single HTML file → single-dist/
+node inline-single-file.js ./dist/donjon-one/browser/index.html ./single-dist/donjon-one
+                                 # inlines CSS/JS into a single HTML file → single-dist/ (zero-dep, replaces gulp)
 
 # Tests
 npm run test                     # watch mode
@@ -141,12 +142,20 @@ Les exemples illustrant le wiki utilisateur vivent sous `ressources/scenarios/ex
 `scripts/sync-wiki-examples.ps1` fait cet aplatissement (idempotent, nettoie les orphelins). Les fichiers cibles sont **gitignored** (`webapp/donjon/.gitignore`) — ils sont régénérés au build, pas commités.
 
 `build-all.ps1` appelle le sync à deux moments :
-- dans `Build-GulpSections`, **après** `git merge master --no-edit` (pour que la branche `gulp-single-file` ait bien la dernière version des `ressources/wiki/`),
-- avant l'étape 5 (éditeur web classique), de retour sur la branche d'origine.
+- dans `Build-SingleFileSections`, avant la compilation de `donjon-creer-one`,
+- avant l'étape 5 (éditeur web classique) — appel idempotent par sécurité.
 
 Pour le dev local (`ng serve donjon-creer`), exécuter `sync-wiki-examples.ps1` à la main si on veut accéder aux exemples wiki via leur URL.
 
 **Convention de nommage** : `wiki/<dossier>/<fichier>.djn` → `wiki_<dossier>_<fichier>.djn`. Le slug d'URL `[[djnc>...]]` du wiki doit matcher exactement ce nom (sans `.djn`).
+
+### 4. Distribution single-file (`inline-single-file.js`)
+
+Les builds « tout-en-un » (jeu ou éditeur dans un seul `.html`, hors images/sons) inlinent le CSS et le JS du `index.html` Angular via `webapp/donjon/inline-single-file.js` (zéro dépendance, modules Node intégrés). Il remplace l'ancienne chaîne **gulp + gulp-inline** (non maintenue, vulnérable) et l'ancienne branche `gulp-single-file` : `build-all.ps1` compile désormais le single-file **directement depuis master**, sans changement de branche.
+
+Usage : `node inline-single-file.js <input-html> <out-dir>` → écrit `<out-dir>/index.html`. Inline les `<link rel="stylesheet" href="LOCAL">` et `<script src="LOCAL">` (laisse intacts `modulepreload`/`icon`, scripts inline, URL absolues, balises commentées).
+
+Les 3 configs single-file d'`angular.json` (`donjon-jouer`/`one`, `donjon-jouer`/`donjon-jouer-bundle`, `donjon-creer`/`one`) posent `optimization.styles.inlineCritical: false` : sans ça, Angular émet le CSS en double (un `<link media="print">` différé + un `<noscript>` de repli), ce qui obligeait l'ancien post-traitement `Fix-InlinedHtml` (supprimé). Pour un build tout-inliné, le CSS critique différé est inutile.
 
 ## Replay : sauvegardes (.sol) et magnétoscope (.rec)
 
