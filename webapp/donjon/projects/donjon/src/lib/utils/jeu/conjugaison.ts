@@ -129,18 +129,20 @@ export class Conjugaison {
     ['simp 3pp', 'assent'],
   ]);
 
+  // Terminaisons du 2e groupe portées par le RADICAL = infinitif sans « ir »
+  // (ex. « finir » → « fin »). Elles incluent donc « iss / i / î » selon le temps.
   private static ir = new Map<string, string>([
     // INDICATIF
     // - PRÉSENT
     // -- singulier
-    ['ipr 3ps', 't'],
+    ['ipr 3ps', 'it'],
     // -- pluriel
-    ['ipr 3pp', 'ssent'],
+    ['ipr 3pp', 'issent'],
     // - IMPARFAIT
     // -- singulier
-    ['iimp 3ps', 'ssait'],
+    ['iimp 3ps', 'issait'],
     // -- pluriel
-    ['iimp 3pp', 'ssaient'],
+    ['iimp 3pp', 'issaient'],
     // - PASSÉ SIMPLE
     // -- singulier
     ['ipas 3ps', 'it'],
@@ -148,28 +150,28 @@ export class Conjugaison {
     ['ipas 3pp', 'irent'],
     // - FUTUR SIMPLE
     // -- singulier
-    ['ifus 3ps', 'ra'],
+    ['ifus 3ps', 'ira'],
     // -- pluriel
-    ['ifus 3pp', 'ront'],
+    ['ifus 3pp', 'iront'],
 
     // CONDITIONNEL
     // - PRÉSENT
     // -- singulier
-    ['cpr 3ps', 'rait'],
+    ['cpr 3ps', 'irait'],
     // -- pluriel
-    ['cpr 3pp', 'raient'],
+    ['cpr 3pp', 'iraient'],
 
     // SUBJONCTIF
     // - PRÉSENT
     // -- singulier
-    ['spr 3ps', 'sse'],
+    ['spr 3ps', 'isse'],
     // -- pluriel
-    ['spr 3pp', 'ssent'],
+    ['spr 3pp', 'issent'],
     // - IMPARFAIT
     // -- singulier
-    ['simp 3ps', 't'],
+    ['simp 3ps', 'ît'],
     // -- pluriel
-    ['simp 3pp', 'ssent'],
+    ['simp 3pp', 'issent'],
   ]);
 
   /** Liste des participes passés pré-encodés */
@@ -305,7 +307,7 @@ export class Conjugaison {
       const groupe = Conjugaison.getGroupe(infinitifSansSe);
       const radical = Conjugaison.getRadical(infinitifSansSe, groupe, temps, forme);
       if (radical) {
-        verbeConjugue = radical + Conjugaison.getTerminaisonVerbe2eGroupe(temps, forme);
+        verbeConjugue = radical + Conjugaison.getTerminaisonVerbeRegulier(temps, forme, groupe);
       } else {
         verbeConjugue = "(forme pas prise en charge : verbe " + infinitifSansSe + " : " + temps + " " + forme + ")";
       }
@@ -364,9 +366,10 @@ export class Conjugaison {
     }
   }
 
-  private static getTerminaisonVerbe2eGroupe(temps: string, forme: string) {
+  private static getTerminaisonVerbeRegulier(temps: string, forme: string, groupe: number) {
     const cle = temps + " " + forme;
-    const tabTerminaison = Conjugaison.er;
+    // 2e groupe (finir → finit/finissent…) → table « ir » ; 1er et 3e groupe → table « er ».
+    const tabTerminaison = (groupe === 2) ? Conjugaison.ir : Conjugaison.er;
     let terminaison: string;
     if (tabTerminaison.has(cle)) {
       terminaison = tabTerminaison.get(cle);
@@ -498,13 +501,9 @@ export class Conjugaison {
 
       /** VERBES DU DEUXIÈME GROUPE (IR réguliers) */
       case 2:
-        // subjonctif imparfait 3e pers du sing.
-        if (temps == 'simp' && forme == '3ps') {
-          radical = infinitifSansSe.slice(0, Notification.length - 2) + 'î';
-          // autres
-        } else {
-          radical = infinitifSansSe.slice(0, Notification.length - 1);
-        }
+        // radical = infinitif sans « ir » (ex. « finir » → « fin ») ; le « iss / i / î »
+        // est porté par la terminaison (table Conjugaison.ir), constante quel que soit le temps.
+        radical = infinitifSansSe.slice(0, infinitifSansSe.length - 2);
         break;
 
       case 3:
