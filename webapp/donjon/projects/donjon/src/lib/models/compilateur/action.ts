@@ -9,13 +9,23 @@ export class Action {
 
   constructor(
     infinitif: string,
-    public prepositionCeci: string,
+    prepositionCeci: string,
     public ceci: boolean,
-    public prepositionCela: string,
+    prepositionCela: string,
     public cela: boolean,
   ) {
     this.infinitif = infinitif;
+    // La préposition de l’en-tête initialise la liste des prépositions « probables » du
+    // complément. prepositionCeci/Cela (getters) renvoient la 1re de cette liste : forme de
+    // base servant à l’affichage (la contraction au/aux/du/des est faite à l’affichage).
+    this.prepositionsCeciProbables = prepositionCeci ? [prepositionCeci.toLowerCase()] : [];
+    this.prepositionsCelaProbables = prepositionCela ? [prepositionCela.toLowerCase()] : [];
   }
+
+  /** Forme de base de la préposition de ceci (1re des « probables ») — affichage/reconstruction. */
+  public get prepositionCeci(): string { return this.prepositionsCeciProbables[0]; }
+  /** Forme de base de la préposition de cela (1re des « probables ») — affichage/reconstruction. */
+  public get prepositionCela(): string { return this.prepositionsCelaProbables[0]; }
 
   private _infinitif: string;
   private _infinitifSansAccent: string;
@@ -23,43 +33,69 @@ export class Action {
   public cibleCela: CibleAction = null;
 
   /**
-   * Prépositions secondaires acceptées pour ceci/cela, en plus de la préposition
-   * principale (induite par l’en-tête ou redéfinie par « préposition ceci principale: … »).
-   * Une découpe de commande employant une préposition principale est mieux notée
-   * qu’une secondaire, elle-même mieux notée qu’une préposition non prévue.
+   * Prépositions acceptées pour ceci/cela, par niveau de confiance lors du découpage
+   * d’une commande du joueur :
+   * - « probables » : séparateurs attendus (induits par l’en-tête ou déclarés par
+   *   « prépositions ceci probables: … ») — mieux notés ;
+   * - « possibles » : séparateurs également acceptés mais moins sûrs (ex. ambigus avec
+   *   un mot composé) — notés un peu moins, mais mieux qu’un séparateur imprévu.
+   * Les valeurs sont stockées en minuscules (comparaison insensible à la casse). La 1re
+   * « probable » est la forme de base affichée (cf. getters prepositionCeci/Cela).
    */
-  public prepositionsCeciSecondaires: string[] = [];
-  public prepositionsCelaSecondaires: string[] = [];
+  public prepositionsCeciProbables: string[] = [];
+  public prepositionsCelaProbables: string[] = [];
+  public prepositionsCeciPossibles: string[] = [];
+  public prepositionsCelaPossibles: string[] = [];
 
-  /** Bonus de score pour une préposition principale employée par le joueur. */
-  public static readonly BONUS_PREPOSITION_PRINCIPALE = 10;
-  /** Bonus de score pour une préposition secondaire employée par le joueur. */
-  public static readonly BONUS_PREPOSITION_SECONDAIRE = 5;
+  /** Bonus de score pour une préposition « probable » employée par le joueur. */
+  public static readonly BONUS_PREPOSITION_PROBABLE = 10;
+  /** Bonus de score pour une préposition « possible » employée par le joueur. */
+  public static readonly BONUS_PREPOSITION_POSSIBLE = 5;
 
   /** Palier de correspondance (bonus de score) d’une préposition employée pour ceci. */
   public bonusPrepositionCeci(preposition: string | undefined): number {
-    return Action.bonusPreposition(this.prepositionCeci, this.prepositionsCeciSecondaires, preposition);
+    return Action.bonusPreposition(this.prepositionsCeciProbables, this.prepositionsCeciPossibles, preposition);
   }
 
   /** Palier de correspondance (bonus de score) d’une préposition employée pour cela. */
   public bonusPrepositionCela(preposition: string | undefined): number {
-    return Action.bonusPreposition(this.prepositionCela, this.prepositionsCelaSecondaires, preposition);
+    return Action.bonusPreposition(this.prepositionsCelaProbables, this.prepositionsCelaPossibles, preposition);
   }
 
   /**
-   * Bonus de score d’une préposition employée par le joueur, selon qu’elle est la
-   * préposition principale (meilleur score), une préposition secondaire (score
-   * intermédiaire) ou une préposition non prévue (aucun bonus). La comparaison est
-   * insensible à la casse ; « pas de préposition » des deux côtés vaut principale.
+   * Normalise une préposition vers sa forme de base pour la comparaison : les variantes
+   * contractées en genre/nombre sont ramenées à leur préposition simple
+   * (au/aux → à ; du/des/d’ → de ; idem « à propos … »). Ainsi déclarer la seule forme
+   * de base (« à », « de ») suffit pour reconnaître « au »/« aux »/« du »/« des » tapées
+   * par le joueur — inutile de lister les contractions.
    */
-  private static bonusPreposition(principale: string | undefined, secondaires: string[], employee: string | undefined): number {
-    const employeeNorm = employee ? employee.toLowerCase() : undefined;
-    const principaleNorm = principale ? principale.toLowerCase() : undefined;
-    if (employeeNorm === principaleNorm) {
-      return Action.BONUS_PREPOSITION_PRINCIPALE;
+  public static normaliserPreposition(preposition: string): string {
+    const p = preposition.toLowerCase().trim();
+    switch (p) {
+      case 'au': case 'aux': return 'à';
+      case 'du': case 'des': case "d'": case 'd’': return 'de';
+      case 'à propos du': case 'à propos des': case "à propos d'": case 'à propos d’': return 'à propos de';
+      default: return p;
     }
-    if (employeeNorm && secondaires.includes(employeeNorm)) {
-      return Action.BONUS_PREPOSITION_SECONDAIRE;
+  }
+
+  /**
+   * Bonus de score d’une préposition employée par le joueur selon qu’elle est
+   * « probable » (meilleur score), « possible » (score intermédiaire) ou imprévue
+   * (aucun bonus). Comparaison insensible à la casse et aux contractions de genre/nombre
+   * (cf. normaliserPreposition). « Aucune préposition » attendue (liste probables vide)
+   * ET aucune employée valent « probable ».
+   */
+  private static bonusPreposition(probables: string[], possibles: string[], employee: string | undefined): number {
+    const employeeNorm = employee ? Action.normaliserPreposition(employee) : undefined;
+    if (employeeNorm === undefined) {
+      return probables.length === 0 ? Action.BONUS_PREPOSITION_PROBABLE : 0;
+    }
+    if (probables.some(p => Action.normaliserPreposition(p) === employeeNorm)) {
+      return Action.BONUS_PREPOSITION_PROBABLE;
+    }
+    if (possibles.some(p => Action.normaliserPreposition(p) === employeeNorm)) {
+      return Action.BONUS_PREPOSITION_POSSIBLE;
     }
     return 0;
   }

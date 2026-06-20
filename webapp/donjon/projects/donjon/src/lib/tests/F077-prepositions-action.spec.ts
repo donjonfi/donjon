@@ -3,20 +3,22 @@ import { ActionsUtils, CompilateurV8, Generateur } from "../../public-api";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 
 /**
- * Prépositions principale / secondaires d’une action (bloc « définitions: ») :
+ * Prépositions probables / possibles d’une action (bloc « définitions: ») :
  *
  *   action crier sur ceci:
  *     définitions:
- *       préposition ceci principale: sur.
- *       prépositions ceci secondaires: dans et sous.
+ *       prépositions ceci probables: sur.
+ *       prépositions ceci possibles: dans et sous.
  *
- * - la principale est induite par l’en-tête (« … sur ceci » → « sur ») et peut être
- *   redéfinie (elle remplace alors l’induite) ;
- * - les secondaires sont des prépositions également acceptées ;
- * - lors du découpage d’une commande du joueur, une préposition principale est mieux
- *   notée qu’une secondaire, elle-même mieux notée qu’une préposition non prévue.
+ * - les « probables » sont induites par l’en-tête (« … sur ceci » → « sur ») et peuvent
+ *   être redéfinies (la liste déclarée remplace alors l’induite ; sa 1re entrée devient
+ *   la forme de base affichée) ;
+ * - les « possibles » sont des prépositions également acceptées mais moins sûres ;
+ * - lors du découpage d’une commande du joueur, une préposition probable est mieux notée
+ *   qu’une possible, elle-même mieux notée qu’une préposition imprévue ;
+ * - une liste de probables (ex. « à, au et aux ») met toutes ses entrées au même niveau.
  */
-describe('Prépositions principale / secondaires d’une action', () => {
+describe('Prépositions probables / possibles d’une action', () => {
 
   function compiler(corpsAction: string) {
     const scenario = `
@@ -35,28 +37,29 @@ describe('Prépositions principale / secondaires d’une action', () => {
   // ANALYSE (parsing du bloc définitions)
   // ---------------------------------------------------------------------------
 
-  it('[F077-T001] préposition principale induite par l’en-tête, secondaires déclarées', () => {
+  it('[F077-T001] probable induite par l’en-tête, possibles déclarées', () => {
     const { rc, jeu } = compiler(`
       action crier sur ceci:
         définitions:
-          prépositions ceci secondaires: dans et sous.
+          prépositions ceci possibles: dans et sous.
         phase épilogue:
           dire "Crié.".
       fin action
     `);
     expect(rc.erreurs.length).toEqual(0);
     const crier = jeu.actions.find(a => a.infinitif === 'crier');
-    // principale induite par l’en-tête « crier sur ceci »
+    // probable induite par l’en-tête « crier sur ceci »
     expect(crier.prepositionCeci).toEqual('sur');
-    // secondaires : la liste « dans et sous » est découpée et normalisée
-    expect(crier.prepositionsCeciSecondaires).toEqual(['dans', 'sous']);
+    expect(crier.prepositionsCeciProbables).toEqual(['sur']);
+    // possibles : la liste « dans et sous » est découpée et normalisée
+    expect(crier.prepositionsCeciPossibles).toEqual(['dans', 'sous']);
   });
 
-  it('[F077-T002] préposition principale explicite : remplace celle induite par l’en-tête', () => {
+  it('[F077-T002] probables explicites : remplacent celle induite par l’en-tête', () => {
     const { jeu } = compiler(`
       action crier sur ceci:
         définitions:
-          préposition ceci principale: contre.
+          prépositions ceci probables: contre.
         phase épilogue:
           dire "Crié.".
       fin action
@@ -64,28 +67,29 @@ describe('Prépositions principale / secondaires d’une action', () => {
     const crier = jeu.actions.find(a => a.infinitif === 'crier');
     // « contre » remplace le « sur » induit par l’en-tête
     expect(crier.prepositionCeci).toEqual('contre');
+    expect(crier.prepositionsCeciProbables).toEqual(['contre']);
   });
 
-  it('[F077-T003] prépositions principale et secondaires du second complément (cela)', () => {
+  it('[F077-T003] probable et possibles du second complément (cela)', () => {
     const { jeu } = compiler(`
       action poser ceci sur cela:
         définitions:
-          prépositions cela secondaires: dans et sous.
+          prépositions cela possibles: dans et sous.
         phase épilogue:
           dire "Posé.".
       fin action
     `);
     const poser = jeu.actions.find(a => a.infinitif === 'poser');
-    // principale de cela induite par l’en-tête « … sur cela »
+    // probable de cela induite par l’en-tête « … sur cela »
     expect(poser.prepositionCela).toEqual('sur');
-    expect(poser.prepositionsCelaSecondaires).toEqual(['dans', 'sous']);
+    expect(poser.prepositionsCelaPossibles).toEqual(['dans', 'sous']);
   });
 
   it('[F077-T004] préposition définie pour un complément absent de l’en-tête → problème', () => {
     const { rc } = compiler(`
       action examiner ceci:
         définitions:
-          préposition cela principale: sur.
+          prépositions cela probables: sur.
         phase épilogue:
           dire "Examiné.".
       fin action
@@ -97,7 +101,7 @@ describe('Prépositions principale / secondaires d’une action', () => {
     const { rc } = compiler(`
       action crier sur ceci:
         définitions:
-          préposition ceci principale:
+          prépositions ceci probables:
         phase épilogue:
           dire "Crié.".
       fin action
@@ -106,33 +110,33 @@ describe('Prépositions principale / secondaires d’une action', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // SCORE (scoreInfinitifExisteAvecCeciCela) : principale > secondaire > non prévue
+  // SCORE (scoreInfinitifExisteAvecCeciCela) : probable > possible > imprévue
   // ---------------------------------------------------------------------------
 
-  it('[F077-T006] score gradué d’après la préposition employée (principale > secondaire > non prévue)', () => {
+  it('[F077-T006] score gradué d’après la préposition employée (probable > possible > imprévue)', () => {
     const { au } = compiler(`
       action crier sur ceci:
         définitions:
-          prépositions ceci secondaires: dans et sous.
+          prépositions ceci possibles: dans et sous.
         phase épilogue:
           dire "Crié.".
       fin action
     `);
     const score = (prep: string | undefined) => au.scoreInfinitifExisteAvecCeciCela('crier', true, false, prep, undefined);
 
-    const principale = score('sur');   // préposition principale
-    const secondaire = score('dans');  // préposition secondaire
-    const nonPrevue = score('vers');   // préposition non prévue
-    const aucune = score(undefined);   // pas de préposition
+    const probable = score('sur');    // préposition probable
+    const possible = score('dans');   // préposition possible
+    const imprevue = score('vers');   // préposition imprévue
+    const aucune = score(undefined);  // pas de préposition
 
-    // principale strictement meilleure que secondaire, elle-même meilleure que non prévue
-    expect(principale).toBeGreaterThan(secondaire);
-    expect(secondaire).toBeGreaterThan(nonPrevue);
-    // une préposition non prévue ne rapporte rien de plus que pas de préposition
-    expect(nonPrevue).toEqual(aucune);
+    // probable strictement meilleure que possible, elle-même meilleure qu’imprévue
+    expect(probable).toBeGreaterThan(possible);
+    expect(possible).toBeGreaterThan(imprevue);
+    // une préposition imprévue ne rapporte rien de plus que pas de préposition
+    expect(imprevue).toEqual(aucune);
   });
 
-  it('[F077-T007] rétro-compatibilité : sans secondaire, seule la principale est bonifiée', () => {
+  it('[F077-T007] rétro-compatibilité : sans possible, seule la probable est bonifiée', () => {
     const { au } = compiler(`
       action crier sur ceci:
         phase épilogue:
@@ -140,7 +144,7 @@ describe('Prépositions principale / secondaires d’une action', () => {
       fin action
     `);
     const score = (prep: string | undefined) => au.scoreInfinitifExisteAvecCeciCela('crier', true, false, prep, undefined);
-    // sans secondaire déclarée, une préposition autre que la principale ne rapporte aucun bonus
+    // sans possible déclarée, une préposition autre que la probable ne rapporte aucun bonus
     expect(score('sur')).toBeGreaterThan(score('dans'));
     expect(score('dans')).toEqual(score('vers'));
   });
@@ -149,14 +153,52 @@ describe('Prépositions principale / secondaires d’une action', () => {
     const { au } = compiler(`
       action poser ceci sur cela:
         définitions:
-          prépositions cela secondaires: dans.
+          prépositions cela possibles: dans.
         phase épilogue:
           dire "Posé.".
       fin action
     `);
     const score = (prepCela: string | undefined) => au.scoreInfinitifExisteAvecCeciCela('poser', true, true, undefined, prepCela);
-    expect(score('sur')).toBeGreaterThan(score('dans'));   // principale > secondaire
-    expect(score('dans')).toBeGreaterThan(score('contre')); // secondaire > non prévue
+    expect(score('sur')).toBeGreaterThan(score('dans'));    // probable > possible
+    expect(score('dans')).toBeGreaterThan(score('contre')); // possible > imprévue
+  });
+
+  it('[F077-T010] liste de probables : toutes les entrées sont au même niveau', () => {
+    // « à, au, aux » (la préposition « à » et ses contractions) : toutes probables, même score.
+    const { jeu, au } = compiler(`
+      action demander ceci à cela:
+        définitions:
+          prépositions cela probables: à, au et aux.
+        phase épilogue:
+          dire "Demandé.".
+      fin action
+    `);
+    const demander = jeu.actions.find(a => a.infinitif === 'demander');
+    expect(demander.prepositionsCelaProbables).toEqual(['à', 'au', 'aux']);
+    // forme de base affichée = 1re de la liste
+    expect(demander.prepositionCela).toEqual('à');
+
+    const score = (prepCela: string | undefined) => au.scoreInfinitifExisteAvecCeciCela('demander', true, true, undefined, prepCela);
+    // « à », « au » et « aux » sont équivalentes (toutes probables)…
+    expect(score('au')).toEqual(score('à'));
+    expect(score('aux')).toEqual(score('à'));
+    // … et toutes meilleures qu’une préposition imprévue (« de »).
+    expect(score('à')).toBeGreaterThan(score('de'));
+  });
+
+  it('[F077-T011] normalisation des contractions : déclarer « à » couvre « au »/« aux »', () => {
+    // aucune déclaration explicite : « à » est seulement induite par l’en-tête.
+    const { au } = compiler(`
+      action demander ceci à cela:
+        phase épilogue:
+          dire "Demandé.".
+      fin action
+    `);
+    const score = (prepCela: string | undefined) => au.scoreInfinitifExisteAvecCeciCela('demander', true, true, undefined, prepCela);
+    // « au » et « aux » sont reconnues comme « à » (probable), sans avoir été listées.
+    expect(score('au')).toEqual(score('à'));
+    expect(score('aux')).toEqual(score('à'));
+    expect(score('à')).toBeGreaterThan(score('de'));
   });
 
   // ---------------------------------------------------------------------------
@@ -173,33 +215,33 @@ describe('Prépositions principale / secondaires d’une action', () => {
     return decoupe.score;
   }
 
-  it('[F077-T009] déclarer une préposition secondaire augmente le score de la découpe correspondante', () => {
+  it('[F077-T009] déclarer une préposition possible augmente le score de la découpe correspondante', () => {
     // même commande « offrir la rose pour Marie », même découpe (ceci=rose, pour, cela=Marie) :
-    // seule la déclaration de la secondaire « pour » change → le score de cette découpe augmente.
-    const sansSecondaire = scoreDecoupeOffrir(`
+    // seule la déclaration de la possible « pour » change → le score de cette découpe augmente.
+    const sansPossible = scoreDecoupeOffrir(`
       action offrir ceci à cela:
         phase épilogue:
           dire "Offert.".
       fin action
     `);
-    const avecSecondaire = scoreDecoupeOffrir(`
+    const avecPossible = scoreDecoupeOffrir(`
       action offrir ceci à cela:
         définitions:
-          prépositions cela secondaires: pour.
+          prépositions cela possibles: pour.
         phase épilogue:
           dire "Offert.".
       fin action
     `);
-    const avecPrincipale = scoreDecoupeOffrir(`
+    const avecProbable = scoreDecoupeOffrir(`
       action offrir ceci pour cela:
         phase épilogue:
           dire "Offert.".
       fin action
     `);
 
-    // « pour » non prévue < « pour » secondaire < « pour » principale
-    expect(avecSecondaire).toBeGreaterThan(sansSecondaire);
-    expect(avecPrincipale).toBeGreaterThan(avecSecondaire);
+    // « pour » imprévue < « pour » possible < « pour » probable
+    expect(avecPossible).toBeGreaterThan(sansPossible);
+    expect(avecProbable).toBeGreaterThan(avecPossible);
   });
 
 });

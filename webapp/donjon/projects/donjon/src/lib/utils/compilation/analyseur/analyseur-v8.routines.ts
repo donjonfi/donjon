@@ -821,8 +821,8 @@ export class AnalyseurV8Routines {
     const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
     const phraseBrute = Phrase.retrouverPhraseBrute(phraseAnalysee);
 
-    // DÉFINITION DE PRÉPOSITION (principale / secondaires) pour ceci/cela.
-    // La syntaxe « préposition ceci principale: sur » est découpée par le « : » en
+    // DÉFINITION DE PRÉPOSITION (probables / possibles) pour ceci/cela.
+    // La syntaxe « prépositions ceci probables: sur » est découpée par le « : » en
     // deux phrases (étiquette + valeur) : on consomme donc aussi la phrase suivante.
     const labelPreposition = ExprReg.rDefinitionActionPrepositionLabel.exec(phraseBrute);
     if (labelPreposition) {
@@ -961,22 +961,22 @@ export class AnalyseurV8Routines {
 
   /**
    * Traiter une définition de préposition de complément (ceci/cela) :
-   *   préposition ceci principale: sur.
-   *   prépositions ceci secondaires: dans et sous.
+   *   prépositions ceci probables: à, au et aux.
+   *   prépositions ceci possibles: dans et sous.
    * L’étiquette et sa valeur forment deux phrases distinctes (le « : » est un
    * séparateur de phrase) : on consomme l’étiquette et la phrase-valeur suivante.
    *
-   * La préposition principale remplace celle induite par l’en-tête ; les secondaires
-   * sont des prépositions également acceptées, mieux notées qu’une préposition non
-   * prévue lors du découpage des commandes du joueur (mais moins que la principale).
-   * @param label résultat de `rDefinitionActionPrepositionLabel` : [_, ceci|cela, principale(s)|secondaire(s)]
+   * Les « probables » remplacent la liste induite par l’en-tête (la 1re devient la forme
+   * de base affichée) ; les « possibles » sont des séparateurs également acceptés, mieux
+   * notés qu’une préposition imprévue mais moins que les « probables ».
+   * @param label résultat de `rDefinitionActionPrepositionLabel` : [_, ceci|cela, probable(s)|possible(s)]
    */
   private static chercherEtTraiterDefinitionPreposition(phrases: Phrase[], routine: RoutineAction, ctx: ContexteAnalyseV8, label: RegExpExecArray): void {
 
     const phraseAnalysee = ctx.getPhraseAnalysee(phrases);
     const sujet = label[1].toLocaleLowerCase();          // 'ceci' | 'cela'
-    const estPrincipale = /^principale/i.test(label[2]);
-    const intituleLabel = `préposition${estPrincipale ? '' : 's'} ${sujet} ${estPrincipale ? 'principale' : 'secondaires'}`;
+    const estProbable = /^probable/i.test(label[2]);
+    const intituleLabel = `prépositions ${sujet} ${estProbable ? 'probables' : 'possibles'}`;
 
     // la valeur est la phrase suivante (préposition ou liste de prépositions).
     // Elle est absente si la phrase suivante est une autre étiquette, une fin de
@@ -1007,32 +1007,32 @@ export class AnalyseurV8Routines {
       ctx.probleme(phraseAnalysee, routine,
         CategorieMessage.syntaxeAction, CodeMessage.definitionAction,
         `préposition attendue`,
-        `Une préposition était attendue après « ${intituleLabel}: ». Exemple : {@préposition ${sujet} principale: sur.@}`,
+        `Une préposition était attendue après « ${intituleLabel}: ». Exemple : {@prépositions ${sujet} probables: sur.@}`,
       );
       // sauter la seule étiquette ; la phrase suivante sera analysée normalement
       ctx.indexProchainePhrase++;
       return;
     }
 
-    if (estPrincipale) {
-      const principale = valeurBrute.toLocaleLowerCase();
+    const valeurs = valeurBrute.toLocaleLowerCase()
+      .split(/\s*,\s*|\s+et\s+|\s+ou\s+/)
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
+    if (estProbable) {
+      // remplace la liste induite par l’en-tête ; la 1re devient la forme de base affichée.
       if (sujet === 'ceci') {
-        routine.action.prepositionCeci = principale;
+        routine.action.prepositionsCeciProbables = valeurs;
       } else {
-        routine.action.prepositionCela = principale;
+        routine.action.prepositionsCelaProbables = valeurs;
       }
-      ctx.logResultatOk(`définition action: préposition ${sujet} principale = « ${principale} »`);
+      ctx.logResultatOk(`définition action: prépositions ${sujet} probables = [${valeurs.join(', ')}]`);
     } else {
-      const secondaires = valeurBrute.toLocaleLowerCase()
-        .split(/\s*,\s*|\s+et\s+|\s+ou\s+/)
-        .map(p => p.trim())
-        .filter(p => p.length > 0);
       if (sujet === 'ceci') {
-        routine.action.prepositionsCeciSecondaires = secondaires;
+        routine.action.prepositionsCeciPossibles = valeurs;
       } else {
-        routine.action.prepositionsCelaSecondaires = secondaires;
+        routine.action.prepositionsCelaPossibles = valeurs;
       }
-      ctx.logResultatOk(`définition action: prépositions ${sujet} secondaires = [${secondaires.join(', ')}]`);
+      ctx.logResultatOk(`définition action: prépositions ${sujet} possibles = [${valeurs.join(', ')}]`);
     }
 
     // consommer l’étiquette ET la phrase-valeur
