@@ -738,13 +738,13 @@ export class ExprReg {
   /**
    * définitions action: étiquette d’une préposition de complément (ceci/cela).
    * La valeur suit dans la phrase suivante (le « : » est un séparateur de phrase).
-   * - Découpage : préposition(s)(_) (ceci|cela)(1) (principale|secondaires)(2) :
+   * - Découpage : préposition(s)(_) (ceci|cela)(1) (probables|possibles)(2) :
    * - Exemples :
-   *   - préposition ceci principale:
-   *   - prépositions ceci secondaires:
-   *   - préposition cela principale:
+   *   - prépositions ceci probables:
+   *   - prépositions ceci possibles:
+   *   - préposition cela probable:
    */
-  static readonly rDefinitionActionPrepositionLabel = /^pr(?:é|e)positions? (ceci|cela) (principales?|secondaires?)\s*:?$/i
+  static readonly rDefinitionActionPrepositionLabel = /^pr(?:é|e)positions? (ceci|cela) (probables?|possibles?)\s*:?$/i
 
   // ================================================================================================
   //  COMMANDES

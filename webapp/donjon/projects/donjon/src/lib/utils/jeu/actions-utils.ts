@@ -687,8 +687,8 @@ export class ActionsUtils {
       // ceci ET cela emploient la préposition prévue, 0 sinon (comportement historique).
       let meilleurBonus = 0;
       candidats.candidatsEnLice.forEach(x => {
-        const bonusCeci = isCeci ? x.bonusPrepositionCeci(prepositionCeci) : Action.BONUS_PREPOSITION_PRINCIPALE;
-        const bonusCela = isCela ? x.bonusPrepositionCela(prepositionCela) : Action.BONUS_PREPOSITION_PRINCIPALE;
+        const bonusCeci = isCeci ? x.bonusPrepositionCeci(prepositionCeci) : Action.BONUS_PREPOSITION_PROBABLE;
+        const bonusCela = isCela ? x.bonusPrepositionCela(prepositionCela) : Action.BONUS_PREPOSITION_PROBABLE;
         meilleurBonus = Math.max(meilleurBonus, Math.min(bonusCeci, bonusCela));
       });
       score += meilleurBonus;

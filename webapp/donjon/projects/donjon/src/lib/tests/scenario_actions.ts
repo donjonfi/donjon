@@ -90,6 +90,7 @@ action afficher ceci pour cela:
   définitions:
     ceci est un intitulé.
     cela est un intitulé.
+    prépositions cela possibles: de.
 
   phase exécution:
     si ceci est l’aide, dire "[aide cela]".
@@ -337,6 +338,8 @@ action crier:
 fin action
 
 action crier sur ceci:
+  définitions:
+    prépositions ceci possibles: contre.
   phase prérequis:
     si ceci est le joueur, refuser "Vous vous criez dessus. (Ça va passer…)".
   phase épilogue:
@@ -399,6 +402,8 @@ action dormir:
 fin action
 
 action dormir sur ceci:
+  définitions:
+    prépositions ceci possibles: dans et sous.
   phase prérequis:
     si ceci est le joueur, refuser "Pardon ?".
     si ceci n’est pas un support, refuser "Je ne sais pas me coucher dessus.".
@@ -824,6 +829,8 @@ action jeter ceci vers cela:
   définitions:
     ceci est prioritairement possédé.
     cela est un objet vu et visible.
+    prépositions cela probables: vers et contre.
+    prépositions cela possibles: sur, à et dans.
   phase prérequis:
     si ceci n'est pas accessible, refuser "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].".
     si ceci est le joueur, refuser "Je préfère ne pas me jeter. Drôle d'idée.".
@@ -944,6 +951,7 @@ fin action
 -- mettre ceci sur/dans cela
 action mettre ceci dans cela:
   définitions:
+    prépositions cela probables: dans, sur et sous.
     
   phase prérequis:
     si ceci est fixé, refuser "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
@@ -1128,6 +1136,7 @@ action poser ceci sur cela:
   définitions:
     ceci est un objet visible, accessible et possédé.
     cela est un support.
+    prépositions cela possibles: dans, sous et contre.
   phase prérequis:
     si ceci est liquide ou gazeux, refuser "Je ne sais poser que les objets solides.".
     -- on veut en jeter 0…
@@ -1330,6 +1339,8 @@ fin action
 
 -- sauter sur quelque chose
 action sauter sur ceci:
+  définitions:
+    prépositions ceci possibles: dans.
   phase épilogue:
     dire "J’ai peur de me blesser.".
 fin action
@@ -1406,6 +1417,8 @@ fin action
 action utiliser ceci sur cela:
   définitions:
     ceci est prioritairement possédé.
+    prépositions cela probables: sur, avec et contre.
+    prépositions cela possibles: dans.
   phase épilogue:
     dire "Ça n’a rien donné.".
 fin action
