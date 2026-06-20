@@ -24,6 +24,23 @@ Deux options :
 Alternative (convention du repo = merge local `--no-ff`) :
 `git checkout master && git merge --no-ff test/audit-couverture-unitaire && git push origin master` (à faire dans le repo principal, pas le worktree, car master y est checkouté).
 
+## Session 2026-06-20 (suite) — +6 fichiers specs
+
+Vague « clôture couverture » : **F112–F120** ajoutés (≈118 tests, 3 commits `ae62aaf1`, `af9d58b4`, `a1b3a590`). Cibles désormais couvertes par assertions directes :
+- `generateur.ts` (br72) : getOpposePosition / getLocalisation / getLieuID (F112) + appliquerDeclarationsEtats / appliquerAttributsAvecNegation (F117).
+- `localisation.ts` (br33) modèle (F113) ; `position-objet.ts` getPrepositionSpatiale + `intitule.ts` getters (F120).
+- `analyseur.attributs.ts` (br36, F114), `analyseur.capacite.ts` (br0, F115).
+- `elements-jeu-utils.ts` (br71) : trouverDeterminantIndefini + sommeQuantiteRessource (F116).
+- `verificateur.ts` (br53) : estFinRoutine mismatch (F118).
+- `analyseur.position.ts` (br57) : multi-positions / placementNonRessource / élément introuvable (F119 ext).
+
+**Prochain libre : F121.** Cibles restantes (rendement décroissant) : reste d'`elements-jeu-utils` (calculerIntituleElement, ces derniers, resoudreReferenceLocalisee), `instruction-dire-propriete/format`, `instruction-executer`, modèle `lieu.ts`.
+
+### Nouveaux bugs moteur trouvés cette vague (NON corrigés — décision en attente)
+
+- **B12** `compilation/expr-reg.ts:304` `xPronomPersonnelAttribut` : le lookahead négatif `(?!une |un |des )` est placé **avant** l'espace capturé → évalué à la position de l'espace, il ne voit jamais le déterminant qui suit. Garde inopérante : `Il est un outil` matche « un outil » comme **attribut** au lieu d'un type. Fix : déplacer l'espace avant le lookahead. Guard `xit [F114-T010]` dans `analyseur.attributs.spec.ts`.
+- **B13** `compilation/analyseur/analyseur.position.ts:32-48` branche `/par rapport/` : `separerListeIntitulesEt("la cabane, la forêt")` → `["la cabane","la forêt"]`, le code prend `[0]` comme élément **concerné** et `[1]` comme **complément** → pour « Par rapport à la cabane, la forêt se trouve au nord… », sujet et complément sont **inversés** (positions attachées à cabane, complément forêt). Guard `xit [F119-T002]` dans `analyseur.position.spec.ts`.
+
 ## Reste à faire
 
 - **B1** `analyseur.type.ts:52` (`ctxAnalyse.erreurs.push()` vide) — **NON corrigé volontairement**. L'audit le disait trivial à tort : la condition `!ctxAnalyse.typesUtilisateur.has(typeParent)` est vraie aussi pour les **classes de base** (objet/lieu/personne…) et pour les **types référencés en avant** (déclarés plus bas). Le vrai fix exige : (a) détecter une classe-racine (`EClasseRacine` / `ClassesRacines`), (b) gérer l'ordre de déclaration (la compilation est-elle mono- ou multi-passe ?). À investiguer avant de toucher, sinon on casse des scénarios valides. Tester via `CompilateurV8.analyserScenarioSeul` en assertant `rc.erreurs`.
