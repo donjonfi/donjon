@@ -71,7 +71,7 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
             "(\\b(il y a|exprimée?s? en)\\b)|(avec l('|’)unité)|" +
-            "(\\b(principa(l|le|ux|les)|secondaires?|suppl(é|e)mentaires?)\\b)|" +
+            "(\\b(principa(l|le|ux|les)|secondaires?|suppl(é|e)mentaires?|courantes?|compl(é|e)mentaires?)\\b)|" +
             "(^( )*(définition(s)?|basique)(?=( )*:))|" +
             "(^( )*(red(é|e)finir (l(’|')\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:$))"
           ,

@@ -29,43 +29,46 @@ inclure "salle2.djn".
 
 Sur écran tactile (smartphone), le lecteur rend les éléments du jeu cliquables et propose un menu listant les actions applicables à l’élément touché.
 
-### Actions principales et secondaires
+### Actions courantes et complémentaires
 
-Le menu affiche d’abord les **actions principales** (infinitifs seuls), puis un bouton « Plus d’actions… » révèle les **actions secondaires**, et enfin « Toutes les actions ». Les listes se définissent pour une classe d’éléments (éventuellement restreinte à un état) ou pour un élément précis — **infinitifs seuls, jamais de préposition** :
+Le menu affiche d’abord les **actions courantes** (infinitifs seuls), puis un bouton « Plus d’actions… » révèle les **actions complémentaires**, et enfin « Toutes les actions ». Les listes se définissent pour une classe d’éléments (éventuellement restreinte à un état) ou pour un élément précis — **infinitifs seuls, jamais de préposition** :
 
 ```
-Les actions principales pour les objets sont examiner et prendre.
-Les actions secondaires pour les personnes sont montrer et donner.
-Les actions principales du bandit sont attaquer et parler.
-L’action principale pour les lieux est regarder.
-Les actions principales supplémentaires pour les portes sont ouvrir et fermer.
-Les actions principales pour les objets ouvrables sont ouvrir et fermer.
-L’action principale supplémentaire pour un objet verrouillé est déverrouiller.
-Les actions secondaires supplémentaires pour un lieu visité sont penser et se souvenir.
+Les actions courantes pour les objets sont examiner et prendre.
+Les actions complémentaires pour les personnes sont montrer et donner.
+Les actions courantes du bandit sont attaquer et parler.
+L’action courante pour les lieux est regarder.
+Les actions courantes pour les objets ouvrables sont ouvrir et fermer.
+
+-- Compléter une liste héritée (forme « … a aussi … comme … ») :
+Les portes ont aussi ouvrir et fermer comme actions courantes.
+Un objet verrouillé a aussi déverrouiller comme action courante.
+Un lieu visité a aussi penser et se souvenir comme actions complémentaires.
 ```
 
 - **Héritage** : la déclaration la plus précise gagne (élément > classe + état > classe > classe parente > défauts du moteur).
-- **`supplémentaires`** : complète la liste héritée au lieu de la remplacer (équivaut à « Ajouter … aux actions … »).
+- **Compléter** au lieu de remplacer, **en définition** (une définition peut commencer par le nom de la cible) : « //cible// a aussi //verbes// comme action courante / complémentaire ». Les anciens mots-clés //principales///secondaires// et la forme //supplémentaires// restent acceptés (dépréciés).
 - **Classe + état** (« les objets ouvrables ») : ne s’applique qu’aux éléments possédant l’état, et prime sur la classe seule.
 - **Singulier ou pluriel** : la cible se déclare indifféremment au pluriel (« les objets verrouillés ») ou au singulier (« un objet verrouillé ») — c’est la même règle.
 - **Défauts du moteur** (fichier d’actions de base) : objets → examiner, prendre ; personnes → parler, montrer, donner ; portes et objets ouvrables → + ouvrir, fermer ; directions → aller, regarder.
-- **Compléter** la liste héritée (en définition ou en instruction dans une action/règle) :
+- **Compléter** au runtime : une **instruction** (dans une action/règle) doit commencer par un **verbe** — on préfixe par `changer`, ou on utilise `ajouter … aux actions …` :
 
 ```
-Ajouter attaquer et insulter aux actions principales du bandit.
+changer le bandit a aussi insulter comme action courante.
+ajouter insulter aux actions courantes du bandit.
 ```
 
 - **Remplacer** une liste en cours de partie (instruction) :
 
 ```
-changer les actions principales du bandit sont attaquer et fuir.
+changer les actions courantes du bandit sont attaquer et fuir.
 ```
 
 Un infinitif qui ne correspond à aucune action du jeu n’est pas proposé dans le menu (un conseil est émis dans l’éditeur). Le menu n’affiche qu’un bouton par infinitif : l’appui affiche les **variantes** sous forme de commandes complètes, incluant l’élément cliqué et le **dernier élément mentionné** (« ouvrir le coffre », « ouvrir le coffre avec la clé », « ouvrir le coffre avec … ») ; s’il n’y a qu’une forme possible, elle est exécutée immédiatement. Le constructeur global (⚡) liste les 5 dernières actions utilisées puis toutes les actions par ordre alphabétique, et propose un bouton « Taper une commande… » (saisie clavier ponctuelle).
 
 Cas automatiques (sans déclaration) :
 
-- une action définie pour un **élément précis** (`ceci est le fauteuil`) est proposée d’office dans les actions **secondaires** de cet élément (sauf si l’auteur l’a classée lui-même) ;
+- une action définie pour un **élément précis** (`ceci est le fauteuil`) est proposée d’office dans les actions **complémentaires** de cet élément (sauf si l’auteur l’a classée lui-même) ;
 - une action sur un **intitulé** (`ceci est un intitulé`, ex. `taper {code}`) est proposée dans le **constructeur global** (bouton ⚡) avec un champ de saisie libre pour le complément.
 
 #### Anti-spoiler : actions visant un sujet précis
@@ -77,7 +80,7 @@ Quand une action vise un **sujet précis** dans son en-tête (`action coincer la
 Les **sorties** sont aussi cliquables (y compris `monter`/`descendre`/`entrer`/`sortir`) et ouvrent un menu propre aux directions — par défaut `aller` et `regarder` (défini dans actions.djn) :
 
 ```
-Les actions principales pour les directions sont aller et regarder.
+Les actions courantes pour les directions sont aller et regarder.
 ```
 
 ### Désactiver le mode mobile

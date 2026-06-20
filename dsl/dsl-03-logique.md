@@ -9,6 +9,10 @@
 Interpréter la table comme la table basse.
 Interpréter le coffre comme le coffre du capitaine.
 
+-- Forme équivalente, ordre INVERSÉ (l'élément d'abord, puis ses noms alternatifs)
+La table a aussi table basse comme synonyme.
+Le coffre a aussi malle et caisse comme synonymes.
+
 -- Synonymes d'actions
 interpréter déchirer et détruire comme casser.
 interpréter fouiller comme examiner.

@@ -419,6 +419,19 @@ export class ExprReg {
   static readonly xSynonymes = /^interpréter ((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))?) comme (.+)$/i;
 
   /**
+   * Synonymes — forme « a aussi … comme synonyme(s) » (alignée sur l'ajout
+   * d'actions tactiles, pour une syntaxe homogène). Ici l'ordre est INVERSÉ par
+   * rapport à « interpréter » : l'élément cité est l'ORIGINAL, la liste est faite
+   * de ses synonymes.
+   * - Découpage :
+   *     - original(1) (synonymeA[, … et synonymeN])(2)
+   * Ex :
+   *  - Le coffre a aussi malle et caisse comme synonymes.
+   *  - La fiole a aussi flacon comme synonyme.
+   */
+  static readonly xSynonymesAjout = /^(.+?) (?:a|ont) aussi ((?:.+?)(?:(?:, (?:.+?))*(?: et (?:.+?)))?) comme synonymes?$/i;
+
+  /**
    * Abréviations
    * - Découpage :
    *     - l'abréviation abréviation(1) correspond à
@@ -445,7 +458,7 @@ export class ExprReg {
    *  - Les actions principales du bandit sont attaquer et parler.
    *  - Les actions principales supplémentaires pour les objets ouvrables sont ouvrir et fermer.
    */
-  static readonly xActionsTactiles = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?)( suppl[ée]mentaires?)? (?:pour |du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+?) (?:est|sont) (.+)$/i;
+  static readonly xActionsTactiles = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?|courantes?|compl[ée]mentaires?)( suppl[ée]mentaires?)? (?:pour |du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+?) (?:est|sont) (.+)$/i;
 
   /**
    * Actions principales/secondaires globales du menu tactile (constructeur de
@@ -456,7 +469,7 @@ export class ExprReg {
    * Ex :
    *  - Les actions principales sont regarder, inventaire et aller.
    */
-  static readonly xActionsTactilesGlobales = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?)( suppl[ée]mentaires?)? (?:est|sont) (.+)$/i;
+  static readonly xActionsTactilesGlobales = /^(?:les |l(?:'|\u2019))actions? (principales?|secondaires?|courantes?|compl[ée]mentaires?)( suppl[ée]mentaires?)? (?:est|sont) (.+)$/i;
 
   /**
    * Ajout d’actions principales/secondaires à la liste héritée (définition ou instruction).
@@ -465,7 +478,19 @@ export class ExprReg {
    * Ex :
    *  - Ajouter attaquer et insulter aux actions principales du bandit.
    */
-  static readonly xAjouterActionsTactiles = /^ajouter (.+?) aux actions (principales|secondaires) (?:du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+)$/i;
+  static readonly xAjouterActionsTactiles = /^ajouter (.+?) aux actions (principales|secondaires|courantes|compl[\u00e9e]mentaires) (?:du |des |de la |de l(?:'|\u2019)|de |d(?:'|\u2019))(.+)$/i;
+
+  /**
+   * Ajout d'actions tactiles \u00e0 la liste h\u00e9rit\u00e9e, forme \u00ab a aussi \u2026 comme
+   * action(s) courante(s)/compl\u00e9mentaire(s) \u00bb (homog\u00e8ne avec les synonymes).
+   * La cible (classe ou \u00e9l\u00e9ment) est le sujet de t\u00eate ; toujours en mode \u00ab ajouter \u00bb.
+   * - D\u00e9coupage :
+   *     - cible(1) infinitifs(2) courante|compl\u00e9mentaire|principale|secondaire(3)
+   * Ex :
+   *  - Un objet transportable a aussi prendre comme action courante.
+   *  - Un objet parlant a aussi montrer et donner comme actions compl\u00e9mentaires.
+   */
+  static readonly xActionsTactilesAjoutComme = /^(.+?) (?:a|ont) aussi (.+?) comme actions? (courantes?|compl[\u00e9e]mentaires?|principales?|secondaires?)$/i;
 
   // ================================================================================================
   //  DÉCLARATION D'ÉTATS PERSONNALISÉS

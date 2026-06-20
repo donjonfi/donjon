@@ -132,7 +132,9 @@ export class InstructionListes implements InstructionHandler {
    * l’ouverture du menu tactile (voir ActionsTactilesUtils).
    */
   private ajouterActionsTactiles(match: RegExpExecArray, resultat: Resultat, contexteTour: ContexteTour): Resultat {
-    const typeListe: TypeListeActionsTactiles = match[2].toLowerCase() === 'principales' ? 'principales' : 'secondaires';
+    // courante => principales, complémentaire => secondaires (mots-clés recommandés, alias de l'interne)
+    const lowerType = match[2].toLowerCase();
+    const typeListe: TypeListeActionsTactiles = (lowerType.startsWith('principale') || lowerType.startsWith('courante')) ? 'principales' : 'secondaires';
     const cibleBrute = match[3].trim().toLowerCase();
 
     let cible: GroupeNominal | undefined;

@@ -541,16 +541,23 @@ export class InstructionChanger {
   private changerActionsTactiles(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
     const resultat = new Resultat(false, '', 1);
 
-    const match = ExprReg.xActionsTactiles.exec(instruction.complement1 ?? '');
-    if (!match) {
+    const complement = instruction.complement1 ?? '';
+    const match = ExprReg.xActionsTactiles.exec(complement);
+    // forme « changer <cible> a aussi <verbes> comme action courante/complémentaire » : ajout à la liste héritée
+    const matchComme = match ? null : ExprReg.xActionsTactilesAjoutComme.exec(complement);
+    if (!match && !matchComme) {
       resultat.sortie = `{n}{+[Instruction « changer » : actions tactiles : syntaxe pas comprise : « ${instruction.complement1} ».]+}`;
       return resultat;
     }
 
-    const typeListe: TypeListeActionsTactiles = match[1].toLowerCase().startsWith('principale') ? 'principales' : 'secondaires';
-    // « supplémentaires » : complète la liste au lieu de la remplacer
-    const supplementaires = !!match[2];
-    const cibleBrute = match[3].trim().toLowerCase();
+    // courante => principales, complémentaire => secondaires (mots-clés recommandés, alias de l'interne)
+    const lowerType = (match ? match[1] : matchComme[3]).toLowerCase();
+    const typeListe: TypeListeActionsTactiles = (lowerType.startsWith('principale') || lowerType.startsWith('courante')) ? 'principales' : 'secondaires';
+    // « … sont … » remplace ; « … supplémentaires … » et « … a aussi … » complètent la liste héritée
+    const mode: 'ajouter' | 'remplacer' = match ? (match[2] ? 'ajouter' : 'remplacer') : 'ajouter';
+    const cibleAffichee = (match ? match[3] : matchComme[1]).trim();
+    const infinitifsBruts = (match ? match[4] : matchComme[2]).trim();
+    const cibleBrute = cibleAffichee.toLowerCase();
 
     let cible: GroupeNominal | undefined;
     if (cibleBrute === 'ceci') {
@@ -561,20 +568,20 @@ export class InstructionChanger {
       cible = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleBrute, true);
     }
     if (!cible?.nom) {
-      resultat.sortie = `{n}{+[Instruction « changer » : actions ${typeListe} : cible pas comprise : « ${match[3].trim()} ».]+}`;
+      resultat.sortie = `{n}{+[Instruction « changer » : actions ${typeListe} : cible pas comprise : « ${cibleAffichee} ».]+}`;
       return resultat;
     }
 
-    const infinitifs = PhraseUtils.separerListeIntitulesEtOu(match[4].trim(), true)
+    const infinitifs = PhraseUtils.separerListeIntitulesEtOu(infinitifsBruts, true)
       .map(item => item.trim().toLowerCase())
       .filter(infinitif => infinitif && ExprReg.xVerbeInfinitif.test(infinitif));
     if (!infinitifs.length) {
-      resultat.sortie = `{n}{+[Instruction « changer » : actions ${typeListe} : aucun infinitif valide dans « ${match[4].trim()} ».]+}`;
+      resultat.sortie = `{n}{+[Instruction « changer » : actions ${typeListe} : aucun infinitif valide dans « ${infinitifsBruts} ».]+}`;
       return resultat;
     }
 
     // la résolution prend le dernier « remplacer » du niveau le plus précis : ajouter en fin de liste suffit
-    this.jeu.actionsTactiles.push({ typeListe, cible, mode: supplementaires ? 'ajouter' : 'remplacer', infinitifs });
+    this.jeu.actionsTactiles.push({ typeListe, cible, mode, infinitifs });
     resultat.succes = true;
     return resultat;
   }
