@@ -154,4 +154,41 @@ describe('Synonymes − Scénario synonyme action)', () => {
     expect(ctx.jeu.objets[3].synonymes).toHaveSize(0);
   });
 
+  // ——— forme « a aussi … comme synonyme(s) » (ordre inversé vs « interpréter ») ———
+
+  it('[F009-T012] regex xSynonymesAjout : original puis liste de synonymes', () => {
+    const result = ExprReg.xSynonymesAjout.exec('Le coffre a aussi malle et caisse comme synonymes');
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual('Le coffre'); // original
+    expect(result[2]).toEqual('malle et caisse'); // synonymes
+  });
+
+  it('[F009-T013] regex xSynonymesAjout : singulier « comme synonyme »', () => {
+    const result = ExprReg.xSynonymesAjout.exec('La fiole a aussi flacon comme synonyme');
+    expect(result).not.toEqual(null);
+    expect(result[1]).toEqual('La fiole');
+    expect(result[2]).toEqual('flacon');
+  });
+
+  it('[F009-T014] regex xSynonymesAjout : « comme action courante » n’est pas un synonyme', () => {
+    expect(ExprReg.xSynonymesAjout.exec('Le coffre a aussi ouvrir comme action courante')).toEqual(null);
+  });
+
+  it('[F009-T015] « Le coffre a aussi malle et caisse comme synonymes » (élément)', () => {
+    const scenario = '' +
+      'Désactiver les synonymes auto. ' +
+      'Le coffre est un contenant. ' +
+      'La table est un support. ' +
+      'Le coffre a aussi malle et caisse comme synonymes.' +
+      '';
+    const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
+
+    expect(ctx.jeu.objets[2].nom).toEqual('coffre');
+    expect(ctx.jeu.objets[2].synonymes).toHaveSize(2);
+    expect(ctx.jeu.objets[2].synonymes[0].nom).toEqual('malle');
+    expect(ctx.jeu.objets[2].synonymes[1].nom).toEqual('caisse');
+    expect(ctx.jeu.objets[3].nom).toEqual('table');
+    expect(ctx.jeu.objets[3].synonymes).toHaveSize(0);
+  });
+
 });

@@ -47,13 +47,16 @@ export class AnalyseurSynonymes {
     let resultatTrouve = ResultatAnalysePhrase.aucun;
 
     const result = ExprReg.xSynonymes.exec(phrase.morceaux[0]);
-    if (result !== null) {
+    // forme « <original> a aussi <synonymes> comme synonyme(s) » : ordre INVERSÉ vs « interpréter »
+    //  (ici l'élément cité est l'original, la liste contient ses synonymes)
+    const resultAjout = result ? null : ExprReg.xSynonymesAjout.exec(phrase.morceaux[0]);
+    if (result !== null || resultAjout !== null) {
 
       resultatTrouve = ResultatAnalysePhrase.synonyme;
 
-      const synonymesBruts = result[1];
+      const synonymesBruts = result ? result[1] : resultAjout[2];
       const listeSynonymesBruts = PhraseUtils.separerListeIntitulesEtOu(synonymesBruts, true);
-      const originalBrut = result[2];
+      const originalBrut = result ? result[2] : resultAjout[1];
 
       // tester si l’original est un VERBE
       let resultatVerbe = ExprReg.xVerbeInfinitif.exec(originalBrut);

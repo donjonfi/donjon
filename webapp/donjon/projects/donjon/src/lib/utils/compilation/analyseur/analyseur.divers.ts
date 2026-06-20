@@ -185,20 +185,24 @@ export class AnalyseurDivers {
     const ajout = declaration ? null : ExprReg.xAjouterActionsTactiles.exec(phrase.morceaux[0]);
     // règle globale (sans cible) : « Les actions principales sont … »
     const globale = (declaration || ajout) ? null : ExprReg.xActionsTactilesGlobales.exec(phrase.morceaux[0]);
+    // « <cible> a aussi <verbes> comme action(s) courante(s)/complémentaire(s) » : ajout à la liste héritée (cible en tête)
+    const ajoutComme = (declaration || ajout || globale) ? null : ExprReg.xActionsTactilesAjoutComme.exec(phrase.morceaux[0]);
 
-    if (declaration || ajout || globale) {
+    if (declaration || ajout || globale || ajoutComme) {
       elementTrouve = ResultatAnalysePhrase.actionsTactiles;
 
-      const groupeType = declaration ? declaration[1] : (globale ? globale[1] : ajout[2]);
-      const typeListe: TypeListeActionsTactiles = groupeType.toLowerCase().startsWith('principale') ? 'principales' : 'secondaires';
+      const groupeType = declaration ? declaration[1] : (globale ? globale[1] : (ajout ? ajout[2] : ajoutComme[3]));
+      // courante => principales, complémentaire => secondaires (mots-clés recommandés, alias de l'interne)
+      const lowerType = groupeType.toLowerCase();
+      const typeListe: TypeListeActionsTactiles = (lowerType.startsWith('principale') || lowerType.startsWith('courante')) ? 'principales' : 'secondaires';
       // « supplémentaires » : complète la liste héritée au lieu de la remplacer
       const supplementaires = declaration ? !!declaration[2] : (globale ? !!globale[2] : false);
-      const infinitifsBruts = (declaration ? declaration[4] : (globale ? globale[3] : ajout[1])).trim();
+      const infinitifsBruts = (declaration ? declaration[4] : (globale ? globale[3] : (ajout ? ajout[1] : ajoutComme[2]))).trim();
 
       // règle globale : aucune cible (constructeur de commande global du menu tactile)
       let cible: GroupeNominal | null = null;
       if (!globale) {
-        const cibleBrute = (declaration ? declaration[3] : ajout[3]).trim();
+        const cibleBrute = (declaration ? declaration[3] : (ajout ? ajout[3] : ajoutComme[1])).trim();
         cible = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleBrute, true);
         if (!cible) {
           ctxAnalyse.probleme(phrase, undefined,

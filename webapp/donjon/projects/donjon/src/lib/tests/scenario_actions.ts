@@ -9,42 +9,42 @@ export const actions = `-- Titre: "Actions de base pour Donjon FI".
 désactiver les actions de base.
 
 -- ===================================================
---   ACTIONS PRINCIPALES/SECONDAIRES (MODE MOBILE)
+--   ACTIONS COURANTES/COMPLÉMENTAIRES (MODE MOBILE)
 -- ===================================================
 -- Actions proposées en premier par l’interface tactile (mode mobile).
--- Le scénario peut remplacer ces listes (« Les actions principales pour
--- les objets sont … ») ou les compléter (« Ajouter … aux actions
--- principales du bandit. »).
+-- Le scénario peut remplacer ces listes (« Les actions courantes pour
+-- les objets sont … ») ou les compléter (« Le bandit a aussi insulter
+-- comme action courante. »).
 
-Les actions principales sont regarder, examiner, inventaire et aller.
+Les actions courantes sont regarder, examiner, inventaire et aller.
 
-Les actions principales pour les objets sont examiner et prendre.
-Les actions secondaires pour les objets sont pousser, tirer, toucher, secouer et utiliser.
-L'action principale supplémentaire pour un objet transportable est prendre.
-Les actions principales supplémentaires pour un objet ouvrable est ouvrir et fermer.
-L'action principale supplémentaire pour un objet verrouillé est déverrouiller.
-L'action principale supplémentaire pour un objet déverrouillé est verrouiller.
-L'action principale supplémentaire pour un objet mangeable est manger.
-L'action principale supplémentaire pour un objet buvable est boire.
-L'action principale supplémentaire pour un objet lisible est lire.
-Les actions principales supplémentaires pour un objet portable sont mettre et porter.
-Les actions principales supplémentaires pour un objet porté sont enlever, lâcher, jeter et poser.
-L'action principale supplémentaire pour un objet enfilable est enfiler.
-L'action principale supplémentaire pour un objet chaussable est chausser.
-L'action principale supplémentaire pour un objet équipable est équiper.
-L'action principale supplémentaire pour un objet parlant est parler.
-Les actions secondaires supplémentaires pour un objet parlant sont montrer et donner.
+Les actions courantes pour les objets sont examiner et prendre.
+Les actions complémentaires pour les objets sont pousser, tirer, toucher, secouer et utiliser.
+Un objet transportable a aussi prendre comme action courante.
+Un objet ouvrable a aussi ouvrir et fermer comme actions courantes.
+Un objet verrouillé a aussi déverrouiller comme action courante.
+Un objet déverrouillé a aussi verrouiller comme action courante.
+Un objet mangeable a aussi manger comme action courante.
+Un objet buvable a aussi boire comme action courante.
+Un objet lisible a aussi lire comme action courante.
+Un objet portable a aussi mettre et porter comme actions courantes.
+Un objet porté a aussi enlever, lâcher, jeter et poser comme actions courantes.
+Un objet enfilable a aussi enfiler comme action courante.
+Un objet chaussable a aussi chausser comme action courante.
+Un objet équipable a aussi équiper comme action courante.
+Un objet parlant a aussi parler comme action courante.
+Un objet parlant a aussi montrer et donner comme actions complémentaires.
 
-Les actions principales pour les personnes sont regarder et parler.
-Les actions secondaires pour les personnes sont montrer, donner et interroger.
-L'action principale pour les animaux est examiner.
+Les actions courantes pour les personnes sont regarder et parler.
+Les actions complémentaires pour les personnes sont montrer, donner et interroger.
+L'action courante pour les animaux est examiner.
 
-Les actions principales pour les portes sont examiner, ouvrir et fermer.
-L'action principale supplémentaire pour une porte verrouillée est déverrouiller.
-L'action principale supplémentaire pour une porte déverrouillée est verrouiller.
+Les actions courantes pour les portes sont examiner, ouvrir et fermer.
+Une porte verrouillée a aussi déverrouiller comme action courante.
+Une porte déverrouillée a aussi verrouiller comme action courante.
 
-Les actions principales pour les directions sont aller et regarder.
-Les actions principales pour un lieu adjacent sont aller et regarder.
+Les actions courantes pour les directions sont aller et regarder.
+Les actions courantes pour un lieu adjacent sont aller et regarder.
 
 -- =========================================
 --   AFFICHER (AIDE, INVENTAIRE et SORTIES)

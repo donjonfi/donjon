@@ -1012,4 +1012,90 @@ Son aperçu est "Une cave sombre et humide.".`);
     expect(ActionsTactilesUtils.resoudre(salon, 'secondaires', ctx.jeu, ctx.eju)).toEqual(['penser', 'se souvenir']);
   });
 
+  // ——— mots-clés recommandés « courantes / complémentaires » + forme « a aussi … comme » ———
+
+  it('[F062-T220] « Les actions courantes pour … sont … » (courante ≡ principale)', () => {
+    const ctx = commencerPartie(`Les actions courantes pour les objets sont examiner et sentir.`);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    // remplace la base (examiner, sentir) ; « prendre » revient via le supplément transportable
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'sentir', 'prendre']);
+  });
+
+  it('[F062-T221] « Les actions complémentaires pour … sont … » (complémentaire ≡ secondaire)', () => {
+    const ctx = commencerPartie(`Les actions complémentaires pour les objets sont toucher.`);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'secondaires', ctx.jeu, ctx.eju)).toEqual(['toucher']);
+  });
+
+  it('[F062-T222] « Un objet a aussi … comme action courante » complète la liste héritée', () => {
+    const ctx = commencerPartie(`Un objet a aussi sentir comme action courante.`);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'sentir']);
+  });
+
+  it('[F062-T223] « … a aussi … comme actions complémentaires » (liste de verbes, complète)', () => {
+    const ctx = commencerPartie(`Un objet a aussi sentir et grimper comme actions complémentaires.`);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'secondaires', ctx.jeu, ctx.eju))
+      .toEqual(['pousser', 'tirer', 'toucher', 'secouer', 'utiliser', 'sentir', 'grimper']);
+  });
+
+  it('[F062-T224] forme « a aussi … » sur classe + état : seul l’élément dans cet état est concerné', () => {
+    const ctx = commencerPartie(`Un objet ouvrable a aussi peser comme action courante.`);
+    const coffre = ctx.jeu.objets.find(o => o.intitule.nom === 'coffre');
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    // le coffre est ouvrable → reçoit « peser » ; la clé non
+    expect(ActionsTactilesUtils.resoudre(coffre, 'principales', ctx.jeu, ctx.eju)).toContain('peser');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).not.toContain('peser');
+  });
+
+  it('[F062-T225] « changer les actions courantes … » en cours de partie (courante ≡ principale)', () => {
+    const ctx = commencerPartie(`
+      action modifier:
+        phase exécution:
+          changer les actions courantes de la clé rouillée sont examiner et pousser.
+      fin action
+    `);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre']);
+
+    ctx.com.executerCommande('modifier', false);
+    // le mot-clé « courantes » doit cibler le niveau principal (pas complémentaire)
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'pousser']);
+  });
+
+  it('[F062-T226] forme plurielle « … ont aussi … comme actions courantes »', () => {
+    const ctx = commencerPartie(`Les objets ont aussi sentir comme actions courantes.`);
+    const cle = ctx.jeu.objets.find(o => o.intitule.nom === 'clé');
+    expect(ActionsTactilesUtils.resoudre(cle, 'principales', ctx.jeu, ctx.eju)).toEqual(['examiner', 'prendre', 'sentir']);
+  });
+
+  it('[F062-T227] instruction « changer <cible> a aussi … comme action courante » complète en cours de partie', () => {
+    const ctx = commencerPartie(`
+      action enrichir:
+        phase exécution:
+          changer le garde a aussi pousser comme action courante.
+      fin action
+    `);
+    const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['regarder', 'parler']);
+
+    ctx.com.executerCommande('enrichir', false);
+    // l'instruction commence bien par le verbe « changer » ; « a aussi » = ajout (pas remplacement)
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['regarder', 'parler', 'pousser']);
+  });
+
+  it('[F062-T228] instruction « ajouter … aux actions courantes … » (vocabulaire recommandé → niveau principal)', () => {
+    const ctx = commencerPartie(`
+      action enrichir:
+        phase exécution:
+          ajouter pousser aux actions courantes du garde.
+      fin action
+    `);
+    const garde = ctx.jeu.objets.find(o => o.intitule.nom === 'garde');
+    ctx.com.executerCommande('enrichir', false);
+    // « courantes » doit cibler le niveau principal (régression : mappait à tort en complémentaire)
+    expect(ActionsTactilesUtils.resoudre(garde, 'principales', ctx.jeu, ctx.eju)).toEqual(['regarder', 'parler', 'pousser']);
+  });
+
 });

@@ -9,6 +9,10 @@
 Interpréter la table comme la table basse.
 Interpréter le coffre comme le coffre du capitaine.
 
+-- Forme équivalente, ordre INVERSÉ (l'élément d'abord, puis ses noms alternatifs)
+La table a aussi table basse comme synonyme.
+Le coffre a aussi malle et caisse comme synonymes.
+
 -- Synonymes d'actions
 interpréter déchirer et détruire comme casser.
 interpréter fouiller comme examiner.
@@ -112,21 +116,36 @@ ceci est une direction.
 ceci est un lieu.
 ```
 
-### `préposition` : préposition principale et secondaires d'un complément
+### `préposition` : prépositions probables et possibles d'un complément
 
-Une action peut accepter plusieurs prépositions pour un même complément. La **préposition principale** est celle de l'en-tête (`action crier sur ceci` → `sur`) ; on peut la redéfinir (elle remplace alors celle de l'en-tête) et déclarer des **prépositions secondaires** également acceptées. Le singulier (`préposition … principale:`) et le pluriel (`prépositions … secondaires:`) sont acceptés, pour `ceci` comme pour `cela`.
+Une action peut accepter plusieurs prépositions pour un même complément, réparties en deux niveaux de **confiance** (probabilité que ce séparateur soit bien la découpe attendue) :
+
+- **probables** : les séparateurs attendus. Induits par l'en-tête (`action crier sur ceci` → `sur`) ; on peut les redéclarer (la liste remplace alors l'induite). Une **liste** est acceptée : sa 1re entrée devient la forme de base affichée.
+- **possibles** : des séparateurs également acceptés mais moins sûrs (par exemple ambigus avec un mot composé comme « à manger ») — mieux notés qu'un séparateur imprévu, mais moins que les probables.
+
+Le singulier comme le pluriel sont acceptés (`préposition … probable:` / `prépositions … probables:`), pour `ceci` comme pour `cela`.
 
 ```
+action mettre ceci dans cela:
+  définitions:
+    prépositions cela probables: dans et sur.    -- contenant ou support : deux séparateurs attendus
+    prépositions cela possibles: sous.
+  phase épilogue:
+    dire "C'est fait.".
+fin action
+
 action crier sur ceci:
   définitions:
-    préposition ceci principale: sur.       -- déjà induit par l'en-tête, facultatif
-    prépositions ceci secondaires: dans et sous.
+    prépositions ceci probables: sur.            -- déjà induit par l'en-tête, facultatif
+    prépositions ceci possibles: dans et sous.
   phase épilogue:
     dire "Vous criez sur [intitulé ceci]. (Ça ne sert à rien.)".
 fin action
 ```
 
-Lors du découpage d'une commande du joueur, une découpe employant la préposition **principale** est mieux notée qu'une **secondaire**, elle-même mieux notée qu'une préposition **non prévue**. C'est un départage : si plusieurs découpes d'une commande sont possibles, la préposition oriente vers celle attendue par l'action.
+Lors du découpage d'une commande du joueur, une découpe employant une préposition **probable** est mieux notée qu'une **possible**, elle-même mieux notée qu'une préposition **imprévue**. C'est un départage : si plusieurs découpes d'une commande sont possibles, la préposition oriente vers celle attendue par l'action.
+
+ℹ️ Contractions (genre/nombre) gérées automatiquement : déclarez seulement la **forme de base** (`à`, `de`). Le moteur reconnaît les variantes contractées tapées par le joueur (`au`/`aux` ≡ `à`, `du`/`des`/`d'` ≡ `de`) et, à l'affichage d'une commande, contracte la forme de base selon le genre/nombre de la cible (`à`+`le`→`au`, `de`+`les`→`des`…). Inutile donc de lister `au`/`aux`/`du`/`des`.
 
 ### Action qui déplace le joueur
 
