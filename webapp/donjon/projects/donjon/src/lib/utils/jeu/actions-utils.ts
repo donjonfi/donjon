@@ -153,7 +153,7 @@ export class ActionsUtils {
             // détaillé commande trouvée
             raisonRefus += "{n}{t}- " + this.afficherCandidatAction(candidat, false, false);
           });
-          raisonRefus += "La combinaison de « " + ceciCommande.intitule + " » et « " + ceciCommande.intitule + " » ne convient pas.";
+          raisonRefus += "La combinaison de « " + ceciCommande.intitule + " » et « " + celaCommande.intitule + " » ne convient pas.";
         }
 
       }
