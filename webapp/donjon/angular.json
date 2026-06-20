@@ -123,7 +123,12 @@
               "outputPath": {
                 "base": "dist/donjon-creer-one"
               },
-              "baseHref": "./"
+              "baseHref": "./",
+              "optimization": {
+                "styles": {
+                  "inlineCritical": false
+                }
+              }
             },
             "development": {
               "optimization": false,
@@ -363,7 +368,12 @@
               "outputPath": {
                 "base": "dist/donjon-one"
               },
-              "baseHref": "./"
+              "baseHref": "./",
+              "optimization": {
+                "styles": {
+                  "inlineCritical": false
+                }
+              }
             },
             "donjon-jouer-bundle": {
               "budgets": [
@@ -388,7 +398,12 @@
               "outputPath": {
                 "base": "dist/donjon-jouer-bundle"
               },
-              "baseHref": "./"
+              "baseHref": "./",
+              "optimization": {
+                "styles": {
+                  "inlineCritical": false
+                }
+              }
             },
             "development": {
               "optimization": false,

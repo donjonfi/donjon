@@ -1,7 +1,7 @@
 /**
  * Génère projects/donjon-creer/src/app/standalone/jouer-one-template.ts
  * à partir de single-dist/donjon-jouer-bundle/index.html.
- * À relancer après chaque build de donjon-jouer-bundle + gulp.
+ * À relancer après chaque build de donjon-jouer-bundle + inline-single-file.js.
  * Usage : node generate-jouer-one-template.js
  */
 
