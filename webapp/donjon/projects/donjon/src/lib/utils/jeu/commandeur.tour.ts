@@ -156,7 +156,7 @@ export class CommandeurTour {
       && tour.commande.actionChoisie.action.cibleCela.epithete?.includes('vu') 
       && ClasseUtils.heriteDe(tour.commande.actionChoisie.cela.classe, EClasseRacine.element)) {
       this.jeu.etats.ajouterEtatElement(tour.commande.actionChoisie.cela as ElementJeu, EEtatsBase.familier, this.eju);
-      this.jeu.etats.retirerEtatElement(tour.commande.actionChoisie.ceci as ElementJeu, EEtatsBase.discret, this.eju);
+      this.jeu.etats.retirerEtatElement(tour.commande.actionChoisie.cela as ElementJeu, EEtatsBase.discret, this.eju);
     }
   }
 

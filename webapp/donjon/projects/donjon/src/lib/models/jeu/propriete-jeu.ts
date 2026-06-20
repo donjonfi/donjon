@@ -114,7 +114,7 @@ export class ProprieteJeu {
    */
   public static getDe(nom: string) {
     let retVal = "de ";
-    if (nom?.match(/^(a|e|i|o|u|y)/i)) {
+    if (nom?.match(/^[aàâäeéèêëiîïoôöuùûüy]/i)) {
       retVal = "d’";
     }
     return retVal;
