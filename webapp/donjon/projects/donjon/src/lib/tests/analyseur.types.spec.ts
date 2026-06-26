@@ -1,5 +1,6 @@
 import { AnalyseurType } from "../utils/compilation/analyseur/analyseur.type";
 import { AnalyseurV8Definitions } from "../utils/compilation/analyseur/analyseur-v8.definitions";
+import { CodeMessage } from "../models/compilateur/message-analyse";
 import { CompilateurV8Utils } from "../utils/compilation/compilateur-v8-utils";
 import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { Definition } from "../models/compilateur/definition";
@@ -269,7 +270,8 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         expect(ctxAnalyse.typesUtilisateur.get('lutin').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('lutin').typeParent).toBe('creature-magique'); // type parent
         expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveSize(2); // attributs spécifiques (1+1)
-        expect(ctxAnalyse.erreurs).toHaveSize(1); // 1 erreur a été générée
+        expect(ctxAnalyse.messages).toHaveSize(1); // 1 message a été généré
+        expect(ctxAnalyse.messages[0].code).toBe(CodeMessage.typeParentRedefini);
     });
 
 });

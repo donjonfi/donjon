@@ -19,8 +19,8 @@ export class MessageAnalyse {
   constructor(
     /** Type de message (conseil, probleme, erreur) */
     public type: EMessageAnalyse,
-    /** Phrase du scénario concernée */
-    phrase: Phrase,
+    /** Phrase du scénario concernée (peut être absente pour un message de génération) */
+    phrase: Phrase | undefined,
     /** Catégorie du message */
     public categorie: CategorieMessage,
     /** Code du message */
@@ -33,9 +33,11 @@ export class MessageAnalyse {
     routine: Routine | undefined = undefined,
     /** La phrase provient-elle du fichier avec les actions de base ? */
     public fichierAction: boolean,
+    /** Numéro de ligne de repli quand aucune phrase n’est associée (ex. génération). */
+    ligne: number | undefined = undefined,
   ) {
-    this.numeroLigne = phrase.ligne;
-    this.phrase = phrase.toString();
+    this.numeroLigne = phrase ? phrase.ligne : (ligne ?? 0);
+    this.phrase = phrase ? phrase.toString() : "";
     this.titreRoutine = routine?.titre ?? undefined;
   }
 
@@ -89,6 +91,11 @@ export enum CategorieMessage {
 
   referenceElementGenerique = "reference_element_generique",
 
+  placement = "placement",
+  type = "type",
+
+  generation = "generation",
+
 }
 
 /**
@@ -98,8 +105,6 @@ export enum CodeMessage {
 
   /** structure bloc: sinonsi se trouve après un sinon */
   sinonsiSuitSinon = "structure_bloc/sinonsi_suit_sinon",
-  /** structure bloc: sinon se trouve après un sinon */
-  sinonSuitSinon = "structure_bloc/sinon_suit_sinon",
   /** structure bloc: fin bloc différent de celui attendu (ex: fin choix au lieu de fin si) */
   finBlocDifferent = "structure_bloc/fin_bloc_different",
   /** structure bloc: fin bloc manquant */
@@ -156,14 +161,20 @@ export enum CodeMessage {
 
   /** Le même mot est utilisé comme synonyme de plusieurs vebres différents. */
   synonymeDefiniPourPlusieursVerbes = "synonyme/utilise_pour_plusieurs_verbes",
+  /** synonyme: le synonyme d’une action n’est pas un verbe à l’infinitif. */
+  synonymePasVerbe = "synonyme/synonyme_pas_verbe",
+  /** synonyme: le synonyme d’un élément du jeu n’est pas un groupe nominal. */
+  synonymePasGroupeNominal = "synonyme/synonyme_pas_groupe_nominal",
+  /** synonyme: l’élément du jeu auquel attribuer des synonymes n’a pas été trouvé. */
+  synonymeElementOriginalIntrouvable = "synonyme/element_original_introuvable",
+  /** synonyme: plusieurs éléments correspondent à l’intitulé à synonymer (ambigu). */
+  synonymeElementOriginalAmbigu = "synonyme/element_original_ambigu",
 
   /** Une définition était attendue mais on n’a pas pur interpréter cette phrase comme une définition */
   definitionAttendue = "syntaxe_definition/definition_attendue",
 
   /** Référence élément générique: élément ciblé pas trouvé */
   elementCiblePasTrouve = "reference_element_generique/element_cible_pas_trouve",
-  /** Référence élément générique: nom de l’élément pas supporté */
-  nomElementPasSupporte = "reference_element_generique/nom_element_pas_supporte",
   /** Référence élément générique: nom de l’autre élément pas supporté */
   nomElementCiblePasSupporte = "reference_element_generique/nom_element_cible_pas_supporte",
   /** Référence élément générique: position de l’autre élément pas supportée */
@@ -181,5 +192,48 @@ export enum CodeMessage {
   sinonApresSinon = "syntaxe_dynamique/sinon_apres_sinon",
   /** syntaxe dynamique: cadre conditionnel ouvert non fermé en fin de texte. */
   cadreNonFerme = "syntaxe_dynamique/cadre_non_ferme",
+
+  /** placement: « ici » utilisé alors qu’aucun lieu n’a été défini auparavant. */
+  lieuPrealableIntrouvable = "placement/lieu_prealable_introuvable",
+  /** placement: « dessus/dedans/dessous » utilisé alors qu’aucun élément n’a été défini auparavant. */
+  elementPrealableIntrouvable = "placement/element_prealable_introuvable",
+  /** placement: le lieu précédent porte le même nom que l’élément à placer « ici ». */
+  conflitNomLieuElement = "placement/conflit_nom_lieu_element",
+  /** placement: mot-clé de position non reconnu. */
+  motClePositionInconnu = "placement/mot_cle_position_inconnu",
+
+  /** type: le type parent d’un type personnalisé a été défini plusieurs fois. */
+  typeParentRedefini = "type/type_parent_redefini",
+
+  /** génération: intitulé d’une valeur de propriété non supporté. */
+  generationIntituleNonSupporte = "generation/intitule_non_supporte",
+  /** génération: position d’un élément introuvable. */
+  generationPositionIntrouvable = "generation/position_introuvable",
+  /** génération: élément positionné à plusieurs endroits (non autorisé hors lieux/obstacles). */
+  generationPositionsMultiples = "generation/positions_multiples",
+  /** génération: une action est définie plusieurs fois. */
+  generationActionDupliquee = "generation/action_dupliquee",
+  /** génération: « règle remplacer » correspond à plusieurs actions (ambiguë). */
+  generationRegleRemplacerAmbigue = "generation/regle_remplacer_ambigue",
+  /** génération: deux « règle remplacer » pour la même action. */
+  generationRegleRemplacerMultiple = "generation/regle_remplacer_multiple",
+  /** génération: aucune commande trouvée pour la règle. */
+  generationRegleSansCommande = "generation/regle_sans_commande",
+  /** génération: plusieurs commandes trouvées pour la règle. */
+  generationRegleCommandesMultiples = "generation/regle_commandes_multiples",
+  /** génération: positionnement d’un lieu — position relative pas trouvée. */
+  generationLieuPositionIntrouvable = "generation/lieu_position_introuvable",
+  /** génération: positionnement d’un lieu — lieu lié pas trouvé. */
+  generationLieuLieIntrouvable = "generation/lieu_lie_introuvable",
+  /** génération: négation d’un état qui n’existe pas. */
+  generationEtatNegationInexistant = "generation/etat_negation_inexistant",
+  /** génération: état déjà déclaré (moteur ou déclaration précédente). */
+  generationEtatDejaDeclare = "generation/etat_deja_declare",
+  /** génération: bascule sur un état déjà déclaré. */
+  generationBasculeEtatDejaDeclare = "generation/bascule_etat_deja_declare",
+  /** génération: groupe « se contredisent » sur un état déjà déclaré. */
+  generationGroupeEtatDejaDeclare = "generation/groupe_etat_deja_declare",
+  /** génération: état utilisé dans une relation inexistant (création auto désactivée). */
+  generationEtatRelationInexistant = "generation/etat_relation_inexistant",
 
 }

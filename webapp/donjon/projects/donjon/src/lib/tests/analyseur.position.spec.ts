@@ -10,6 +10,7 @@ import {
   PositionSujetString
 } from "../../public-api";
 
+import { CodeMessage } from "../models/compilateur/message-analyse";
 import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
@@ -317,7 +318,8 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-    expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car aucun lieu n’est encore défini.
+    expect(ctxAnalyse.messages).toHaveSize(1);
+    expect(ctxAnalyse.messages[0].code).toBe(CodeMessage.lieuPrealableIntrouvable);
 
   });
 
@@ -332,7 +334,8 @@ describe('Analyseur: objets positionnés', () => {
     expect(phrases[0].morceaux).toHaveSize(1); // nombre de morceaux
     // tester l’analyse complète
     expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementAvecPosition);
-    expect(ctxAnalyse.erreurs).toHaveSize(1); // erreur car aucun lieu n’est encore défini.
+    expect(ctxAnalyse.messages).toHaveSize(1);
+    expect(ctxAnalyse.messages[0].code).toBe(CodeMessage.elementPrealableIntrouvable);
 
   });
 

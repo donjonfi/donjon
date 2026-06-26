@@ -104,7 +104,10 @@ export class AnalyseurSynonymes {
                   message);
               }
             } else {
-              ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’une action : le synonyme n’est pas un verbe : " + synonymeBrut);
+              ctxAnalyse.probleme(phrase, undefined,
+                CategorieMessage.synonyme, CodeMessage.synonymePasVerbe,
+                "Synonyme d’action invalide",
+                `Le synonyme « ${synonymeBrut} » n’est pas un verbe. Un synonyme d’action doit être un verbe à l’infinitif.`);
             }
           });
         } else {
@@ -145,16 +148,25 @@ export class AnalyseurSynonymes {
                 // ajouter le synonyme à l’élément
                 elementTrouve.synonymes.push(synonyme);
               } else {
-                ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’un élément du jeu : le synonyme n’est pas un groupe nominal : " + synonymeBrut);
+                ctxAnalyse.probleme(phrase, undefined,
+                  CategorieMessage.synonyme, CodeMessage.synonymePasGroupeNominal,
+                  "Synonyme d’élément invalide",
+                  `Le synonyme « ${synonymeBrut} » n’est pas un groupe nominal. Un synonyme d’élément doit être un groupe nominal (article + nom).`);
               }
             });
 
             // AUCUN élément trouvé
           } else if (elementsTrouves.length === 0) {
-            ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’un élément du jeu : élément original pas trouvé : " + originalBrut);
+            ctxAnalyse.probleme(phrase, undefined,
+              CategorieMessage.synonyme, CodeMessage.synonymeElementOriginalIntrouvable,
+              "Élément à synonymer introuvable",
+              `L’élément « ${originalBrut} » n’a pas été trouvé. Définissez-le avant de lui donner des synonymes.`);
             // PLUSIEURS éléments trouvés
           } else {
-            ctxAnalyse.ajouterErreur(phrase.ligne, "synonymes d’un élément du jeu : plusieurs éléments trouvés pour : " + originalBrut);
+            ctxAnalyse.probleme(phrase, undefined,
+              CategorieMessage.synonyme, CodeMessage.synonymeElementOriginalAmbigu,
+              "Élément à synonymer ambigu",
+              `Plusieurs éléments correspondent à « ${originalBrut} ». Précisez de quel élément il s’agit pour lui attribuer des synonymes.`);
           }
         }
       }
