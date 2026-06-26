@@ -24,10 +24,9 @@ export class ConditionMulti {
       let retCond = "(";
       for (let index = 0; index < this.sousConditions.length; index++) {
         retCond += this.sousConditions[index].toString();
-        if (index < this.sousConditions.length - 2) {
-          retCond += this.typeLienSousConditions.toUpperCase() + " ";
+        if (index < this.sousConditions.length - 1) {
+          retCond += " " + this.typeLienSousConditions.toUpperCase() + " ";
         }
-        index++;
       }
       retCond += ")";
       return retCond;

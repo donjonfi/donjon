@@ -149,7 +149,7 @@ export class ElementJeu extends Concept {
 
   /** Nombre d'affichages de la description de l’objet. */
   get nbAffichageDescription(): number {
-    return this.proprietes.find(x => x.nom == 'description').nbAffichage;
+    return this.proprietes.find(x => x.nom == 'description')?.nbAffichage;
   }
   /** Nombre d'affichages de la description de l’objet. */
   set nbAffichageDescription(valeur: number) {

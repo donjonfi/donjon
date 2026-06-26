@@ -264,8 +264,8 @@ export class Commandeur {
             if (candidatCommande.correspondCela.elements.length) {
               celaRefuse = candidatCommande.correspondCela.elements[0];
               // concept
-            } else if (candidatCommande.correspondCeci.concepts.length) {
-              ceciRefuse = candidatCommande.correspondCeci.concepts[0];
+            } else if (candidatCommande.correspondCela.concepts.length) {
+              celaRefuse = candidatCommande.correspondCela.concepts[0];
               // compteur
             } else if (candidatCommande.correspondCela.compteurs.length) {
               celaRefuse = candidatCommande.correspondCela.compteurs[0];

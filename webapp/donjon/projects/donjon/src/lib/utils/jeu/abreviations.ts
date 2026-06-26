@@ -58,7 +58,7 @@ export class Abreviations {
     if (commandeModifiee.startsWith("m’") || commandeModifiee.startsWith("m'")) {
       commandeModifiee = "m’ " + commandeModifiee.slice(2);
     } else if (commandeModifiee.startsWith("s’") || commandeModifiee.startsWith("s'")) {
-      commandeModifiee = "m’ " + commandeModifiee.slice(2);
+      commandeModifiee = "s’ " + commandeModifiee.slice(2);
     }
 
     let mots = commandeModifiee.split(' ');
@@ -73,7 +73,7 @@ export class Abreviations {
     }
 
     // "le/la/les/l' [abrev/verbe] [reste]" avec espace → "[verbe] [pronom accordé] [reste]" (seulement si infinitif)
-    if (mots.length >= 2 && (mots[0] === 'le' || mots[0] === 'la' || mots[0] === 'les' || mots[0] === "l'" || mots[0] === "l'")) {
+    if (mots.length >= 2 && (mots[0] === 'le' || mots[0] === 'la' || mots[0] === 'les' || mots[0] === "l'" || mots[0] === "l’")) {
       const verbe = Abreviations.premierMotCommande(mots[1], false, abreviations, 2);
       if (/(?:er|ir|re)$/i.test(verbe)) {
         const reste = mots.slice(2).join(' ');
