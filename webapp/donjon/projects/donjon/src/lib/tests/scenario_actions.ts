@@ -1,6 +1,6 @@
 ﻿
 export const actions = `-- Titre: "Actions de base pour Donjon FI".
--- Version: 2026-06-20-31100
+-- Version: 2026-06-26-31101
 -- Auteur: Jonathan Claes (https://donjon.fi)
 -- Licence: Ce fichier est offert sous licence
 --   "Creative Commons Attribution 4.0 International License".
@@ -1452,45 +1452,5 @@ interpréter ramasser comme prendre.
 interpréter pincer comme toucher.
 interpréter actionner comme utiliser.
 
--- -- ============
--- --   X
--- -- ============
-
--- action x:
-
---   phase prérequis:
-
---   phase exécution:
-
---   phase épilogue:
-
--- fin action
-
--- -- ============
--- --   X
--- -- ============
-
--- action x:
-
---   phase épilogue:
-
--- fin action
-
-
--- -- ============
--- --   X
--- -- ============
-
--- action x ceci:
-
---   définitions:
-
---   phase prérequis:
-
---   phase exécution:
-
---   phase épilogue:
-
--- fin action
 
 `;
