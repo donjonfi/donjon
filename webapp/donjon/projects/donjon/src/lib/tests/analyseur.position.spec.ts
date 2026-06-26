@@ -14,7 +14,6 @@ import { CodeMessage } from "../models/compilateur/message-analyse";
 import { ContexteAnalyseV8 } from "../models/compilateur/contexte-analyse-v8";
 import { ExprReg } from "../utils/compilation/expr-reg";
 import { ResultatAnalysePhrase } from "../models/compilateur/resultat-analyse-phrase";
-import { CodeMessage } from "../models/compilateur/message-analyse";
 import { AnalyseurPosition } from "../utils/compilation/analyseur/analyseur.position";
 
 // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
