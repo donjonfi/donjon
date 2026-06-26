@@ -83,6 +83,11 @@ export class VerbesElementsUtils {
     const cond = new ConditionsUtils(jeu, false);
 
     jeu.actions.forEach(action => {
+      // une action masquée n'est jamais proposée (mask prime sur courantes/complémentaires :
+      // absente des suggestions, elle n'obtient aucun niveau dans listerGroupesVerbes)
+      if (action.masquee) {
+        return;
+      }
       if (!action.ceci || !action.cibleCeci) {
         return;
       }
@@ -237,6 +242,10 @@ export class VerbesElementsUtils {
     const parVariante = new Map<string, SuggestionVerbe>();
 
     jeu.actions.forEach(action => {
+      // une action masquée n'est jamais proposée par le constructeur de commande global
+      if (action.masquee) {
+        return;
+      }
       let suggestion: SuggestionVerbe;
       let variante: string;
       // action sans complément : commande complète
@@ -356,7 +365,7 @@ export class VerbesElementsUtils {
     const verbePertinentPourDirection = (action: Action) => directionAUnApercu || !!action.destinationDeplacement;
 
     jeu.actions.forEach(action => {
-      if (!action.ceci || !action.cibleCeci || action.cela) {
+      if (action.masquee || !action.ceci || !action.cibleCeci || action.cela) {
         return;
       }
       if (!VerbesElementsUtils.cibleEstDirection(action.cibleCeci)) {
@@ -387,7 +396,7 @@ export class VerbesElementsUtils {
       if (parInfinitif.has(infinitif)) {
         return;
       }
-      const action = jeu.actions.find(a => a.ceci && !a.cela && a.cibleCeci
+      const action = jeu.actions.find(a => a.ceci && !a.cela && a.cibleCeci && !a.masquee
         && (a.infinitif === infinitif || a.synonymes?.includes(infinitif))
         && VerbesElementsUtils.cibleEstIntitule(a.cibleCeci));
       if (action && verbePertinentPourDirection(action)) {

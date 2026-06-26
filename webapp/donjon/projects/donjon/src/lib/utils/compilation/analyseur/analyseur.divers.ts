@@ -242,6 +242,44 @@ export class AnalyseurDivers {
   }
 
   /**
+   * Tester si la phrase masque une ou plusieurs actions (exclues des propositions au joueur).
+   * Deux formes :
+   *  - « Les actions masquées sont déboguer, réinitialiser. » (liste, globale)
+   *  - « L’action déboguer est masquée. » (par-action)
+   * Les infinitifs sont collectés dans ctxAnalyse.actionsMasquees ; le flag Action.masquee est
+   * posé en finalisation (generateur) pour autoriser les références-avant.
+   */
+  public static testerActionsMasquees(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
+
+    let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
+
+    const liste = ExprReg.xActionsMasquees.exec(phrase.morceaux[0]);
+    const unique = liste ? null : ExprReg.xActionMasquee.exec(phrase.morceaux[0]);
+
+    if (liste || unique) {
+      elementTrouve = ResultatAnalysePhrase.actionsMasquees;
+      const infinitifsBruts = (liste ? liste[1] : unique[1]).trim();
+
+      PhraseUtils.separerListeIntitulesEtOu(infinitifsBruts, true).forEach(item => {
+        const infinitif = item.trim().toLowerCase();
+        if (ExprReg.xVerbeInfinitif.test(infinitif)) {
+          if (!ctxAnalyse.actionsMasquees.includes(infinitif)) {
+            ctxAnalyse.actionsMasquees.push(infinitif);
+          }
+        } else {
+          ctxAnalyse.probleme(phrase, undefined,
+            CategorieMessage.referenceElementGenerique, CodeMessage.nomElementCiblePasSupporte,
+            'Infinitif attendu',
+            `Actions masquées : « ${item.trim()} » devrait être un verbe à l’infinitif (-er, -ir ou -re).`,
+          );
+        }
+      });
+    }
+
+    return elementTrouve;
+  }
+
+  /**
    * La phrase demande d'afficher un compteur dans un coin de l'écran.
    * Ex: La bourse est affichée en haut à droite.
    */

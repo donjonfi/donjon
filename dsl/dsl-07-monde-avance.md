@@ -83,6 +83,17 @@ Les **sorties** sont aussi cliquables (y compris `monter`/`descendre`/`entrer`/`
 Les actions courantes pour les directions sont aller et regarder.
 ```
 
+### Actions masquées (techniques)
+
+Une action **technique**, destinée à l’auteur (mise au point, déclenchement interne) et non au joueur, peut être **masquée** : elle disparaît alors des propositions — menu tactile (tous les niveaux, y compris « Toutes les actions ») et suggestions du correcteur automatique (« vouliez-vous dire… ? »). Elle reste néanmoins **exécutable** si elle est tapée exactement ou invoquée par une règle.
+
+```
+Les actions masquées sont recalibrer et réinitialiser.
+L’action recalibrer est masquée.
+```
+
+Le masquage est **global** (pas de cible : on ne masque pas une action « pour les objets »). Il **prime** sur une éventuelle déclaration courante/complémentaire du même verbe. Masquer un infinitif qui ne correspond à aucune action émet un conseil dans l’éditeur (pas une erreur).
+
 ### Désactiver le mode mobile
 
 ```

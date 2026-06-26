@@ -12,6 +12,7 @@ export enum ResultatAnalysePhrase {
   afficherCompteur,
   afficherLieu,
   actionsTactiles,
+  actionsMasquees,
   elementAvecPosition,
   elementSansPosition,
   pronomDemontratifTypeAttribut,

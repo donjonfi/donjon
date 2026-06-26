@@ -492,6 +492,25 @@ export class ExprReg {
    */
   static readonly xActionsTactilesAjoutComme = /^(.+?) (?:a|ont) aussi (.+?) comme actions? (courantes?|compl[\u00e9e]mentaires?|principales?|secondaires?)$/i;
 
+  /**
+   * Actions \u00ab masqu\u00e9es \u00bb (forme liste, globale) : exclues des propositions au joueur (menu
+   * tactile + suggestions du correcteur), tout en restant ex\u00e9cutables.
+   * - D\u00e9coupage :
+   *     - infinitifs(1)
+   * Ex :
+   *  - Les actions masqu\u00e9es sont d\u00e9boguer, r\u00e9initialiser et tester.
+   */
+  static readonly xActionsMasquees = /^(?:les |l(?:'|\u2019))actions? masqu[\u00e9e]es? (?:est|sont) (.+)$/i;
+
+  /**
+   * Action \u00ab masqu\u00e9e \u00bb (forme par-action). M\u00eame effet que la forme liste, pour une seule action.
+   * - D\u00e9coupage :
+   *     - infinitif(1)
+   * Ex :
+   *  - L\u2019action d\u00e9boguer est masqu\u00e9e.
+   */
+  static readonly xActionMasquee = /^l(?:'|\u2019)action (.+?) est masqu[\u00e9e]e$/i;
+
   // ================================================================================================
   //  DÉCLARATION D'ÉTATS PERSONNALISÉS
   // ================================================================================================

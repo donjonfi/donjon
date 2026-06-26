@@ -725,6 +725,19 @@ export class Generateur {
       });
     });
 
+    // ACTIONS MASQUÉES (exclues des propositions au joueur : menu tactile + suggestions du
+    // correcteur), tout en restant exécutables. Posées ici (jeu.actions est complet) pour
+    // autoriser les références-avant. Toutes les formes d'un même infinitif sont masquées.
+    (rc.actionsMasquees ?? []).forEach(infinitif => {
+      const cibles = jeu.actions.filter(action => action.infinitif === infinitif
+        || action.synonymes?.includes(infinitif));
+      if (cibles.length === 0) {
+        jeu.tamponConseils.push(`Action masquée : « ${infinitif} » ne correspond à aucune action du jeu — rien à masquer.`);
+      } else {
+        cibles.forEach(action => action.masquee = true);
+      }
+    });
+
     // Passe 3 : conseil si une « règle remplacer » d’un verbe laisse d’autres formes de ce verbe
     // non remplacées (la phase « définitions: » fait partie de la signature). L’action de base
     // reste alors active pour ces formes — parfois voulu, donc conseil (visible dans

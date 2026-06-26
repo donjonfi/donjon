@@ -117,6 +117,16 @@ export class Action {
   /** Cette action remplace une action déjà existante avec la même signature (via « règle remplacer »). */
   public remplace: boolean = false;
 
+  /**
+   * Action « masquée » : exclue des propositions faites au joueur — menu tactile (verbes
+   * proposés sur un élément/une direction, constructeur de commande global) et suggestions
+   * du correcteur automatique (« vouliez-vous dire … ? »). L’action reste néanmoins
+   * exécutable si elle est tapée exactement ou invoquée par une règle.
+   * Posée en finalisation (cf. generateur) d’après « Les actions masquées sont … » /
+   * « L’action X est masquée. ».
+   */
+  public masquee: boolean = false;
+
   /** Si cette action en a remplacé une autre (« règle remplacer »), référence à l’action originale écrasée
    *  — utilisée par l’aperçu pour afficher côte à côte remplaçante et remplacée. */
   public actionRemplacee: Action | undefined;

@@ -189,6 +189,12 @@ export class AnalyseurV8Definitions {
         ctx.logResultatOk("trouvé actions principales/secondaires (interface tactile)");
       }
     }
+    if (elementTrouve === ResultatAnalysePhrase.aucun) {
+      elementTrouve = AnalyseurDivers.testerActionsMasquees(phrase, ctx);
+      if (elementTrouve === ResultatAnalysePhrase.actionsMasquees) {
+        ctx.logResultatOk("trouvé actions masquées");
+      }
+    }
     return elementTrouve;
   }
 

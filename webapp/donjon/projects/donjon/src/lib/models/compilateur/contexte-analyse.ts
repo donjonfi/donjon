@@ -27,6 +27,13 @@ export class ContexteAnalyse {
   /** Actions principales/secondaires proposées par l’interface tactile. */
   public actionsTactiles = new Array<RegleActionsTactiles>();
 
+  /**
+   * Infinitifs des actions « masquées » (exclues des propositions au joueur). Collectés à
+   * l’analyse — « Les actions masquées sont … » / « L’action X est masquée. » — puis liés en
+   * finalisation (cf. generateur) sur les actions correspondantes (références-avant sûres).
+   */
+  public actionsMasquees = new Array<string>();
+
   public dernierePropriete: ProprieteConcept = null;
   public dernierElementGenerique: ElementGenerique = null;
   public dernierLieu: ElementGenerique = null;

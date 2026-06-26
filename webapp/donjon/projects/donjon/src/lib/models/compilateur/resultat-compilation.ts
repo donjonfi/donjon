@@ -37,6 +37,8 @@ export class ResultatCompilation {
   parametres: Parametres;
   /** Les actions principales/secondaires de l’interface tactile. */
   actionsTactiles: RegleActionsTactiles[];
+  /** Les infinitifs des actions masquées (exclues des propositions au joueur). */
+  actionsMasquees: string[];
   /** Les statistiques de l’analyse. */
   statistiques: Statistiques;
   /** Les déclarations d'états personnalisés trouvées (à appliquer sur la {@link ListeEtats}). */

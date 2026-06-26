@@ -68,6 +68,7 @@ $language_data = array (
 			'phase', 'prérequis', 'exécution', 'épilogue',
 			'définition', 'définitions',
 			'probable', 'probables', 'possible', 'possibles',
+			'masquée', 'masquées', 'masquee', 'masquees',
 			'est', 'sont', 'pas', 'plus', 'se trouve', 'se trouvent',
             'contient', 'contiennent',
 			'possède', 'possèdent', 'porte', 'portent',

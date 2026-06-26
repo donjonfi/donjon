@@ -765,7 +765,9 @@ export class ActionsUtils {
         } else {
           candidatsRefuses.push(action);
         }
-      } else if (infinitifSimilaire) {
+      } else if (infinitifSimilaire && !action.masquee) {
+        // Une action masquée n'est jamais SUGGÉRÉE par le correcteur, mais reste trouvée
+        // (chemin infinitifOk ci-dessus) et donc exécutable si elle est tapée exactement.
         if (!verbesSimilaires.includes(action.infinitif)) {
           verbesSimilaires.push(action.infinitif);
         }
