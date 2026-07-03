@@ -9,6 +9,7 @@ import { ElementsJeuUtils } from '../../utils/commun/elements-jeu-utils';
 import { Jeu } from '../../models/jeu/jeu';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
 import { RACCOURCIS_ACTIONS_TACTILES } from '../../models/jeu/regle-actions-tactiles';
+import { StringUtils } from '../../utils/commun/string.utils';
 import { GroupeVerbe, SuggestionVerbe, VerbesElementsUtils } from '../../utils/jeu/tactile/verbes-elements-utils';
 
 /**
@@ -184,16 +185,19 @@ export class MenuTactileComponent implements OnChanges {
     // Verbes sous-jacents aux raccourcis épinglés (ex. « afficher » pour « inventaire ») : déjà
     //  représentés par leur propre bouton-raccourci, on ne les répète pas dans les dernières
     //  actions (sinon « afficher inventaire » ferait doublon avec le bouton inventaire forcé).
-    const actionsRaccourcis = new Set(Object.values(RACCOURCIS_ACTIONS_TACTILES).map(r => r.action));
+    // formes normalisées (casse + accents) : g.infinitif = action.infinitif conserve la casse
+    // de l'auteur (« Recalibrer »), alors que la saisie et les raccourcis sont en minuscule
+    const actionsRaccourcis = new Set(Object.values(RACCOURCIS_ACTIONS_TACTILES).map(r => StringUtils.normaliserMot(r.action)));
     // la plus récente en dernier dans l’historique → parcourir à rebours
     for (let i = (this.dernieresCommandes?.length ?? 0) - 1; i >= 0 && recents.length < MenuTactileComponent.NB_RECENTS; i--) {
       const premierMot = this.dernieresCommandes[i]?.trim().toLowerCase().split(' ')[0];
       if (!premierMot) {
         continue;
       }
-      const groupe = this.groupes.find(g => g.infinitif === premierMot
-        || [g.simple, ...g.variantes].some(v => v.action.synonymes?.includes(premierMot)));
-      if (groupe && !actionsRaccourcis.has(groupe.infinitif) && !recents.includes(groupe)) {
+      const premierMotNorm = StringUtils.normaliserMot(premierMot);
+      const groupe = this.groupes.find(g => StringUtils.normaliserMot(g.infinitif) === premierMotNorm
+        || [g.simple, ...g.variantes].some(v => v.action.correspondAuNom(premierMot)));
+      if (groupe && !actionsRaccourcis.has(StringUtils.normaliserMot(groupe.infinitif)) && !recents.includes(groupe)) {
         recents.push(groupe);
       }
     }
@@ -215,13 +219,16 @@ export class MenuTactileComponent implements OnChanges {
    * disponible actuellement (alors le verbe n’est pas proposé).
    */
   private groupeEpingle(infinitif: string): GroupeVerbe | null {
-    const groupe = this.groupes.find(g => g.infinitif === infinitif);
+    // comparaison casse+accents : g.infinitif conserve la casse de l'auteur
+    const infinitifNorm = StringUtils.normaliserMot(infinitif);
+    const groupe = this.groupes.find(g => StringUtils.normaliserMot(g.infinitif) === infinitifNorm);
     if (groupe) {
       return groupe;
     }
     const raccourci = RACCOURCIS_ACTIONS_TACTILES[infinitif];
     if (raccourci) {
-      const action = this.groupes.find(g => g.infinitif === raccourci.action);
+      const raccourciActionNorm = StringUtils.normaliserMot(raccourci.action);
+      const action = this.groupes.find(g => StringUtils.normaliserMot(g.infinitif) === raccourciActionNorm);
       if (!action) {
         return null;
       }

@@ -111,4 +111,67 @@ Les actions masquées sont voler.
       .withContext(jeu.tamponConseils.join(' | ')).toBe(true);
   });
 
+  // Casse : un infinitif d'action conserve la casse d'origine de l'auteur (« Recalibrer ») ; le
+  // masquage doit matcher indépendamment de la casse — la comparaison passe par la forme sans accent.
+  const SCENARIO_MAJUSCULE = `
+Le bureau est un lieu.
+
+action Recalibrer:
+  phase épilogue:
+    dire "Recalibrage.".
+fin action
+`;
+
+  it('[F082-T008] masquer une action à infinitif majuscule avec la même casse pose le flag', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(SCENARIO_MAJUSCULE + `
+L'action Recalibrer est masquée.
+`);
+    const action = ctx.jeu.actions.find(a => a.infinitif === 'Recalibrer');
+    expect(action).withContext('action Recalibrer présente').toBeTruthy();
+    expect(action?.masquee).withContext('Recalibrer doit être masquée').toBe(true);
+    expect(ctx.jeu.tamponConseils.some(c => c.includes('Recalibrer')))
+      .withContext('aucun conseil « ne correspond à aucune action » ne doit être émis').toBe(false);
+  });
+
+  it('[F082-T009] masquer par-action avec une casse différente matche quand même', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(SCENARIO_MAJUSCULE + `
+L'action recalibrer est masquée.
+`);
+    expect(ctx.jeu.actions.find(a => a.infinitif === 'Recalibrer')?.masquee)
+      .withContext('casse divergente instruction/définition').toBe(true);
+  });
+
+  it('[F082-T010] la forme liste globale matche aussi une action à infinitif majuscule', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(SCENARIO_MAJUSCULE + `
+Les actions masquées sont Recalibrer.
+`);
+    expect(ctx.jeu.actions.find(a => a.infinitif === 'Recalibrer')?.masquee)
+      .withContext('forme liste globale, infinitif majuscule').toBe(true);
+  });
+
+  it('[F082-T011] une action à infinitif majuscule déclarée « action courante » est classée principale (sans faux conseil)', () => {
+    const ctx = TestUtils.genererEtCommencerLeJeu(`
+Le bureau est un lieu.
+La borne est un objet dans le bureau.
+
+action Recalibrer ceci:
+  définitions:
+    ceci est un objet.
+  phase épilogue:
+    dire "Recalibrage de [ceci].".
+fin action
+
+Les actions courantes pour les objets sont Recalibrer.
+`);
+    // pas de faux conseil « ne sera pas proposé » (site generateur : validation des actions tactiles)
+    expect(ctx.jeu.tamponConseils.some(c => c.includes('Recalibrer')))
+      .withContext(ctx.jeu.tamponConseils.join(' | ')).toBe(false);
+    // la classification principale/secondaire matche malgré la casse
+    const borne = ctx.jeu.objets.find(o => o.nom === 'borne');
+    const groupe = VerbesElementsUtils.listerGroupesVerbes(borne, ctx.jeu, ctx.eju)
+      .find(g => g.infinitif === 'Recalibrer');
+    expect(groupe).withContext('le verbe doit être proposé').toBeTruthy();
+    expect(groupe?.niveau).withContext('doit être classé principale').toBe('principale');
+  });
+
 });

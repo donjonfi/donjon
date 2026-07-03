@@ -14,6 +14,7 @@ import { Instruction } from '../../../models/compilateur/instruction';
 import { Jeu } from '../../../models/jeu/jeu';
 import { PhraseUtils } from '../../commun/phrase-utils';
 import { RechercheUtils } from '../../commun/recherche-utils';
+import { StringUtils } from '../../commun/string.utils';
 import { TypeRegle } from '../../../models/compilateur/type-regle';
 
 /**
@@ -149,6 +150,13 @@ export class VerbesElementsUtils {
     const { principales, secondaires } = ActionsTactilesUtils.resoudreToutes(element, jeu, eju);
     // verbes ciblés par une règle avant/après/remplacer de cet élément précis
     const verbesRegle = VerbesElementsUtils.verbesAvecRegleCiblee(element, jeu);
+    // Les listes déclarées (principales/secondaires) et les verbes de règles sont mis en minuscule
+    // à la collecte, tandis que suggestion.infinitif = action.infinitif conserve la casse de l'auteur.
+    // On compare donc sur la forme normalisée (casse + accents) pour classer correctement une action
+    // dont l'infinitif contient des majuscules (« MonSuperManger »).
+    const principalesNorm = principales.map(i => StringUtils.normaliserMot(i));
+    const secondairesNorm = secondaires.map(i => StringUtils.normaliserMot(i));
+    const verbesRegleNorm = new Set(Array.from(verbesRegle, i => StringUtils.normaliserMot(i)));
 
     // regrouper les variantes par infinitif (ordre de première apparition conservé)
     const parInfinitif = new Map<string, SuggestionVerbe[]>();
@@ -161,14 +169,15 @@ export class VerbesElementsUtils {
 
     const groupes: GroupeVerbe[] = [];
     parInfinitif.forEach((variantes, infinitif) => {
+      const infinitifNorm = StringUtils.normaliserMot(infinitif);
       const simple = variantes.find(v => !v.attendCela) ?? variantes[0];
       let niveau: 'principale' | 'secondaire' | 'autre';
-      if (principales.includes(infinitif)) {
+      if (principalesNorm.includes(infinitifNorm)) {
         niveau = 'principale';
         // une action ou une règle avant/après définie pour cet élément précis
         // (« ceci est le fauteuil », « règle avant pousser le fauteuil ») est
         // proposée d’office en secondaire si l’auteur ne l’a pas classée lui-même
-      } else if (secondaires.includes(infinitif) || verbesRegle.has(infinitif) || variantes.some(v => !VerbesElementsUtils.cibleEstClasse(v.action.cibleCeci))) {
+      } else if (secondairesNorm.includes(infinitifNorm) || verbesRegleNorm.has(infinitifNorm) || variantes.some(v => !VerbesElementsUtils.cibleEstClasse(v.action.cibleCeci))) {
         niveau = 'secondaire';
       } else {
         niveau = 'autre';
@@ -179,9 +188,10 @@ export class VerbesElementsUtils {
     const rangNiveau = { principale: 0, secondaire: 1, autre: 2 };
     // les secondaires promues automatiquement (pas déclarées) après les déclarées
     const rangDeclare = (groupe: GroupeVerbe) => {
+      const infinitifNorm = StringUtils.normaliserMot(groupe.infinitif);
       const index = groupe.niveau === 'principale'
-        ? principales.indexOf(groupe.infinitif)
-        : secondaires.indexOf(groupe.infinitif);
+        ? principalesNorm.indexOf(infinitifNorm)
+        : secondairesNorm.indexOf(infinitifNorm);
       return index === -1 ? Number.MAX_SAFE_INTEGER : index;
     };
     // tri stable : les groupes « autre » conservent l’ordre de listerVerbes
@@ -389,6 +399,10 @@ export class VerbesElementsUtils {
     });
 
     const { principales, secondaires } = ActionsTactilesUtils.resoudreToutesPourClasse(direction.classe, jeu);
+    // comparaison casse+accents (cf. listerGroupesVerbes) : les listes déclarées sont en minuscule,
+    // la clé du groupe peut être un action.infinitif brut (« MonSuperManger »)
+    const principalesNorm = principales.map(i => StringUtils.normaliserMot(i));
+    const secondairesNorm = secondaires.map(i => StringUtils.normaliserMot(i));
 
     // compléter avec les infinitifs déclarés dans les listes dont l’action
     // cible un intitulé (« regarder ») : elles acceptent aussi une direction
@@ -397,7 +411,7 @@ export class VerbesElementsUtils {
         return;
       }
       const action = jeu.actions.find(a => a.ceci && !a.cela && a.cibleCeci && !a.masquee
-        && (a.infinitif === infinitif || a.synonymes?.includes(infinitif))
+        && a.correspondAuNom(infinitif)
         && VerbesElementsUtils.cibleEstIntitule(a.cibleCeci));
       if (action && verbePertinentPourDirection(action)) {
         parInfinitif.set(infinitif, {
@@ -415,16 +429,18 @@ export class VerbesElementsUtils {
 
     const groupes: GroupeVerbe[] = [];
     parInfinitif.forEach((simple, infinitif) => {
-      const niveau = principales.includes(infinitif) ? 'principale'
-        : (secondaires.includes(infinitif) ? 'secondaire' : 'autre');
+      const infinitifNorm = StringUtils.normaliserMot(infinitif);
+      const niveau = principalesNorm.includes(infinitifNorm) ? 'principale'
+        : (secondairesNorm.includes(infinitifNorm) ? 'secondaire' : 'autre');
       groupes.push({ infinitif, niveau, simple, variantes: [] });
     });
 
     const rangNiveau = { principale: 0, secondaire: 1, autre: 2 };
     const rangDeclare = (groupe: GroupeVerbe) => {
+      const infinitifNorm = StringUtils.normaliserMot(groupe.infinitif);
       const index = groupe.niveau === 'principale'
-        ? principales.indexOf(groupe.infinitif)
-        : secondaires.indexOf(groupe.infinitif);
+        ? principalesNorm.indexOf(infinitifNorm)
+        : secondairesNorm.indexOf(infinitifNorm);
       return index === -1 ? Number.MAX_SAFE_INTEGER : index;
     };
     groupes.sort((a, b) => {
@@ -751,7 +767,10 @@ export class VerbesElementsUtils {
 
   /** Rang d’un verbe dans la liste des verbes courants (Infinity si pas courant). */
   private static rangVerbe(infinitif: string): number {
-    const index = VerbesElementsUtils.VERBES_COURANTS.indexOf(infinitif);
+    // comparaison casse+accents : infinitif = action.infinitif conserve la casse de l'auteur, et
+    // VERBES_COURANTS contient des accents (« déplacer ») → normaliser les deux côtés
+    const infinitifNorm = StringUtils.normaliserMot(infinitif);
+    const index = VerbesElementsUtils.VERBES_COURANTS.findIndex(v => StringUtils.normaliserMot(v) === infinitifNorm);
     return index === -1 ? Number.MAX_SAFE_INTEGER : index;
   }
 

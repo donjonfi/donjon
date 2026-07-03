@@ -2,6 +2,7 @@ import { Auditeur } from '../../models/jouer/auditeur';
 import { ClasseUtils } from '../commun/classe-utils';
 import { Declenchement } from '../../models/jouer/declenchement';
 import { Evenement } from '../../models/jouer/evenement';
+import { StringUtils } from '../commun/string.utils';
 import { TypeEvenement } from '../../models/jouer/type-evenement';
 import { TypeRegle } from '../../models/compilateur/type-regle';
 
@@ -89,7 +90,10 @@ export class Declencheur {
       aud.evenements.forEach(curAudEvenement => {
 
         // vérifier infinitif ou absence d’infinitif
-        if (curAudEvenement.infinitif === evenement.infinitif || !curAudEvenement.infinitif) {
+        // (comparaison normalisée casse+accents : le verbe de la règle est mis en minuscule au parsing
+        //  tandis que l’infinitif de l’action joué conserve la casse d’origine de l’auteur, ex. « MonSuperManger »)
+        if (!curAudEvenement.infinitif
+          || StringUtils.normaliserMot(curAudEvenement.infinitif) === StringUtils.normaliserMot(evenement.infinitif)) {
 
           // s’il l’infinitif est précisé (=> parler à xxxxx), cela vaut plus que si infinitif pas précisé (=> action impliquant xxxx)
           let infinitifPrecise = curAudEvenement.infinitif;

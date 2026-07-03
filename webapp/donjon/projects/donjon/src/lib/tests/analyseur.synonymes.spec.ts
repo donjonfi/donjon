@@ -191,4 +191,23 @@ describe('Synonymes − Scénario synonyme action)', () => {
     expect(ctx.jeu.objets[3].synonymes).toHaveSize(0);
   });
 
+  // ——— casse : l'infinitif d'une action conserve la casse de l'auteur ———
+
+  it('[F009-T016] synonyme rattaché à la bonne action malgré une casse différente (sans faux avertissement multi-actions)', () => {
+    // Action définie avec majuscule (« Marcher ») ; référencée en minuscule dans « interpréter ».
+    // La résolution passe par infinitifSansAccent ; le skip de dédup aussi, sinon l'action qu'on
+    // vient d'enrichir déclencherait à tort « synonyme défini pour plusieurs actions » (qui échoue).
+    const scenario = `
+action Marcher: fin action
+action sauter: fin action
+Interpréter courir comme marcher.
+`;
+    let ctx: ContextePartie;
+    expect(() => { ctx = TestUtils.genererEtCommencerLeJeu(scenario); }).not.toThrow();
+    expect(ctx.jeu.actions[0].infinitif).toEqual('Marcher');
+    expect(ctx.jeu.actions[0].synonymes).toContain('courir');
+    expect(ctx.jeu.actions[1].infinitif).toEqual('sauter');
+    expect(ctx.jeu.actions[1].synonymes).toHaveSize(0);
+  });
+
 });

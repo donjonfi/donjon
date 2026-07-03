@@ -8,6 +8,7 @@ import { MotUtils } from "../../commun/mot-utils";
 import { Phrase } from "../../../models/compilateur/phrase";
 import { PhraseUtils } from "../../commun/phrase-utils";
 import { ResultatAnalysePhrase } from "../../../models/compilateur/resultat-analyse-phrase";
+import { StringUtils } from "../../commun/string.utils";
 import { TexteUtils } from "../../commun/texte-utils";
 
 export class AnalyseurSynonymes {
@@ -64,7 +65,11 @@ export class AnalyseurSynonymes {
       if (resultatVerbe) {
         // retrouver les action liés à ce verbe
         let infinitif = resultatVerbe[1];
-        let actionsTrouvees = ctxAnalyse.actions.filter(x => x.infinitif === infinitif);
+        // On compare sur infinitifSansAccent (et non via Action.correspondAuNom qui matcherait aussi
+        // les synonymes) : le nom de l’auteur peut contenir des majuscules/accents, mais on veut cibler
+        // l’action par son infinitif seul — élargir aux synonymes changerait quelle action reçoit le nouveau synonyme.
+        const infinitifNorm = StringUtils.normaliserMot(infinitif);
+        let actionsTrouvees = ctxAnalyse.actions.filter(x => x.infinitifSansAccent === infinitifNorm);
         if (actionsTrouvees.length !== 0) {
           // parcourir les synonymes
           listeSynonymesBruts.forEach(synonymeBrut => {
@@ -79,16 +84,17 @@ export class AnalyseurSynonymes {
               });
 
               // vérifier si ce synonyme n’a pas déjà été utilisé pour une autre action
+              // (comparaisons normalisées : casse/accents ignorés — sinon l’action qu’on vient
+              //  d’enrichir n’est pas exclue si sa casse diffère → faux avertissement)
+              const synonymeNorm = StringUtils.normaliserMot(synonyme);
               let listeAutresSynonymes: string[] = [];
               ctxAnalyse.actions.forEach(autreAction => {
-                if (autreAction.infinitif !== infinitif) {
-                  autreAction.synonymes.forEach(autreSynonyme => {
-                    if (autreSynonyme == synonyme) {
-                      if (!listeAutresSynonymes.includes(autreAction.infinitif)) {
-                        listeAutresSynonymes.push(autreAction.infinitif);
-                      }
+                if (autreAction.infinitifSansAccent !== infinitifNorm) {
+                  if (autreAction.synonymesSansAccent.includes(synonymeNorm)) {
+                    if (!listeAutresSynonymes.includes(autreAction.infinitif)) {
+                      listeAutresSynonymes.push(autreAction.infinitif);
                     }
-                  });
+                  }
                 }
               });
               if (listeAutresSynonymes.length) {

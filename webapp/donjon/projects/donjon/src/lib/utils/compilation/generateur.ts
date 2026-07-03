@@ -717,9 +717,8 @@ export class Generateur {
         // un pseudo-infinitif (« inventaire » → « afficher inventaire ») est
         // valide dès que l’action sous-jacente (« afficher ») existe
         const raccourci = RACCOURCIS_ACTIONS_TACTILES[infinitif];
-        const existe = jeu.actions.some(action => action.infinitif === infinitif
-          || action.synonymes?.includes(infinitif)
-          || (raccourci && action.infinitif === raccourci.action));
+        const existe = jeu.actions.some(action => action.correspondAuNom(infinitif)
+          || (raccourci && action.infinitifSansAccent === StringUtils.normaliserMot(raccourci.action)));
         if (!existe) {
           jeu.tamponConseils.push(`Actions ${regle.typeListe} (interface tactile) : « ${infinitif} » ne correspond à aucune action du jeu — ce verbe ne sera pas proposé dans le menu.`);
         }
@@ -730,8 +729,7 @@ export class Generateur {
     // correcteur), tout en restant exécutables. Posées ici (jeu.actions est complet) pour
     // autoriser les références-avant. Toutes les formes d'un même infinitif sont masquées.
     (rc.actionsMasquees ?? []).forEach(infinitif => {
-      const cibles = jeu.actions.filter(action => action.infinitif === infinitif
-        || action.synonymes?.includes(infinitif));
+      const cibles = jeu.actions.filter(action => action.correspondAuNom(infinitif));
       if (cibles.length === 0) {
         jeu.tamponConseils.push(`Action masquée : « ${infinitif} » ne correspond à aucune action du jeu — rien à masquer.`);
       } else {

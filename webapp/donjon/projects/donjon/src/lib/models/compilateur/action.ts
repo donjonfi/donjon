@@ -165,6 +165,16 @@ export class Action {
     return this._synonymesSansAccent as ReadonlyArray<string>;
   }
 
+  /**
+   * Vrai si `nomBrut` (un nom d’action fourni par l’auteur, p. ex. dans « L’action X est masquée. »
+   * ou « … a aussi X comme action courante ») désigne cette action, casse et accents ignorés.
+   * On compare sur les formes normalisées car `infinitif`/`synonymes` conservent la casse d’origine.
+   */
+  public correspondAuNom(nomBrut: string): boolean {
+    const nom = StringUtils.normaliserMot(nomBrut);
+    return this.infinitifSansAccent === nom || this.synonymesSansAccent.includes(nom);
+  }
+
 }
 
 export class ActionCeciCela {
