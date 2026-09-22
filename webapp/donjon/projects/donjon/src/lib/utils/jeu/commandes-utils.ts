@@ -18,6 +18,23 @@ export class CommandesUtils {
     return commandeNettoyee;
   }
 
+  /**
+   * Décomposer une étape de sauvegarde (« c:prendre clé », « g:0.42 », …) en type + valeur.
+   * On découpe sur le PREMIER « : » uniquement : la valeur peut elle-même contenir des « : »
+   * (typiquement un commentaire du joueur à l’auteur: « c:*orthographe: il manque un accent »),
+   * un `split(":")` déstructuré perdrait tout ce qui suit le 2e séparateur.
+   */
+  public static decomposerEtape(etape: string): { type: string, valeur: string } {
+    const idxSeparateur = etape?.indexOf(':') ?? -1;
+    if (idxSeparateur === -1) {
+      return { type: etape, valeur: undefined };
+    }
+    return {
+      type: etape.substring(0, idxSeparateur),
+      valeur: etape.substring(idxSeparateur + 1),
+    };
+  }
+
   public static commandesSimilaires(commandeA: string, commandeB: string): boolean {
     const commandeANettoyee = RechercheUtils.nettoyerEtRetirerDeterminants(commandeA);
     const commandeBNettoyee = RechercheUtils.nettoyerEtRetirerDeterminants(commandeB);
@@ -42,7 +59,7 @@ export class CommandesUtils {
 
       // s'il s'agit d'une réponse à une question, une graine ou un déclenchement, ce n'est pas une commande
       // donc il faudra encore enlever la commande précédente pour enlever tout le tour
-      let [type, valeur] = derniereCommande.split(":");
+      const { type } = CommandesUtils.decomposerEtape(derniereCommande);
       switch (type) {
         case ExprReg.caractereReponse:
         case ExprReg.caractereGraine:

@@ -674,7 +674,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.manuTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
       if (this.jeu.sauvegarde?.etapesSauvegarde?.length) {
         const prochaineEtape = this.jeu.sauvegarde.etapesSauvegarde[++this.indexDerniereCommandeRestauration];
-        let [type, graineRestauree] = prochaineEtape.split(":");
+        const { type, valeur: graineRestauree } = CommandesUtils.decomposerEtape(prochaineEtape);
         if (type == ExprReg.caractereGraine) {
           //this.ajouteConseils("Graine du générateur de hasard restaurée.")
           graineDeDepart = graineRestauree;
@@ -1176,7 +1176,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       if (this.indexDerniereCommandeRestauration < this.jeu.sauvegarde.etapesSauvegarde.length) {
 
         const prochaineEtape = this.jeu.sauvegarde.etapesSauvegarde[this.indexDerniereCommandeRestauration];
-        let [type, valeur] = prochaineEtape.split(":");
+        const { type, valeur } = CommandesUtils.decomposerEtape(prochaineEtape);
 
         switch (type) {
           // commande
@@ -1618,7 +1618,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
           } else {
             // Charger les lectures d'horloge de cette étape (rejeu déterministe) avant de l'exécuter.
             HorlogeUtils.chargerRejeuEtape(this.jeu.sauvegarde.horlogesSauvegarde?.[idxEtape] ?? null);
-            let [type, valeur] = curCom.split(":");
+            const { type, valeur } = CommandesUtils.decomposerEtape(curCom);
             switch (type) {
               // commande et réponse
               case 'c':
@@ -1723,7 +1723,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       texteIgnore = this.partie.ecran.ajouterParagrapheHtml('<i>Fichier solution généré. Vous pouvez utiliser votre fichier solution avec le mode <b>triche</b>.</i>');
 
       // rem: le scénario n’est pas présent dans la sauvegarde d’une solution !
-      const sauvegarde = this.partie.creerSauvegardeSolution();
+      const sauvegarde = this.partie.creerSauvegardePourFichier();
       const contenuJson = JSON.stringify(sauvegarde);
       const file = new File([contenuJson], (StringUtils.normaliserMot(this.jeu.titre ? this.jeu.titre : "partie") + ".sol"), { type: "text/plain;charset=utf-8" });
       FileSaver.saveAs(file);
@@ -3544,7 +3544,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
   public creerSauvegardePartie(scenario: string): Sauvegarde {
     // générer fichier solution
-    let sauvegarde = this.partie.creerSauvegardeSolution();
+    let sauvegarde = this.partie.creerSauvegardePourFichier();
     // ajouter scénario
     sauvegarde.scenario = scenario;
     return sauvegarde;
