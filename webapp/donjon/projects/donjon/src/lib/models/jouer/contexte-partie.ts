@@ -1,5 +1,6 @@
 import { AleatoireUtils } from "../../utils/jeu/aleatoire-utils";
 import { Commandeur } from "../../utils/jeu/commandeur";
+import { CommandesUtils } from "../../utils/jeu/commandes-utils";
 import { ContexteEcran } from "./contexte-ecran";
 import { Declencheur } from "../../utils/jeu/declencheur";
 import { ElementsJeuUtils } from "../../utils/commun/elements-jeu-utils";
@@ -216,6 +217,26 @@ export class ContextePartie {
     return sauvegarde;
   }
 
+  /**
+   * Variante de `creerSauvegardeSolution` destinée à l'ÉCRITURE d'un fichier (.sol / .sav):
+   * les lectures d'horloge sont omises quand aucune étape n'a lu l'heure, sinon le fichier
+   * contient un « null » par étape sans aucune information utile.
+   *
+   * ⚠ À ne pas utiliser pour la sauvegarde « vivante » (annuler): `enleverToursDeJeux` pop
+   * `horlogesSauvegarde` en parallèle d'`etapesSauvegarde` et a donc besoin du tableau complet.
+   */
+  public creerSauvegardePourFichier(): Sauvegarde {
+    const sauvegarde = this.creerSauvegardeSolution();
+    // (on remplace la référence, on ne modifie pas _horlogesParEtape)
+    if (!sauvegarde.horlogesSauvegarde?.some(lectures => lectures?.length)) {
+      sauvegarde.horlogesSauvegarde = undefined;
+    }
+    if (!sauvegarde.horlogeIntro?.length) {
+      sauvegarde.horlogeIntro = undefined;
+    }
+    return sauvegarde;
+  }
+
   public enleverCommandeGenererSolution() {
     this._etapesPartie.pop();
     this._sortiesParEtape.pop();
@@ -262,9 +283,8 @@ export class ContextePartie {
 
     for (let i = 0; i < this._etapesPartie.length; i++) {
       const brut = this._etapesPartie[i];
-      const idxSep = brut.indexOf(':');
-      const type = brut.substring(0, idxSep) as EtapeEnregistrement['type'];
-      const valeur = brut.substring(idxSep + 1);
+      const { type: typeBrut, valeur } = CommandesUtils.decomposerEtape(brut);
+      const type = typeBrut as EtapeEnregistrement['type'];
       const etape: EtapeEnregistrement = { type, valeur };
       if ((type === 'c' || type === 'r' || type === 'd') && this._sortiesParEtape[i] != null) {
         etape.sortie = this._sortiesParEtape[i]!;
