@@ -299,6 +299,10 @@ export class InstructionsUtils {
     switch (recherche.type) {
       // A. NOMBRE DE: CLASSE AVEC ATTRIBUTS
       case TypeProprieteJeu.nombreDeClasseAttributs:
+        // classe introuvable (déjà signalé plus haut) → pas de résultat
+        if (!recherche.classe) {
+          break;
+        }
         // 1) FILTRER SUR LA CLASSE
         // si la classe hérite de objet
         if (ClasseUtils.heriteDe(recherche.classe, EClasseRacine.objet)) {
@@ -323,6 +327,10 @@ export class InstructionsUtils {
         break;
       // B. NOMBRE DE: CLASSE AVEC ATTRIBUTS + POSITION
       case TypeProprieteJeu.nombreDeClasseAttributsPosition:
+        // classe ou élément introuvable (déjà signalé plus haut) → pas de résultat
+        if (!recherche.classe || !recherche.element) {
+          break;
+        }
         // si la classe recherchée hérite de objet
         if (ClasseUtils.heriteDe(recherche.classe, EClasseRacine.objet)) {
           // si la classe de l’élément cible hérite de objet
@@ -357,7 +365,7 @@ export class InstructionsUtils {
         // trouver la propriete
         recherche.proprieteElement = recherche.element?.proprietes.find(x => x.nom == recherche.intituleProprieteElement.nom);
         if (!recherche.proprieteElement) {
-          console.error("trouverProprieteCible > nombreDeProprieteElement > propriété non trouvée : ", recherche.intituleProprieteElement.nom, "=>", recherche.element.nom);
+          console.error("trouverProprieteCible > nombreDeProprieteElement > propriété non trouvée : ", recherche.intituleProprieteElement.nom, "=>", recherche.element?.nom ?? '?');
           // vérifier s’il s’agit bien d’un nombre
         } else if (recherche.proprieteElement.type !== TypeValeur.nombre) {
           console.error("trouverProprieteCible > nombreDeProprieteElement > la propriété n’est pas un nombre : ", recherche.intituleProprieteElement.nom, "=>", recherche.element.nom);
