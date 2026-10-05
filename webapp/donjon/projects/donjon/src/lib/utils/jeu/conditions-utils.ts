@@ -329,7 +329,10 @@ export class ConditionsUtils {
                 if (proprieteCible.type == TypeValeur.nombre) {
                   sujet = CompteursUtils.proprieteElementVersCompteur(proprieteCible);
                 } else {
-                  sujet = new Intitule(proprieteCible.valeur, null, ClassesRacines.Intitule);
+                  // groupe nominal requis : les comparaisons sur un intitulé lisent sujet.intitule
+                  const valeurTexte = proprieteCible.valeur ?? '';
+                  const gnValeur = PhraseUtils.getGroupeNominalDefiniOuIndefini(valeurTexte, false) ?? new GroupeNominal(null, valeurTexte, null);
+                  sujet = new Intitule(valeurTexte, gnValeur, ClassesRacines.Intitule);
                 }
               }
               // le jeu n’est pas dans les objets mais il est géré plus loin
@@ -804,8 +807,12 @@ export class ConditionsUtils {
               if (sujet.intitule.nomEpithete == condition.sujetComplement.nomEpithete) {
                 retVal = true;
               }
-            } else if (sujet.intitule.toString() == condition.complement) {
-              retVal = true;
+            } else {
+              // complément entre guillemets : chaîne de caractères (et non intitulé) → comparer sans les guillemets
+              const complementTexte = /^".*"$/.test(condition.complement ?? '') ? condition.complement.slice(1, -1) : condition.complement;
+              if (sujet.intitule.toString() == complementTexte) {
+                retVal = true;
+              }
             }
             break;
 
