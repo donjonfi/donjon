@@ -100,7 +100,8 @@ export class CompilateurCommunUtils {
         }
         // lieux
       } else if (ClasseUtils.heriteDe(el.classe, EClasseRacine.lieu)) {
-        if(ctx.monde.lieux.find(x => x.nom == el.nom)) {
+        // même nom, même épithète et mêmes attributs antéposés (« salle a1 » ≠ « salle a2 », « grand salon » ≠ « petit salon »)
+        if(ctx.monde.lieux.find(x => x.nom == el.nom && (x.epithete ?? null) == (el.epithete ?? null) && (x.epithetesAvant ?? []).join(' ') == (el.epithetesAvant ?? []).join(' '))) {
           ctx.analyse.ajouterErreur(el.numeroLigne, `Plusieurs lieux portent ce nom : « ${el.nom} ».`);
         }else{
           ctx.monde.lieux.push(el);
