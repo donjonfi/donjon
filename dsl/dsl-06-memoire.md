@@ -59,7 +59,7 @@ changer le score est affiché en bas à gauche sans titre.      -- repositionner
 
 -- Afficher la valeur dans un texte dynamique
 dire "Votre score est de [c score].".
-dire "Votre bourse contient [c bourse] pièce[s bourse] d'or.".  -- [s X] → "s" si valeur ≠ 1
+dire "Votre bourse contient [c bourse] pièce[s bourse] d'or.".  -- [s X] → "s" si valeur > 1
 
 -- Modifier (valeur fixe)
 changer le score augmente de 10.
