@@ -155,6 +155,16 @@ export class Action {
     this._synonymesSansAccent.push(StringUtils.normaliserMot(synonyme));
   }
 
+  /** Retirer un synonyme de l’action (forme normalisée). Retourne la forme d’origine du synonyme retiré. */
+  public retirerSynonyme(synonymeSansAccent: string): string | undefined {
+    const index = this._synonymesSansAccent.indexOf(synonymeSansAccent);
+    if (index === -1) {
+      return undefined;
+    }
+    this._synonymesSansAccent.splice(index, 1);
+    return this._synonymes.splice(index, 1)[0];
+  }
+
   /** Récupérer la liste des synonymes de l’action */
   public get synonymes(): ReadonlyArray<string> {
     return this._synonymes as ReadonlyArray<string>;
