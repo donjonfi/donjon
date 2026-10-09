@@ -837,6 +837,11 @@ export class Generateur {
           regle.evenements.forEach(ev => {
 
             if (ev.type == TypeEvenement.action) {
+              // Verbe sans action correspondante : la règle ne sera jamais déclenchée (conseil, visible dans donjon-creer).
+              if (!jeu.actions.some(action => action.correspondAuNom(ev.infinitif))) {
+                const typeRegleLisible = regle.typeRegle == TypeRegle.apres ? 'après' : regle.typeRegle;
+                jeu.tamponConseils.push(`« règle ${typeRegleLisible} ${ev.commandeComprise ?? ev.infinitif} » : « ${ev.infinitif} » ne correspond à aucune action du jeu — cette règle ne sera jamais déclenchée.`);
+              }
               if (ev.commandeComprise) {
                 let ctxCom = com.decomposerCommande(ev.commandeComprise);
                 // aucune commande trouvée
