@@ -158,6 +158,8 @@ export class ListeEtats {
     const transFixe = this.creerBasculeEtats(EEtatsBase.transportable, EEtatsBase.fixe);
     this.transportableID = transFixe[0].id;
     this.fixeID = transFixe[1].id;
+    // un objet décoratif est fixe
+    this.ajouterImplication(EEtatsBase.decoratif, EEtatsBase.fixe);
     // opaque et transparent (contenant, objet)
     const opaTran = this.creerBasculeEtats(EEtatsBase.opaque, EEtatsBase.transparent);
     this.opaqueID = opaTran[0].id;
