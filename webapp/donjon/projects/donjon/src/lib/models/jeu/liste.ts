@@ -125,7 +125,7 @@ export class Liste extends Intitule {
         }
         // liste mixte
       } else {
-        console.warn("liste > retirerNombre > liste mixte pas encore implémentée");
+        this.retirerMixte(this._valeursMixtes.findIndex(x => typeof x === 'number' && x == valeur));
       }
     }
   }
@@ -142,7 +142,7 @@ export class Liste extends Intitule {
         }
         // liste mixte
       } else {
-        console.warn("liste > retirerTexte > liste mixte pas encore implémentée");
+        this.retirerMixte(this._valeursMixtes.findIndex(x => typeof x === 'string' && x == valeur));
       }
     }
   }
@@ -161,7 +161,19 @@ export class Liste extends Intitule {
         }
         // liste mixte
       } else {
-        console.warn("liste > retirerIntitule > liste mixte pas encore implémentée");
+        this.retirerMixte(this._valeursMixtes.findIndex(x => typeof x === 'object' && x.intitule == valeur.intitule));
+      }
+    }
+  }
+
+  /** Retirer la valeur à l’index spécifié d’une liste mixte. */
+  private retirerMixte(index: number) {
+    if (index !== -1) {
+      this._valeursMixtes.splice(index, 1);
+      // liste vide ?
+      if (this._valeursMixtes.length == 0) {
+        this._valeursMixtes = undefined;
+        this.classe = ClassesRacines.ListeVide;
       }
     }
   }
@@ -372,7 +384,7 @@ export class Liste extends Intitule {
     if (this.classe == ClassesRacines.ListeNombre) {
       nombreTrouve = this._valeursNombre.includes(valeur);
     } else if (this.classe == ClassesRacines.ListeMixte) {
-      console.error("Liste > contientNombre > liste mixte pas encore prise en charge.");
+      nombreTrouve = this._valeursMixtes.some(x => typeof x === 'number' && x == valeur);
     }
     return nombreTrouve;
   }
@@ -383,7 +395,7 @@ export class Liste extends Intitule {
     if (this.classe == ClassesRacines.ListeTexte) {
       texteTrouve = this._valeursTexte.includes(valeur);
     } else if (this.classe == ClassesRacines.ListeMixte) {
-      console.error("Liste > contientTexte > liste mixte pas encore prise en charge.");
+      texteTrouve = this._valeursMixtes.some(x => typeof x === 'string' && x == valeur);
     }
     return texteTrouve;
   }
@@ -397,7 +409,7 @@ export class Liste extends Intitule {
     if (this.classe == ClassesRacines.ListeIntitule) {
       intituleTrouve = this._valeursIntitule.some(x => x.intitule == valeur.intitule);
     } else if (this.classe == ClassesRacines.ListeMixte) {
-      console.error("Liste > contientIntitule > liste mixte pas encore prise en charge.");
+      intituleTrouve = this._valeursMixtes.some(x => typeof x === 'object' && x.intitule == valeur.intitule);
     }
     return intituleTrouve;
   }
