@@ -89,6 +89,8 @@ Sa description est "Une pomme rouge et luisante.".
 
 -- Genre féminin : (f) nécessaire seulement si le déterminant est ambigu (l')
 L'épée (f) est un objet ici.      -- (f) requis : "l'" est ambigu
+L'épée en bronze (f) est un objet ici.  -- avec épithète : (f) en fin de groupe…
+L'épée (f) en bronze est un objet ici.  -- …ou juste après le nom (équivalent)
 La clé est un objet ici.          -- (f) inutile : "La" indique déjà le féminin
 
 -- Pluriel : déduit automatiquement du déterminant ("les" → pluriel)

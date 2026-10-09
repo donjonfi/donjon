@@ -163,7 +163,9 @@ export class CompilateurV8Utils {
             // nouvelle phrase
             if (!phrasePrecedente || phrasePrecedente.finie) {
               if (phraseNettoyee !== '') {
-                phrasePrecedente = new Phrase([phraseNettoyee], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie, ERoutine.inconnue);
+                // genre placé avant l’épithète : « L’épée (f) en bronze est … » => « L’épée en bronze (f) est … »
+                const phraseGenreDeplace = phraseNettoyee.replace(ExprReg.xGenreAvantEpithete, '$1 $3 ($2) $4 ');
+                phrasePrecedente = new Phrase([phraseGenreDeplace], false, null, indexPhrase++, (numeroLigne + nbLignesAvantPhrase), finie, ERoutine.inconnue);
                 phrases.push(phrasePrecedente);
               }
               // suite de la phrase précédente
