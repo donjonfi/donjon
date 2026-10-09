@@ -164,7 +164,9 @@ export class ExprReg {
   static readonly xAfficherCompteur = /^(.+?) (?:est|sont) affich[eé][e]?s?(?: en (haut|bas))?(?: [àa] (gauche|droite))?((?:(?: et)? sans \S+)*)$/i;
   /** Affichage d'un compteur sans le sujet (utilisé runtime via « changer »). Ex: « affiché en haut à droite sans titre ». */
   static readonly xAffichageCompteurSeul = /^affich[eé][e]?s?(?: en (haut|bas))?(?: [àa] (gauche|droite))?((?:(?: et)? sans \S+)*)$/i;
-  static readonly xAfficherLieuCartouche = /^(ne pas )?afficher le (?:titre du )?lieu dans le cartouche(?: du (haut|bas))?$/i;
+  /** Affichage d'un compteur, forme « afficher X dans le cartouche [du haut|du bas] [à gauche|à droite] » (mêmes groupes que xAfficherCompteur, sans options). Exclut le lieu. */
+  static readonly xAfficherCompteurCartouche = /^afficher (?!le (?:titre du )?lieu\b)(.+?) dans le cartouche(?: du (haut|bas))?(?: [àa] (gauche|droite))?$/i;
+  static readonly xAfficherLieuCartouche =/^(ne pas )?afficher le (?:titre du )?lieu dans le cartouche(?: du (haut|bas))?$/i;
 
   /** Placement d’une ressource quantifiée : « il y a N <unité> de <ressource> [position|ici] ».
    * - Découpage : quantité(1), unité(2), ressource(3), préposition(4), complément(5), ici/dessus/dedans/dessous(6)

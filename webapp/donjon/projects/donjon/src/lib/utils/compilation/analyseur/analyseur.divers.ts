@@ -282,12 +282,14 @@ export class AnalyseurDivers {
   /**
    * La phrase demande d'afficher un compteur dans un coin de l'écran.
    * Ex: La bourse est affichée en haut à droite.
+   * Ex: Afficher la bourse dans le cartouche du bas.
    */
   public static testerAfficherCompteur(phrase: Phrase, ctxAnalyse: ContexteAnalyseV8): ResultatAnalysePhrase {
 
     let elementTrouve: ResultatAnalysePhrase = ResultatAnalysePhrase.aucun;
 
-    const result = ExprReg.xAfficherCompteur.exec(phrase.morceaux[0]);
+    const result = ExprReg.xAfficherCompteur.exec(phrase.morceaux[0])
+      ?? ExprReg.xAfficherCompteurCartouche.exec(phrase.morceaux[0]);
 
     if (result) {
       elementTrouve = ResultatAnalysePhrase.afficherCompteur;
