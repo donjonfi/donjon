@@ -31,7 +31,8 @@ export class CompilateurV8 {
     CompilateurCommunUtils.ajouterElementsSpeciaux(ctx.analyse);
 
     // inclure les commandes de base, sauf si on les a désactivées
-    if (!/d(é|e)sactiver les (commandes|actions) de base(\.|;)/i.test(scenario)) {
+    const commandesDeBaseIncluses = !/d(é|e)sactiver les (commandes|actions) de base(\.|;)/i.test(scenario);
+    if (commandesDeBaseIncluses) {
       if (actions) {
         try {
           CompilateurV8.analyserCodeSource(actions, ctx.analyse, true);
@@ -46,8 +47,10 @@ export class CompilateurV8 {
     // Interpréter le scénario
     CompilateurV8.analyserCodeSource(scenario, ctx.analyse, false);
 
-    // ajouter règle « info Donjon FI » pour l’action « afficher aide »
-    CompilateurV8.analyserCodeSource(CompilateurCommunUtils.regleInfoDonjonV8, ctx.analyse, false);
+    // ajouter règle « info Donjon FI » pour l’action « afficher aide » (pas si les commandes de base sont désactivées)
+    if (commandesDeBaseIncluses) {
+      CompilateurV8.analyserCodeSource(CompilateurCommunUtils.regleInfoDonjonV8, ctx.analyse, false);
+    }
 
     // peupler le monde
     CompilateurCommunUtils.peuplerLeMonde(ctx);

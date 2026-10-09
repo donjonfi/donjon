@@ -53,4 +53,19 @@ fin règle
 `)).toEqual([]);
   });
 
+  it('[F142-T004] pas de conseil : règle après une action quelconque', () => {
+    expect(conseils(`règle après une action quelconque:\n  dire "x".\nfin règle`)).toEqual([]);
+  });
+
+  it('[F142-T005] commandes de base désactivées : pas de règle « afficher aide » injectée, mais conseil pour les règles de l’auteur', () => {
+    const scenarioSansBase = (regles: string) => {
+      const rc = CompilateurV8.analyserScenarioEtActions(`Désactiver les commandes de base.\nLa salle est un lieu.\naction psalmodier:\n  dire "x".\nfin action\n${regles}`, actions, false);
+      return Generateur.genererJeu(rc).tamponConseils;
+    };
+    expect(scenarioSansBase('')).toEqual([]);
+    expect(scenarioSansBase(`règle après prendre un objet:\n  dire "x".\nfin règle`)).toEqual([
+      '« règle après prendre un objet » : « prendre » ne correspond à aucune action du jeu — cette règle ne sera jamais déclenchée.',
+    ]);
+  });
+
 });
