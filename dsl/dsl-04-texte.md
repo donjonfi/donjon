@@ -119,7 +119,9 @@ terminer le jeu.
 [pronom ceci]            -- "il", "elle", "ils", "elles"
 [Pronom ceci]            -- majuscule
 [le ceci]                -- "le", "la", "l'", "les"
+[Le ceci]                -- majuscule
 [l' ceci]                -- "l'" si possible, sinon "le"/"la"
+[L' ceci]                -- majuscule
 [es ceci]                -- "e"/"s"/"es" selon genre ET nombre
 [s ceci]                 -- "s" si pluriel
 [e ceci]                 -- "e" si féminin (SANS "s" au pluriel)
