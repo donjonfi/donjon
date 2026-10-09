@@ -50,11 +50,11 @@ Sa description est "Une simple plume d’oie. Elle ne pèse [si aucun poids pour
 
 action soulever ceci:
   si aucun poids pour ceci:
-    dire "[Intitulé ceci] est si léger qu’il n’a même pas de poids notable.".
+    dire "[Intitulé ceci] est si léger[e ceci] qu’[pronom ceci] n’a même pas de poids notable.".
   sinonsi la force du joueur atteint le poids de ceci:
     dire "Vous soulevez [intitulé ceci] avec effort. (Votre force [force du joueur] ≥ poids [poids ceci].)".
   sinon
-    dire "[Intitulé ceci] est trop lourd ([poids ceci]) pour vous ([force du joueur]).".
+    dire "[Intitulé ceci] est trop lourd[e ceci] ([poids ceci]) pour vous ([force du joueur]).".
   fin si
 fin action
 

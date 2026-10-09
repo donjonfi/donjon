@@ -7,14 +7,14 @@ La force du joueur vaut 7.
 Le sac est un objet décoratif ici.
 Le poids du sac vaut 4.
 
-L'enclume est un objet décoratif ici.
+L'enclume (f) est un objet décoratif ici.
 Le poids de l'enclume vaut 20.
 
 action soulever ceci:
   si la force du joueur atteint le poids de ceci:
     dire "Vous soulevez [intitulé ceci] (force [force du joueur] ≥ poids [poids ceci]).".
   sinon
-    dire "[Intitulé ceci] est trop lourd ([poids ceci]) pour vous ([force du joueur]).".
+    dire "[Intitulé ceci] est trop lourd[e ceci] ([poids ceci]) pour vous ([force du joueur]).".
   fin si
 fin action
 

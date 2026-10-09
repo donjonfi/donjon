@@ -23,6 +23,8 @@ describe('Exemples wiki — référence', () => {
 
   it('[F130-T002] proprietes/afficher_prix : « évaluer » affiche le prix et la couleur', () => {
     const { ctx } = commencerExempleWiki('proprietes/afficher_prix.djn');
+    // « L’épée en bronze (f) » : féminin
+    expect(ctx.com.executerCommande('regarder', false).sortie).toContain('une épée en bronze');
     const sortie = ctx.com.executerCommande('évaluer l’épée en bronze', false).sortie;
     expect(ctx.jeu.tamponErreurs).toEqual([]);
     expect(sortie).toContain('coûte 45 pièce');
@@ -33,7 +35,7 @@ describe('Exemples wiki — référence', () => {
     const { ctx } = commencerExempleWiki('proprietes/soulever_poids.djn');
     ctx.com.executerCommande('regarder', false);
     expect(ctx.com.executerCommande('soulever le sac', false).sortie).toContain('Vous soulevez le sac (force 7 ≥ poids 4).');
-    expect(ctx.com.executerCommande('soulever l’enclume', false).sortie).toContain('L’enclume est trop lourd (20) pour vous (7).');
+    expect(ctx.com.executerCommande('soulever l’enclume', false).sortie).toContain('L’enclume est trop lourde (20) pour vous (7).');
     expect(ctx.jeu.tamponErreurs).toEqual([]);
   });
 
