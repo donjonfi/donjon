@@ -107,7 +107,8 @@ terminer le jeu.
 [p prix ceci]            -- valeur de la propriété numérique "prix" de ceci
 [p poids le sac]         -- valeur de la propriété numérique "poids" du sac
 [c score]                -- valeur du compteur "score"
-[s score]                -- "s" si la valeur du compteur est ≠ 1 (accord pluriel)
+[s score]                -- "s" si la valeur du compteur est > 1 (0 point, 1 point, 2 points)
+[s prix ceci]            -- idem avec une propriété numérique (cf. [c prix ceci])
 
 -- Listes
 [lister maListe]         -- liste les éléments de la liste (intitulés)

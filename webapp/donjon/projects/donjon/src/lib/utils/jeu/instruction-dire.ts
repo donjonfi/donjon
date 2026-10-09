@@ -55,7 +55,7 @@ export class InstructionDire {
     private verbeux: boolean,
   ) {
     this.cond = new ConditionsUtils(this.jeu, this.verbeux);
-    this.numerique = new InstructionDireNumerique(this.eju);
+    this.numerique = new InstructionDireNumerique(this.eju, this.jeu);
     this.format = new InstructionDireFormat(this.jeu, this.eju, this.calculerConjugaison.bind(this));
     this.apercuStatut = new InstructionDireApercuStatut(this.jeu, this.eju, this.calculerTexteDynamique.bind(this));
     this.contenu = new InstructionDireContenu(this.jeu, this.eju, this.afficherObstacle.bind(this), this.afficherSorties.bind(this), this.executerListerContenu.bind(this), this.executerDecrireContenu.bind(this), this.executerEnumererContenu.bind(this));

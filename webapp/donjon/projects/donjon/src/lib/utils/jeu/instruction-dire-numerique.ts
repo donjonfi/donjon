@@ -6,12 +6,17 @@ import { EClasseRacine } from "../../models/commun/constantes";
 import { ElementsJeuUtils } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { InstructionsUtils } from "./instructions-utils";
+import { Jeu } from "../../models/jeu/jeu";
+import { PhraseUtils } from "../commun/phrase-utils";
+import { ProprieteConcept } from "../../models/commun/propriete-element";
+import { TypeProprieteJeu } from "../../models/jeu/propriete-jeu";
+import { TypeValeur } from "../../models/compilateur/type-valeur";
 
 const xTailleListe = /^taille (du |de la |de l\S|des |de )(.+)$/i;
 
 export class InstructionDireNumerique {
 
-  constructor(private eju: ElementsJeuUtils) { }
+  constructor(private eju: ElementsJeuUtils, private jeu: Jeu) { }
 
   calculerBaliseCompteur(texteDynamique: string, evenement: Evenement | undefined, ctxTour: ContexteTour | undefined): string {
     return InstructionsUtils.processBalises(texteDynamique, "c (.+?)", decoupe => {
@@ -24,7 +29,8 @@ export class InstructionDireNumerique {
   calculerBalisePluriel(texteDynamique: string, evenement: Evenement | undefined, ctxTour: ContexteTour | undefined): string {
     return InstructionsUtils.processBalises(texteDynamique, "s (.+?)", decoupe => {
       const val = this.obtenirValeurNumeriqueBalise(decoupe[1], evenement, ctxTour);
-      return val !== null ? (val <= 1 ? "" : "s") : "";
+      // rem: [s ceci] / [s la pomme] (élément) sont déjà traités par calculerBalisePropriete.
+      return val !== null ? (val <= 1 ? "" : "s") : "(élément « " + decoupe[1] + " » pas trouvé)";
     });
   }
 
@@ -49,7 +55,47 @@ export class InstructionDireNumerique {
       return (ctxTour.cela as Compteur).valeur;
     }
     const compteur = this.eju.trouverCompteurAvecNom(nomBalise);
-    return compteur !== undefined ? compteur.valeur : null;
+    if (compteur !== undefined) {
+      return compteur.valeur;
+    }
+    return this.obtenirValeurProprieteNumerique(nomBalise, ctxTour);
+  }
+
+  /**
+   * Valeur d’une propriété numérique d’un élément : « prix ceci », « force du joueur », « poids le sac ».
+   * Même résolution que la balise [force le joueur] (InstructionDire.suiteTraiterPropriete).
+   */
+  private obtenirValeurProprieteNumerique(nomBalise: string, ctxTour: ContexteTour | undefined): number | null {
+    // au moins « propriété élément »
+    if (!nomBalise.includes(' ')) {
+      return null;
+    }
+    let intitule = nomBalise;
+    // ajouter le « de » s’il est absent (prix ceci => prix de ceci ; force le joueur => force du joueur)
+    if (!/^\S+ (de |du |des |d'|d’)/i.test(intitule)) {
+      intitule = intitule.replace(" ", " de ").replace(/ de le /i, " du ").replace(/ de les /i, " des ");
+    }
+    // ajouter le déterminant « le » devant la propriété s’il est absent
+    if (!/^(le |la |les |l'|l’)/i.test(intitule)) {
+      intitule = "le " + intitule;
+    }
+    const propriete = PhraseUtils.trouverPropriete(intitule);
+    if (!propriete) {
+      return null;
+    }
+    const cible = InstructionsUtils.trouverProprieteCible(propriete, ctxTour, this.eju, this.jeu);
+    if (!cible) {
+      return null;
+    }
+    let valeur: number | null = null;
+    if (propriete.type === TypeProprieteJeu.nombreDeClasseAttributs || propriete.type === TypeProprieteJeu.nombreDeClasseAttributsPosition) {
+      valeur = (cible as Compteur).valeur;
+    } else if (propriete.type === TypeProprieteJeu.nombreDeProprieteElement) {
+      valeur = Number((cible as ProprieteConcept).valeur);
+    } else if (propriete.type === TypeProprieteJeu.proprieteElement && (cible as ProprieteConcept).type === TypeValeur.nombre) {
+      valeur = Number((cible as ProprieteConcept).valeur);
+    }
+    return (valeur === null || isNaN(valeur)) ? null : valeur;
   }
 
   calculerBaliseCalendrier(texteDynamique: string, getMaintenant?: () => Date): string {

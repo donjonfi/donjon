@@ -102,7 +102,7 @@ fin action
     expect(sortie).withContext(sortie).toContain("objets");
   });
 
-  it('[F108-T013] [s X] sur un compteur inexistant → "" (valeur null)', () => {
+  it('[F108-T013] [s X] sur un compteur inexistant → « (élément « X » pas trouvé) » (#264)', () => {
     const scenario = `
 Le hall est un lieu.
 Le nombre est un compteur initialisé à 5.
@@ -112,8 +112,8 @@ fin action
 `;
     const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
     const sortie = ctx.com.executerCommande("afficher", false).sortie;
-    // null → "" : pas de "s" ajouté, le texte reste "objetfin"
-    expect(sortie).withContext(sortie).toContain("objetfin");
+    // ni élément, ni compteur, ni propriété : l’auteur est prévenu (comme pour [c X])
+    expect(sortie).withContext(sortie).toContain("objet(élément « inconnu » pas trouvé)fin");
   });
 
   it('[F108-T014] [c X] et [s X] combinés sur le même compteur', () => {

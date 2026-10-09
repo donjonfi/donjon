@@ -100,7 +100,7 @@ exécuter routine LancerObjet avec la potion et le score.
 **Balises d'interpolation utiles dans le corps** :
 - Paramètre de classe `objet`/`lieu`/`personne`/... : `[intitulé ceci]`,
   `[le ceci]`, `[nom ceci]`, `[description ceci]`, etc. (comme pour les actions).
-- Paramètre `nombre` ou `compteur` : `[c ceci]` (valeur), `[s ceci]` (« s » si != 1).
+- Paramètre `nombre` ou `compteur` : `[c ceci]` (valeur), `[s ceci]` (« s » si > 1).
 - Paramètre `texte` : `[ceci]` substitue la chaîne capturée.
 
 ### 17 ter. Surcharge de routines
