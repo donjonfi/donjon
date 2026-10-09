@@ -7,6 +7,14 @@ import { commencerExempleWiki } from "./exemples-wiki-utils";
 
 describe('Exemples wiki — tuto-train', () => {
 
+  it('[F128-T003] 07_a : la valise est nommée dans la description (balise [@] après le nom) et pas re-listée', () => {
+    const { ctx } = commencerExempleWiki('tuto-train/07_a_balises_mention.djn');
+    const sortie = ctx.com.executerCommande('regarder', false).sortie.replace(/@@lien:\d+@@/g, '');
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+    expect(sortie).toContain('Une valise de cuir est posée sur la banquette');
+    expect(sortie.match(/valise/gi).length).withContext(sortie).toBe(1);
+  });
+
   describe('04_c — annuler une routine programmée', () => {
 
     const CHEMIN = 'tuto-train/04_c_routine_annulee.djn';

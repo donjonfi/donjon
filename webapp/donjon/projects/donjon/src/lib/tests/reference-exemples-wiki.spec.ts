@@ -1,4 +1,4 @@
-import { commencerExempleWiki } from "./exemples-wiki-utils";
+import { cheminExempleWiki, commencerExempleWiki, urlsExemplesWiki } from "./exemples-wiki-utils";
 
 /**
  * Exemples des pages « référence » du wiki (ressources/scenarios/exemples/wiki/<thème>/),
@@ -6,6 +6,46 @@ import { commencerExempleWiki } from "./exemples-wiki-utils";
  */
 
 describe('Exemples wiki — référence', () => {
+
+  it('[F130-T006] tous les exemples wiki compilent et démarrent sans message (hors fragments « inclure »)', () => {
+    const chemins = urlsExemplesWiki().map(cheminExempleWiki).filter(c => !c.includes('inclure'));
+    expect(chemins.length).toBeGreaterThan(100);
+    for (const chemin of chemins) {
+      commencerExempleWiki(chemin);
+    }
+  });
+
+  it('[F130-T007] regles/continuer_action : la crypte est en bas, la cinématique précède la description', () => {
+    const { ctx } = commencerExempleWiki('regles/continuer_action.djn');
+    const sortie = ctx.com.executerCommande('aller en bas', false).sortie;
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+    const iCinematique = sortie.indexOf('Vous descendez prudemment');
+    const iDescription = sortie.indexOf('Une crypte glaciale');
+    expect(iCinematique).withContext(sortie).toBeGreaterThanOrEqual(0);
+    expect(iDescription).withContext(sortie).toBeGreaterThan(iCinematique);
+  });
+
+  it('[F130-T008] synonymes/interpreter_bibliotheque : « scruter » et « inspecter » mènent à examiner', () => {
+    const { ctx } = commencerExempleWiki('synonymes/interpreter_bibliotheque.djn');
+    expect(ctx.com.executerCommande('scruter la bib', false).sortie).toContain('il y a un grand livre');
+    expect(ctx.com.executerCommande('inspecter bouquin', false).sortie).not.toContain('pas compris');
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+  });
+
+  it('[F130-T009] texte/mention_decor : le coffre est nommé dans la description et pas re-listé', () => {
+    const { ctx } = commencerExempleWiki('texte/mention_decor.djn');
+    const sortie = ctx.com.executerCommande('regarder', false).sortie.replace(/@@lien:\d+@@/g, '');
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+    expect(sortie).toContain('Un coffre trône près de l');
+    expect(sortie.match(/coffre/gi).length).withContext(sortie).toBe(1);
+  });
+
+  it('[F130-T010] texte/grimoire_dynamique : le grimoire est nommé dans la description', () => {
+    const { ctx } = commencerExempleWiki('texte/grimoire_dynamique.djn');
+    const sortie = ctx.com.executerCommande('regarder', false).sortie.replace(/@@lien:\d+@@/g, '');
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+    expect(sortie).toContain('Sur le bureau central, un grimoire ancien repose près');
+  });
 
   it('[F130-T001] texte/au_hasard : « jeter la bille » donne une des trois phrases, au hasard', () => {
     const { ctx } = commencerExempleWiki('texte/au_hasard.djn');

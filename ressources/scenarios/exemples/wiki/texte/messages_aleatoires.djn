@@ -71,5 +71,5 @@ fin action
 Le joueur est dans la place du village.
 
 règle avant commencer le jeu:
-  dire "Essayez plusieurs fois :{n}— {/saluer le marchand/} (1ère fois / 2e fois / puis){n}— {/plaisanter/} (3 blagues au hasard){n}— {/gronder/} (3 répliques en boucle){n}— {/demander conseil/} (hasard avec si imbriqué){n}— {/prendre la pomme/} puis {/examiner la pomme/} (texte [initialement] change).".
+  dire "Essayez plusieurs fois :{n}— {/saluer le marchand/} (1ère fois / 2e fois / puis){n}— {/plaisanter/} (3 blagues au hasard){n}— {/gronder/} (3 répliques en boucle){n}— {/demander conseil/} (hasard avec si imbriqué){n}— {/prendre la pomme/} puis {/examiner la pomme/} (texte « initialement » qui change).".
 fin règle

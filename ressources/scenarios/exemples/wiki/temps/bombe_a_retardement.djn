@@ -20,7 +20,7 @@ action désamorcer ceci:
 fin action
 
 règle avant commencer le jeu:
-  effacer.
+  effacer l’écran.
   dire "{/Une bombe a été posée. Vous avez 60 secondes./}{n}{n}Essayez : {/désamorcer la bombe/} ou {/pause/}".
 fin règle
 
