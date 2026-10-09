@@ -27,7 +27,7 @@ describe('Exemples wiki — référence', () => {
     expect(ctx.com.executerCommande('regarder', false).sortie).toContain('une épée en bronze');
     const sortie = ctx.com.executerCommande('évaluer l’épée en bronze', false).sortie;
     expect(ctx.jeu.tamponErreurs).toEqual([]);
-    expect(sortie).toContain('coûte 45 pièce');
+    expect(sortie).toContain('coûte 45 pièces');
     expect(sortie).toContain('(Couleur : bronze.)');
   });
 
