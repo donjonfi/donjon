@@ -213,11 +213,11 @@ export class Generateur {
     let premierIndexLieu = (jeu.nextID);
     rc.monde.lieux.forEach(curEle => {
 
-      // let titre = (curEle.determinant ? (" " + curEle.determinant) : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
-      let titreSansAutoMaj = (curEle.determinant ? curEle.determinant : "") + curEle.nom + (curEle.epithete ? (" " + curEle.epithete) : "");
+      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
+      // titre = intitulé complet, attributs antéposés compris (« le grand salon »)
+      let titreSansAutoMaj = intitule.toString();
       // mettre majuscule en début d’intitulé (début de Phrase)
       let titre = titreSansAutoMaj[0].toUpperCase() + titreSansAutoMaj.slice(1);
-      let intitule = new GroupeNominal(curEle.determinant, curEle.nom, curEle.epithete, curEle.epithetesAvant);
       let nouvLieu = new Lieu(jeu.nextID++, intitule.nomEpithete, intitule, titre);
       nouvLieu.genre = curEle.genre;
       nouvLieu.nombre = curEle.nombre;
@@ -1414,7 +1414,8 @@ export class Generateur {
         formes.push(MotUtils.getPluriel(motCleA));
         formes.forEach(forme => {
           const syn = PhraseUtils.getGroupeNominalDefini(forme, true);
-          if (!concept.synonymes.some(x => x.toString() == syn.toString())) {
+          // un mot qui ne forme pas un groupe nominal (ex. « 1 » dans « salle 1 ») n’est pas un synonyme
+          if (syn && !concept.synonymes.some(x => x.toString() == syn.toString())) {
             concept.synonymes.push(syn);
           }
         });
@@ -1423,7 +1424,7 @@ export class Generateur {
           for (let indexMotB = indexMotA + 1; indexMotB < concept.intitule.motsCles.length; indexMotB++) {
             const motCleB = concept.intitule.motsCles[indexMotB];
             const curSynonymeDouble = PhraseUtils.getGroupeNominalDefini(`${motCleA} ${motCleB}`, true);
-            if (!concept.synonymes.some(x => x.toString() == curSynonymeDouble.toString())) {
+            if (curSynonymeDouble && !concept.synonymes.some(x => x.toString() == curSynonymeDouble.toString())) {
               concept.synonymes.push(curSynonymeDouble);
             }
           }
