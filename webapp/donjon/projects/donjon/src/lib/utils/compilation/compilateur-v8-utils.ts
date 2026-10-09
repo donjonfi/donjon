@@ -74,7 +74,8 @@ export class CompilateurV8Utils {
     resultat = resultat.replace(/([ \t]*choisir)\b(?:\s*?)(:)?(\s+choix)/mig, "$1:$3");
 
     // terminer par un « . » les « dire "bla bla" » et les refuser "".
-    resultat = resultat.replace(/((dire|refuser) "[\S\s]*?") *\.*/mig, "$1.");
+    // (en sautant les guillemets imbriqués dans une balise : "[si l’historique contient "x"]…")
+    resultat = resultat.replace(/((dire|refuser) "(?:\[[^\]"\r\n]*(?:"[^"\r\n]*"[^\]"\r\n]*)*\]|[^"])*") *\.*/mig, "$1.");
 
     // on retire les commentaires (« -- » inline ou en début de ligne) en
     // conservant les chaînes "…" et les numéros de ligne.

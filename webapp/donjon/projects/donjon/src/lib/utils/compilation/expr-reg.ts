@@ -974,7 +974,7 @@ export class ExprReg {
   /**
    * choix "texte"(1): instructions(2)
    */
-  static readonly xChoixTexte = /^choix ("(?:[^"]+?)")\s*:\s*(.+)$/i;
+  static readonly xChoixTexte = /^choix ("(?:\[[^\]"]*(?:"[^"]*"[^\]"]*)*\]|[^"])+?")\s*:\s*(.+)$/i;
 
   /**
    * choix nombre(1): instructions(2)
@@ -988,14 +988,16 @@ export class ExprReg {
 
   /**
    * choix ("texte"(1)|nombre(2)|intitulé(3)): instructions(4)
+   * Le texte peut contenir des guillemets imbriqués dans une balise : "[si l’historique contient "x"]…".
    * TODO: gérer float ?
    */
-  static readonly xChoixTexteNombreOuIntitule = /^choix (?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*:\s*(.+)$/i;
+  static readonly xChoixTexteNombreOuIntitule = /^choix (?:((?:"(?:\[[^\]"]*(?:"[^"]*"[^\]"]*)*\]|[^"])+?")(?: ?(?:,|ou) ?"(?:\[[^\]"]*(?:"[^"]*"[^\]"]*)*\]|[^"])+?")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*:\s*(.+)$/i;
 
   /** liste de textes, nombres ou intitulés 
-   *  => "texte1", "texte2" ou "texte3"(1)|nombre1, nombre2 ou nombre3(2)|intitulé1, intitulé2 ou intitulé3(3) 
+   *  => "texte1", "texte2" ou "texte3"(1)|nombre1, nombre2 ou nombre3(2)|intitulé1, intitulé2 ou intitulé3(3)
+   *  Un texte peut contenir des guillemets imbriqués dans une balise : "[si l’historique contient "x"]…".
    */
-  static readonly xListeTextesNombresOuIntitules = /^(?:((?:"(?:[^"]+?)")(?: ?(?:,|ou) ?"(?:[^"]+?)")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*$/i;
+  static readonly xListeTextesNombresOuIntitules = /^(?:((?:"(?:\[[^\]"]*(?:"[^"]*"[^\]"]*)*\]|[^"])+?")(?: ?(?:,|ou) ?"(?:\[[^\]"]*(?:"[^"]*"[^\]"]*)*\]|[^"])+?")*)|((?:0|(?:[1-9]\d*))(?: ?(?:,|ou) ?(?:0|(?:[1-9]\d*)))*)|([^\d":][^":]*?))\s*$/i;
 
   /**
    * (autre[s] choix)(1): instructions(2)
