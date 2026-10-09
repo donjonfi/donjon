@@ -840,8 +840,8 @@ export class InstructionDire {
       // - supports décoratifs (eux ne sont pas affichés, mais leur contenu bien !)
       let supportsDecoratifs = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) && ClasseUtils.heriteDe(x.classe, EClasseRacine.support));
 
-      // - objets discrets et mentionnés (ils ne sont pas affichés, mais ils sont vus !)
-      let objetsDiscretsMentionnes = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID) || this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.mentionneID));
+      // - objets décoratifs, discrets et mentionnés (ils ne sont pas affichés, mais ils sont vus !)
+      let objetsDiscretsMentionnes = objets.filter(x => this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.decoratifID) || this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.discretID) || this.jeu.etats.possedeEtatIdElement(x, this.jeu.etats.mentionneID));
 
       objetsDiscretsMentionnes.forEach(obj => {
         this.jeu.etats.ajouterEtatElement(obj, EEtatsBase.vu, this.eju, false);
