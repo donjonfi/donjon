@@ -343,8 +343,13 @@ export class AnalyseurDivers {
         //  « Les fruits sont affichés ».
         const correspond = (valeur: string | null | undefined) =>
           !!valeur && StringUtils.normaliserMot(valeur).trim() === nomNormalise;
+        // nom complet : attributs antéposés + nom + épithète (« poids transporté », « grand total »)
+        const nomComplet = (avant: string[] | undefined, nom: string | null, epithete: string | null) =>
+          [...(avant ?? []), nom, epithete].filter(x => x).join(' ');
         cpt = ctxAnalyse.elementsGeneriques.find(el =>
           correspond(el.nom) || correspond(el.nomP) || correspond(el.nomS)
+          || correspond(nomComplet(el.epithetesAvant, el.nom, el.epithete))
+          || correspond(nomComplet(el.epithetesAvant, el.nomP, el.epitheteP))
         );
       }
 
