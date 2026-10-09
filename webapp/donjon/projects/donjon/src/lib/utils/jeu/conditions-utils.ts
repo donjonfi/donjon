@@ -392,7 +392,7 @@ export class ConditionsUtils {
             } else {
               // est une [classe] | est [état]
               // remarque: négation appliquée plus loin.
-              retVal = this.verifierConditionEst(condition, (sujet as ElementJeu));
+              retVal = this.verifierConditionEst(condition, (sujet as ElementJeu), contexteTour);
             }
             break;
 
@@ -579,7 +579,7 @@ export class ConditionsUtils {
             } else {
               // est une [classe] | est [état]
               // remarque: négation appliquée plus loin.
-              retVal = this.verifierConditionEst(condition, (sujet as Concept));
+              retVal = this.verifierConditionEst(condition, (sujet as Concept), contexteTour);
             }
             break;
 
@@ -989,8 +989,15 @@ export class ConditionsUtils {
  * Vérifier une condition de type "est", c'est à dire vérifer l'état ou la classe.
  * /!\ La négation n'est pas appliquée ici, il faut le faire ensuite.
  */
-  private verifierConditionEst(condition: ConditionSolo, sujet: ElementJeu | Concept | Intitule) {
+  private verifierConditionEst(condition: ConditionSolo, sujet: ElementJeu | Concept | Intitule, contexteTour?: ContexteTour) {
     let resultCondition: boolean = null;
+
+    // complément « ceci » ou « cela » (ex. « si ceci est cela ») : comparer les éléments eux-mêmes
+    const complementNettoye = condition.complement ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.complement) : null;
+    if (contexteTour && !condition.sujetComplement?.determinant && (complementNettoye === 'ceci' || complementNettoye === 'cela')) {
+      const cible = complementNettoye === 'ceci' ? contexteTour.ceci : contexteTour.cela;
+      return !!cible && sujet === cible;
+    }
 
     if (!condition.sujetComplement || !condition.sujetComplement.determinant) {
       // a) comparer d'abord l'intitulé du sujet avec le complément.
