@@ -385,7 +385,9 @@ export class ConditionsUtils {
 
         // 2 - Trouver le verbe
         // ++++++++++++++++++++
-        switch (condition.verbe) {
+        // « X est dans/sur/sous Y » : position, équivaut à « X se trouve dans/sur/sous Y ».
+        const estPosition = (condition.verbe === 'est' || condition.verbe === 'sont') && /^(dans|sur|sous) /i.test(condition.complement ?? '');
+        switch (estPosition ? 'se trouve' : condition.verbe) {
           // ÉTAT
           case 'est':
           case 'sont':
@@ -1066,6 +1068,15 @@ export class ConditionsUtils {
                   resultCondition = true;
                 }
               });
+            }
+          }
+          // complément qui n’est ni un élément, ni un état connu : la condition sera toujours fausse.
+          if (!resultCondition && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
+            const cor = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
+            const existe = (cor.elements.length + cor.concepts.length + cor.compteurs.length + cor.listes.length) > 0
+              || this.jeu.etats.trouverEtat(condition.complement) !== null;
+            if (!existe) {
+              this.eju.ajouterConseil("Ni élément ni état trouvé : « " + condition.complement + " ».");
             }
           }
           break;
