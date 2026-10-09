@@ -94,10 +94,17 @@ export class InstructionDirePropriete {
             case 'l\u2019':
             case "l'":
               resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "les " : "l\u2019"); break;
+            case 'L\u2019':
+            case "L'":
+              resultat = (cibleElement.nombre === Nombre.p || cibleElement.nombre === Nombre.tp ? "Les " : "L\u2019"); break;
             case 'le':
               if (cibleElement.nombre !== Nombre.p && cibleElement.nombre !== Nombre.tp) {
                 resultat = cibleElement.genre !== Genre.f ? "le" : "la";
               } else { resultat = "les"; } break;
+            case 'Le':
+              if (cibleElement.nombre !== Nombre.p && cibleElement.nombre !== Nombre.tp) {
+                resultat = cibleElement.genre !== Genre.f ? "Le" : "La";
+              } else { resultat = "Les"; } break;
             case 'lui':
               if (cibleElement.nombre !== Nombre.p) {
                 resultat = cibleElement.genre !== Genre.f ? "lui" : "elle";
@@ -107,7 +114,10 @@ export class InstructionDirePropriete {
               else if (cibleString == 'cela' || cibleString == 'cela?') { resultat = evenement?.prepositionCela ?? ''; }
               else { resultat = "?!"; } break;
             default:
-              console.error("calculerBalisePropriete: propriete non prise en charge (Element):", proprieteString); break;
+              // propriété non reconnue (ex. variante de casse : [Lui ceci]) : signaler au lieu d’afficher une chaîne vide
+              resultat = "{+@problème balise@+}";
+              this.jeu.tamponErreurs.push("Balise pas comprise ou propriété pas trouvée: [" + proprieteString + " " + cibleString + "]");
+              break;
           }
         } else if (cible && ClasseUtils.heriteDe(cible.classe, EClasseRacine.intitule)) {
           switch (propNorm) {
