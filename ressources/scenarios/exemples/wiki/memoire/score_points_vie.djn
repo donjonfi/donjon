@@ -76,12 +76,8 @@ action déclencher ceci:
 fin action
 
 action boire ceci:
-  définition:
-    ceci est un objet visible et accessible.
-  phase prérequis:
-    si ceci n’est pas la potion de soin:
-      refuser "Vous ne pouvez pas boire [intitulé ceci].".
-    fin si
+  définitions:
+    ceci est la potion de soin.
   phase exécution:
     effacer ceci.
     changer la vie augmente de 3.

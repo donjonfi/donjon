@@ -62,7 +62,7 @@ Le sac de toile est un objet dans le compartiment sept.
 Sa description est "Un sac de toile léger, étiquette : ''[poids ceci] kilos''.".
 Le poids du sac de toile vaut 2.
 
-La photo sépia est un objet décoratif fixé dans le compartiment sept.
+La photo sépia est un objet décoratif dans le compartiment sept.
 Sa description est "Une photographie d’avant-guerre : un homme en uniforme bleu sourit à l’objectif.".
 
 -- ======================================================
@@ -87,7 +87,7 @@ Le poids de la carte de visite vaut 1.
 -- OBJETS DE LA CABINE
 -- ======================================================
 
-Le levier de sécurité est un objet décoratif fixé dans la cabine de pilotage.
+Le levier de sécurité est un objet décoratif dans la cabine de pilotage.
 Sa description est "Un levier de bois cerclé de laiton. Tirer dessus arrête le compte à rebours d’urgence.".
 
 -- ======================================================
@@ -103,7 +103,7 @@ Le joueur se trouve dans le compartiment sept.
 règle avant commencer le jeu:
   dire "{/Vous ouvrez les yeux. Vous ne savez ni quel jour, ni quelle gare, ni pour combien de temps encore. Le train roule, vite. Trop vite./}".
   dire "{n}Examinez la photo pour retrouver vos souvenirs, fouillez le wagon-restaurant pour des indices, puis filez à la cabine ''tirer sur le levier de sécurité''.".
-  exécuter la routine déclencher le freinage dans 90 secondes.
+  exécuter la routine freinage dans 90 secondes.
 fin règle
 
 -- ======================================================
@@ -140,7 +140,7 @@ fin règle
 -- ROUTINE : FREINAGE D’URGENCE (fin du temps)
 -- ======================================================
 
-routine déclencher le freinage:
+routine freinage:
   dire "{n}{*FREINAGE D’URGENCE — vous n’avez pas tiré le levier à temps. Les roues hurlent, le train sort des rails, et tout devient noir.*}".
   terminer le jeu.
 fin routine
@@ -150,7 +150,7 @@ fin routine
 -- ======================================================
 
 règle après tirer sur le levier de sécurité:
-  annuler la routine déclencher le freinage.
+  annuler la routine freinage.
   dire "Vous empoignez le levier des deux mains et tirez de toutes vos forces. Le voyant rouge cesse de battre. Le train ralentit doucement, et finit par s’immobiliser dans un crissement long et triste.".
   si la liste indices contient la carte de visite:
     dire "{n}Le détective Charles Vermine, dont vous portez la carte dans la poche, n’aura plus à enquêter sur votre disparition.".
