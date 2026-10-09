@@ -7,6 +7,7 @@ import { ElementsJeuUtils, TypeSujet } from "../commun/elements-jeu-utils";
 import { Evenement } from "../../models/jouer/evenement";
 import { Genre } from "../../models/commun/genre.enum";
 import { InstructionsUtils } from "./instructions-utils";
+import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { Nombre } from "../../models/commun/nombre.enum";
 import { PhraseUtils } from "../commun/phrase-utils";
@@ -143,11 +144,23 @@ export class InstructionDirePropriete {
 
   calculerBaliseP(texteDynamique: string, ctxTour: ContexteTour | undefined, evenement: Evenement | undefined, declenchements: number | undefined): string {
     if (!texteDynamique.includes("[p ")) return texteDynamique;
-    return InstructionsUtils.processBalises(texteDynamique, "p (\\S+) (ici|ceci|cela)", decoupe => {
+    return InstructionsUtils.processBalises(texteDynamique, "p (\\S+) (ici|ceci|cela|(?:le |la |les |l'|l’)?[^\\]\\[]+?)", decoupe => {
       const proprieteString = decoupe[1];
       const cibleString = decoupe[2];
-      const cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
-      if (!cible) return "(" + cibleString + " est null)";
+      let cible: ElementJeu | Concept | Intitule | null;
+      if (/^(ici|ceci|cela)$/i.test(cibleString)) {
+        cible = InstructionsUtils.trouverCibleSpeciale(cibleString, ctxTour, evenement, this.eju, this.jeu);
+        if (!cible) return "(" + cibleString + " est null)";
+      } else {
+        // cible NOMMÉE (élément du jeu désigné par son intitulé, ex: [p prix la hache])
+        const cibleGN = PhraseUtils.getGroupeNominalDefiniOuIndefini(cibleString, false);
+        const correspondance = cibleGN ? this.eju.trouverCorrespondance(cibleGN, TypeSujet.SujetEstNom, false, false) : undefined;
+        if (correspondance?.elements.length !== 1) {
+          this.jeu.tamponErreurs.push("Balise pas comprise ou propriété pas trouvée: " + decoupe[0]);
+          return "{+@problème balise@+}";
+        }
+        cible = correspondance.elements[0];
+      }
       switch (InstructionsUtils.normaliserAccents(proprieteString)) {
         case 'nom':
           return cible.nom;
