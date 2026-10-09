@@ -21,6 +21,10 @@ La bourse est affichée en bas à gauche.
 -- « en haut » est sous-entendu si omis :
 La bourse est affichée.              -- équivalent à « affichée en haut à droite »
 Le score est affiché à gauche.       -- équivalent à « affiché en haut à gauche »
+-- Forme alternative (comme pour le lieu) :
+afficher le score dans le cartouche.                -- en haut à droite
+afficher la vie dans le cartouche du bas.           -- en bas à droite
+afficher la bourse dans le cartouche du bas à gauche.
 
 -- Référence par pronom personnel au dernier élément défini
 Le score est un compteur initialisé à 0.
