@@ -1,3 +1,4 @@
+import { PositionObjet } from "../../models/jeu/position-objet";
 import { EClasseRacine, EEtatsBase } from '../../models/commun/constantes';
 import { HorlogeUtils } from './horloge-utils';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
@@ -523,7 +524,9 @@ export class ConditionsUtils {
             if (sujet && destination) {
               // vérifier que la cible se trouve au bon endroit
               if ((sujet as Objet).position.cibleId === destination.id) {
-                retVal = true;
+                // la préposition fait partie de la condition : « sous le tapis » ≠ « sur le tapis »
+                const preposition = condition.complement?.match(/^(dans|sur|sous) /i)?.[1];
+                retVal = !preposition || (sujet as Objet).position.pre === PositionObjet.getPrepositionSpatiale(preposition.toLowerCase());
               }
             }
             break;
