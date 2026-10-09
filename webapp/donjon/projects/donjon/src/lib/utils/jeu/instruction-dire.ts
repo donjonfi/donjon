@@ -236,7 +236,8 @@ export class InstructionDire {
       // ajouter le « de » s’il est absent de l’expression (ex: description table => description de table)
       let curProprieteIntituleCorrige = curProprieteIntitule;
       if (sansDe) {
-        curProprieteIntituleCorrige = curProprieteIntituleCorrige.replace(" ", " de "); // rem: seul premier espace est remplacé.
+        // rem: seul premier espace est remplacé ; contracter « de le » → « du » et « de les » → « des ».
+        curProprieteIntituleCorrige = curProprieteIntituleCorrige.replace(" ", " de ").replace(/ de le /i, " du ").replace(/ de les /i, " des ");
       }
       // ajouter déterminant « le » devant la propriété si pas déjà présent (ex: titre de la table => le titre de la table)
       if (!curProprieteIntituleCorrige.match(/^(le |la |les |l'|l\u2019)/i)) {
