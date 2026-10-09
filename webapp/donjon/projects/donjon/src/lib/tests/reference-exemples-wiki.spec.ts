@@ -29,6 +29,14 @@ describe('Exemples wiki — référence', () => {
     expect(sortie).toContain('(Couleur : bronze.)');
   });
 
+  it('[F130-T005] proprietes/soulever_poids : compare la force du joueur au poids de l’objet', () => {
+    const { ctx } = commencerExempleWiki('proprietes/soulever_poids.djn');
+    ctx.com.executerCommande('regarder', false);
+    expect(ctx.com.executerCommande('soulever le sac', false).sortie).toContain('Vous soulevez le sac (force 7 ≥ poids 4).');
+    expect(ctx.com.executerCommande('soulever l’enclume', false).sortie).toContain('L’enclume est trop lourd (20) pour vous (7).');
+    expect(ctx.jeu.tamponErreurs).toEqual([]);
+  });
+
   it('[F130-T003] texte/accord_intitule : « inspecter » accorde l’intitulé', () => {
     const { ctx } = commencerExempleWiki('texte/accord_intitule.djn');
     expect(ctx.com.executerCommande('inspecter la porte', false).sortie).toContain('La porte est verrouillée.');

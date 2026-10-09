@@ -12,9 +12,9 @@ Le poids de l'enclume vaut 20.
 
 action soulever ceci:
   si la force du joueur atteint le poids de ceci:
-    dire "Vous soulevez [intitulé ceci] (force [force le joueur] ≥ poids [poids ceci]).".
+    dire "Vous soulevez [intitulé ceci] (force [force du joueur] ≥ poids [poids ceci]).".
   sinon
-    dire "[Intitulé ceci] est trop lourd ([poids ceci]) pour vous ([force le joueur]).".
+    dire "[Intitulé ceci] est trop lourd ([poids ceci]) pour vous ([force du joueur]).".
   fin si
 fin action
 
