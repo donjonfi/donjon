@@ -6,6 +6,8 @@ import { Evenement } from "../../models/jouer/evenement";
 import { ExprReg } from "../compilation/expr-reg";
 import { GroupeNominal } from "../../models/commun/groupe-nominal";
 import { InstructionHandler } from "./instruction-handler";
+import { InstructionsUtils } from "./instructions-utils";
+import { Intitule } from "../../models/jeu/intitule";
 import { Jeu } from "../../models/jeu/jeu";
 import { PhraseUtils } from "../commun/phrase-utils";
 import { PrepositionSpatiale } from "../../models/jeu/position-objet";
@@ -179,7 +181,10 @@ export class InstructionListes implements InstructionHandler {
     for (const item of items) {
       const itemTrimmed = item.trim();
       if (!itemTrimmed) continue;
-      if (itemTrimmed.match(ExprReg.xNombre)) {
+      const cibleSpeciale = this.trouverCibleSpecialeItem(itemTrimmed, contexteTour);
+      if (cibleSpeciale) {
+        liste.ajouterIntitule(cibleSpeciale);
+      } else if (itemTrimmed.match(ExprReg.xNombre)) {
         liste.ajouterNombre(Number.parseFloat(itemTrimmed));
       } else {
         const gnItem = PhraseUtils.getGroupeNominalDefiniOuIndefini(itemTrimmed, false);
@@ -197,6 +202,17 @@ export class InstructionListes implements InstructionHandler {
     }
     resultat.succes = true;
     return resultat;
+  }
+
+  /**
+   * Cible spéciale (ceci, cela, ici, joueur, inventaire…) désignée par un item de liste.
+   * Les quantités (quantitéCeci…) sont exclues : elles n’ont pas de sens dans une liste.
+   */
+  private trouverCibleSpecialeItem(item: string, contexteTour: ContexteTour): Intitule | null {
+    if (!contexteTour || item.match(/^quantit/i)) {
+      return null;
+    }
+    return InstructionsUtils.trouverCibleSpeciale(item, contexteTour, undefined, this.eju, this.jeu) ?? null;
   }
 
   /** Retirer (ou enlever) plusieurs éléments d’une liste : retirer x, y et z de la liste <liste> */
@@ -238,7 +254,10 @@ export class InstructionListes implements InstructionHandler {
     for (const item of items) {
       const itemTrimmed = item.trim();
       if (!itemTrimmed) continue;
-      if (itemTrimmed.match(ExprReg.xNombre)) {
+      const cibleSpeciale = this.trouverCibleSpecialeItem(itemTrimmed, contexteTour);
+      if (cibleSpeciale) {
+        liste.retirerIntitule(cibleSpeciale);
+      } else if (itemTrimmed.match(ExprReg.xNombre)) {
         liste.retirerNombre(Number.parseFloat(itemTrimmed));
       } else {
         const gnItem = PhraseUtils.getGroupeNominalDefiniOuIndefini(itemTrimmed, false);
