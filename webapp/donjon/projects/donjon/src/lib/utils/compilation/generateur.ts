@@ -709,6 +709,23 @@ export class Generateur {
       }
     });
 
+    // SYNONYME vs ACTION : un synonyme a moins de poids qu’une action définie pour le même infinitif
+    // (ex. « action lancer ceci » vs « interpréter lancer comme jeter ») : le synonyme est retiré.
+    const infinitifsActions = new Set(jeu.actions.map(action => action.infinitifSansAccent));
+    const synonymesRetires = new Set<string>();
+    jeu.actions.forEach(action => {
+      action.synonymesSansAccent
+        .filter(synonyme => synonyme !== action.infinitifSansAccent && infinitifsActions.has(synonyme))
+        .forEach(synonyme => {
+          const synonymeBrut = action.retirerSynonyme(synonyme);
+          const cle = synonyme + ' > ' + action.infinitifSansAccent;
+          if (!synonymesRetires.has(cle)) {
+            synonymesRetires.add(cle);
+            jeu.tamponConseils.push(`« ${synonymeBrut} » était un synonyme de « ${action.infinitif} » : c’est l’action « ${synonymeBrut} » qui est utilisée.`);
+          }
+        });
+    });
+
     // CONTRÔLER LES ACTIONS PRINCIPALES/SECONDAIRES (INTERFACE TACTILE)
     // Un infinitif sans action correspondante donne un conseil (pas une erreur) :
     // le bouton correspondant sera simplement absent du menu tactile.
