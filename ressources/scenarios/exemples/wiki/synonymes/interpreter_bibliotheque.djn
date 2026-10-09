@@ -8,8 +8,8 @@ Interpréter la bib et l'étagère comme la bibliothèque.
 Le grand livre est un objet dans la bibliothèque.
 Interpréter le livre, l'ouvrage et le bouquin comme le grand livre.
 
-interpréter regarder et observer comme examiner.
+interpréter scruter et inspecter comme examiner.
 
 règle avant commencer le jeu:
-  dire "Essayez : {/observer la bib/}, {/examiner étagère/}, {/regarder bouquin/}, {/examiner ouvrage/}.".
+  dire "Essayez : {/scruter la bib/}, {/examiner étagère/}, {/inspecter bouquin/}, {/examiner ouvrage/}.".
 fin règle

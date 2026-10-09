@@ -15,7 +15,7 @@ Sa description est "Une étendue de sable doré à perte de vue.".
 La prison est un lieu.
 Sa description est "Une cellule humide, éclairée par une lucarne grillagée.".
 
-Le tapis magique est un objet (m) dans le château.
+Le tapis magique est un objet (m) dans l'inventaire.
 Son aperçu est "Un tapis brodé d'arabesques flotte à hauteur de cheville.".
 Sa description est "Le tapis frémit comme s'il attendait un ordre.".
 
@@ -38,4 +38,3 @@ action voler vers ceci:
 fin action
 
 Le joueur est dans le château.
-Il possède le tapis magique.

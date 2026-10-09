@@ -4,6 +4,10 @@
 module.exports = function (config) {
   config.set({
     basePath: '',
+    // exemples du wiki : servis (non inclus) pour être chargés tels quels par exemples-wiki-fichiers.spec.ts
+    files: [
+      { pattern: '../../../../ressources/scenarios/exemples/wiki/**/*.djn', included: false, served: true, watched: false },
+    ],
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
       require('karma-jasmine'),

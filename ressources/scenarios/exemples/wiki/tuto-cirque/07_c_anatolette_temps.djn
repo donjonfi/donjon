@@ -25,7 +25,7 @@ Sa description est "Une grande tente rapiécée. Au milieu, une cage ouverte abr
 -- LES PERSONNAGES ET LE HOCHET
 -- ======================================================
 
-La chatonne Anatolette est un animal parlant triste dans le chapiteau du miroir.
+La chatonne Anatolette est un animal parlant et triste dans le chapiteau du miroir.
 Sa description est "Un chaton tigré de la taille d’une pomme. Elle miaule en regardant vers le haut, comme si quelque chose lui manquait là-haut.".
 
 Le hochet à grelot est un objet dans la place ternie.
@@ -38,21 +38,22 @@ Son aperçu est "Un hochet à grelot tinte au sol, balayé par le vent.".
 
 -- On exclut les méta-commandes (effacer, regarder, afficher, commencer) et le
 -- déplacement (aller) pour laisser au joueur le temps de courir derrière.
-après une action quelconque:
-  terminer l’action avant.
+règle après une action quelconque:
+  continuer l’action avant.
   si l’infinitif de l’action n’est ni effacer ni regarder ni commencer ni afficher ni aller ni examiner ni inventaire:
     si le joueur ne possède pas le hochet à grelot:
       -- cycle : place ternie → roulotte de Mucia → chapiteau du miroir → place ternie
-      si le hochet à grelot est dans la place ternie:
+      si le hochet à grelot se trouve dans la place ternie:
         déplacer le hochet à grelot dans la roulotte de Mucia.
-      sinonsi le hochet à grelot est dans la roulotte de Mucia:
+      sinonsi le hochet à grelot se trouve dans la roulotte de Mucia:
         déplacer le hochet à grelot dans le chapiteau du miroir.
-      sinonsi le hochet à grelot est dans le chapiteau du miroir:
+      sinonsi le hochet à grelot se trouve dans le chapiteau du miroir:
         déplacer le hochet à grelot dans la place ternie.
       fin si
       dire "{n}{/Une rafale de vent — le tintement du grelot s’éloigne./}".
     fin si.
   fin si.
+fin règle
 
 -- ======================================================
 -- DONNER LE HOCHET À ANATOLETTE → RIRE

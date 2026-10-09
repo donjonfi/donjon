@@ -1,7 +1,7 @@
 -- Mini-exemple : balise [@X] pour mentionner un objet dans la description du lieu sans qu'il soit re-listé.
 
 La cuisine est un lieu.
-Sa description est "Une cuisine simple. [@coffre] trône près de l'évier.".
+Sa description est "Une cuisine simple. Un coffre[@coffre] trône près de l'évier.".
 
 Le coffre est un contenant dans la cuisine.
 

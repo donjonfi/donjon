@@ -133,7 +133,7 @@ Sa description est "Pétunie, clown abattue. Son nez rouge est tombé. Ses chaus
 Mucia (f) est une personne triste dans la roulotte de Mucia.
 Sa description est "Mucia, ex-dompteuse. Elle agite un fouet ridiculement petit. « Avancez, Norbert ! Avancez, Yvette ! » Aucun escargot ne bouge.".
 
-La chatonne Anatolette est un animal parlant triste dans le chapiteau du miroir.
+La chatonne Anatolette est un animal parlant et triste dans le chapiteau du miroir.
 Sa description est "Un chaton tigré de la taille d’une pomme, perdu dans une cage faite pour un fauve. Elle miaule en regardant vers le haut.".
 
 -- ======================================================
@@ -141,7 +141,7 @@ Sa description est "Un chaton tigré de la taille d’une pomme, perdu dans une 
 -- ======================================================
 
 -- L’objet caché de Mucia
-La feuille de laitue brillante est un objet décoratif fixé dans la roulotte de Mucia.
+La feuille de laitue brillante est un objet décoratif dans la roulotte de Mucia.
 Sa description est "Une feuille de laitue trop brillante. Elle est en celluloïd. Quelque chose est coincé derrière.".
 
 La marionnette d’escargot est un objet invisible dans la roulotte de Mucia.
@@ -196,22 +196,23 @@ fin règle
 -- HOCHET ITINÉRANT (paire 3 — mécanique temporelle)
 -- ======================================================
 
-après une action quelconque:
-  terminer l’action avant.
+règle après une action quelconque:
+  continuer l’action avant.
   si l’infinitif de l’action n’est ni effacer ni regarder ni commencer ni afficher ni aller ni examiner ni inventaire:
     si le joueur ne possède pas le hochet à grelot:
-      si le hochet à grelot est dans la place ternie:
+      si le hochet à grelot se trouve dans la place ternie:
         déplacer le hochet à grelot dans la roulotte de Pétunie.
-      sinonsi le hochet à grelot est dans la roulotte de Pétunie:
+      sinonsi le hochet à grelot se trouve dans la roulotte de Pétunie:
         déplacer le hochet à grelot dans la roulotte de Mucia.
-      sinonsi le hochet à grelot est dans la roulotte de Mucia:
+      sinonsi le hochet à grelot se trouve dans la roulotte de Mucia:
         déplacer le hochet à grelot dans le chapiteau du miroir.
-      sinonsi le hochet à grelot est dans le chapiteau du miroir:
+      sinonsi le hochet à grelot se trouve dans le chapiteau du miroir:
         déplacer le hochet à grelot dans la place ternie.
       fin si
       dire "{n}{/Une rafale de vent — le tintement du grelot s’éloigne./}".
     fin si.
   fin si.
+fin règle
 
 -- ======================================================
 -- PAIRE 1 — PÉTUNIE (QCM par réactions structurées)
