@@ -318,6 +318,9 @@ export class ConditionsUtils {
           } else if (correspondances.localisation) {
             // direction (ex. « si une sortie existe vers le sud ») : le sujet est la localisation
             sujet = correspondances.localisation;
+            // liste désignée avec le préfixe « liste » (ex. « la liste indices », « la liste des indices »)
+          } else if (this.trouverListePrefixee(condition.sujet.nomEpithete)) {
+            sujet = this.trouverListePrefixee(condition.sujet.nomEpithete);
           } else {
             // chercher dans les propriétés
             const proprieteJeu = PhraseUtils.trouverPropriete(condition.sujet.toString());
@@ -1249,6 +1252,12 @@ export class ConditionsUtils {
     }
 
     return retVal;
+  }
+
+  /** Liste désignée avec le préfixe « liste » : « liste indices », « liste des indices » (même forme que « vider la liste »). */
+  private trouverListePrefixee(nomEpithete: string | undefined): Liste | undefined {
+    const match = nomEpithete?.toLowerCase().match(/^liste\s+(?:des |du |de la |de l['’]|de les |de )?(.+)$/);
+    return match ? this.eju.trouverListeAvecNom(match[1]) : undefined;
   }
 
   private getValeurHorloge(valeurRecherchee: string, verbe: string): Compteur | undefined {
