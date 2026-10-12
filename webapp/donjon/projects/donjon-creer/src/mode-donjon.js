@@ -15,12 +15,12 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
     );
 
     var builtinFunctions = (
-      "afficher|ajouter|allumer|arrêter|attendre|augmenter|"
-      + "changer|charger|consommer|continuer|copier|créer|creer|"
+      "afficher|ajouter|allumer|annuler|arrêter|attendre|augmenter|"
+      + "changer|charger|commencer|consommer|continuer|copier|créer|creer|"
       + "décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|"
       + "effacer|enlever|éteindre|exécuter|"
-      + "fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|"
-      + "refuser|remplacer|retirer|sauver|stopper|terminer|"
+      + "fermer|interrompre|jouer|lister|mémoriser|oublier|ouvrir|prendre|"
+      + "refuser|remplacer|retirer|sauver|sélectionner|stopper|terminer|tester|"
       + "verrouiller|vider"
     );
 
@@ -67,11 +67,11 @@ ace.define("ace/mode/donjon_highlight_rules", ["require", "exports", "module", "
             "forment une bascule|se contredisent|est un état)\\b" +
             ")|" +
             "(^(\\s*)inclure\\b)|" +
-            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|avant|après|si|choix|choisir|règle|routine)|fin(?=\])|finsi|finchoisir|finchoix)\\b)|" +
+            "(\\b(au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|avant|après|si|choix|choisir|règle|routine|remplacer)|fin(?=\])|finsi|finchoisir|finchoix)\\b)|" +
             "(\\b(mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit)\\b)|" +
             "(\\b(partie|chapitre|scène) )|" +
             "(\\b(il y a|exprimée?s? en)\\b)|(avec l('|’)unité)|" +
-            "(\\b(principa(l|le|ux|les)|secondaires?|suppl(é|e)mentaires?|courantes?|compl(é|e)mentaires?|probables?|possibles?|masqu(é|e)es?)\\b)|" +
+            "(\\b(principa(l|le|ux|les)|secondaires?|suppl(é|e)mentaires?|courantes?|compl(é|e)mentaires?|probables?|possibles?|masqu(é|e)es?|prépositions|aucune?)\\b)|" +
             "(^( )*(définition(s)?|basique)(?=( )*:))|" +
             "(^( )*(red(é|e)finir (l(’|')\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:$))"
           ,
