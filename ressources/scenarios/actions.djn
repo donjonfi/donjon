@@ -505,7 +505,7 @@ fin action
 -- =============
 --   EMBRASSER
 -- =============
-action embrasser:
+action embrasser ceci:
   phase prérequis:
     si ceci est le joueur, refuser "Pardon ?".
     si ceci n’est pas un vivant, refuser "Vous avez de drôles d’idées.".
