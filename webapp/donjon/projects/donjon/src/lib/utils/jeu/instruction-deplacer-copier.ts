@@ -135,6 +135,21 @@ export class InstructionDeplacerCopier {
       }
     }
 
+    // empêcher de placer un objet dans/sur lui-même, ou dans un objet qu’il contient (cycle)
+    if (!ClasseUtils.heriteDe(destination.classe, EClasseRacine.lieu)) {
+      let courant: ElementJeu = destination;
+      const visites = new Set<number>();
+      while (courant && !visites.has(courant.id)) {
+        if (courant.id === objetSource.id) {
+          this.eju.ajouterErreur(`déplacer : « ${objetSource.nom} » ne peut pas être placé ${preposition} « ${destination.nom} » qui se trouve ${preposition} « ${objetSource.nom} » (ou est « ${objetSource.nom} »).`);
+          return resultat; // succes = false : rien n’est déplacé
+        }
+        visites.add(courant.id);
+        const pos = (courant as Objet).position;
+        courant = (pos && pos.cibleType !== EClasseRacine.lieu) ? this.jeu.objets.find(o => o.id === pos.cibleId) : null;
+      }
+    }
+
     // TODO: vérifications
     const nouvellePosition = new PositionObjet(
       PrepositionSpatiale[preposition],

@@ -410,7 +410,7 @@ export class ElementsJeuUtils {
       if (contenant) {
 
         if (obj.id == contenant.id) {
-          throw new Error("getLieuObjet >>> l’objet est positionné sur lui même !\n" + JSON.stringify(obj));
+          throw new Error("getLieuObjet >>> l’objet est positionné sur lui-même : " + obj.nom);
         } else {
           return this.getLieuObjet(contenant);
         }
