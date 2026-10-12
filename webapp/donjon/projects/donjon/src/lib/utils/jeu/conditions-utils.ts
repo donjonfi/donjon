@@ -477,18 +477,22 @@ export class ConditionsUtils {
             if (condition.sujetComplement?.nom === "ici") {
               destination = this.eju.curLieu;
             } else if (condition.sujetComplement?.nom === "ceci") {
-              if (contexteTour.ceci && ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.lieu)) {
-                destination = contexteTour.ceci as Lieu;
+              if (contexteTour.ceci && (ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.lieu)
+                || ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.objet))) {
+                // lieu ou objet (contenant, support…), comme pour un élément nommé
+                destination = contexteTour.ceci as ElementJeu;
                 // (la commande aller passe par ici avec une direction)
               } else if (!contexteTour.ceci || !ClasseUtils.heriteDe(contexteTour.ceci.classe, EClasseRacine.direction)) {
-                console.error("siEstVraiSansLien > condition se trouve dans ceci: ceci n’est pas un lieu ceci=", contexteTour.ceci);
+                console.error("siEstVraiSansLien > condition se trouve dans ceci: ceci n’est ni un lieu ni un objet ceci=", contexteTour.ceci);
               }
             } else if (condition.sujetComplement?.nom === "cela") {
-              if (contexteTour.cela && ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.lieu)) {
-                destination = contexteTour.cela as Lieu;
+              if (contexteTour.cela && (ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.lieu)
+                || ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.objet))) {
+                // lieu ou objet (contenant, support…), comme pour un élément nommé
+                destination = contexteTour.cela as ElementJeu;
                 // (la commande aller passe par ici avec une direction)
               } else if (!contexteTour.cela || !ClasseUtils.heriteDe(contexteTour.cela.classe, EClasseRacine.direction)) {
-                console.error("siEstVraiSansLien > condition se trouve dans cela : cela n’est pas un lieu cela=", contexteTour.cela);
+                console.error("siEstVraiSansLien > condition se trouve dans cela : cela n’est ni un lieu ni un objet cela=", contexteTour.cela);
               }
               // origine
             } else if (conditionSujetComplementNomNettoye === 'origine') {
