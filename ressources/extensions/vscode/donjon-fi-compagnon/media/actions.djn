@@ -977,7 +977,7 @@ action mettre ceci dans cela:
     fin si.
 
   phase épilogue:
-    si (cela est un support ou un contenant) ou que (cela est vivant mais pas le joueur):
+    si (cela est un support ou un contenant) ou que (cela est un vivant mais pas le joueur):
       dire "C’est fait.".
     fin si.
 fin action

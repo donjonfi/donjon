@@ -63,4 +63,10 @@ describe('[F149] Actions de base : corrections', () => {
     expect(ctx.com.executerCommande('regarder', false).sortie).toContain('Il n\'y a rien de particulier sur la table.');
   });
 
+  it('[F149-T005] mettre un objet dans un vivant : « C’est fait. », sans conseil', () => {
+    const ctx = commencer();
+    expect(ctx.com.executerCommande('mettre la pomme dans la magicienne', false).sortie).toContain('C’est fait.');
+    expect(ctx.jeu.tamponConseils).toEqual([]);
+  });
+
 });
