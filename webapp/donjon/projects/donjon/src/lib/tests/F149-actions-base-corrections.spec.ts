@@ -14,6 +14,7 @@ function commencer(): ContextePartie {
 La salle est un lieu.
 La pomme est un objet dans la salle.
 La boîte est un contenant ouvert dans la salle.
+Le coffre est un contenant ouvert dans la salle.
 La table est un support dans la salle.
 La magicienne est une personne dans la salle.
 Le joueur est dans la salle.
@@ -32,6 +33,23 @@ describe('[F149] Actions de base : corrections', () => {
     expect(ctx.com.executerCommande('embrasser la pomme', false).sortie).toContain('Vous avez de drôles d’idées.');
     expect(ctx.com.executerCommande('embrasser moi', false).sortie).toMatch(/^Pardon/);
     expect(ctx.jeu.tamponConseils).toEqual([]);
+  });
+
+  it('[F149-T002] mettre un objet dans lui-même : refusé', () => {
+    const ctx = commencer();
+    let sortie = '';
+    expect(() => sortie = ctx.com.executerCommande('mettre la boîte dans la boîte', false).sortie).not.toThrow();
+    expect(sortie).toContain('Je ne peux pas la mettre dans elle-même.');
+    expect(ctx.com.executerCommande('regarder', false).sortie).toContain('boîte');
+  });
+
+  it('[F149-T003] mettre un contenant dans ce qu’il contient : refusé', () => {
+    const ctx = commencer();
+    expect(ctx.com.executerCommande('mettre la boîte dans le coffre', false).sortie).toContain('C’est fait.');
+    let sortie = '';
+    expect(() => sortie = ctx.com.executerCommande('mettre le coffre dans la boîte', false).sortie).not.toThrow();
+    expect(sortie).toContain('La boîte se trouve déjà dans le coffre.');
+    expect(ctx.com.executerCommande('regarder', false).sortie).toContain('coffre');
   });
 
 });

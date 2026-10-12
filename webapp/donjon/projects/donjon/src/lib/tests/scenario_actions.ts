@@ -955,6 +955,8 @@ action mettre ceci dans cela:
     
   phase prérequis:
     si ceci est fixé, refuser "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
+    si ceci est cela, refuser "Je ne peux pas [le ceci] mettre dans [lui ceci]-même.".
+    si cela se trouve dans ceci ou que cela se trouve sur ceci, refuser "[Intitulé cela] se trouve déjà dans [intitulé ceci].".
     si cela n'est ni un support ni un contenant ni un vivant, refuser "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.".
     si cela est un contenant et fermé, refuser "[Intitulé cela] [v être ipr cela] fermé[es cela].".
     si ceci est liquide et si cela est un contenant et perméable, refuser "Ça va passer à travers.".
