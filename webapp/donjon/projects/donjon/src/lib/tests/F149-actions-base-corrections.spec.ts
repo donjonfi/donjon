@@ -17,6 +17,7 @@ La boîte est un contenant ouvert dans la salle.
 Le coffre est un contenant ouvert dans la salle.
 La table est un support dans la salle.
 La magicienne est une personne dans la salle.
+Le plateau est un support transportable dans l’inventaire.
 Le joueur est dans la salle.
 `, actions, false)));
   ctx.nouvelleGraineAleatoire();
@@ -50,6 +51,16 @@ describe('[F149] Actions de base : corrections', () => {
     expect(() => sortie = ctx.com.executerCommande('mettre le coffre dans la boîte', false).sortie).not.toThrow();
     expect(sortie).toContain('La boîte se trouve déjà dans le coffre.');
     expect(ctx.com.executerCommande('regarder', false).sortie).toContain('coffre');
+  });
+
+  it('[F149-T004] jeter ceci vers cela : objet vers lui-même, objet fixé, vivant', () => {
+    const ctx = commencer();
+    let sortie = '';
+    expect(() => sortie = ctx.com.executerCommande('jeter le plateau vers le plateau', false).sortie).not.toThrow();
+    expect(sortie).toContain('Je ne peux pas le jeter vers lui-même.');
+    expect(ctx.com.executerCommande('jeter la table vers la boîte', false).sortie).toContain('fixée');
+    expect(ctx.com.executerCommande('jeter la magicienne vers la table', false).sortie).toContain('Je suis contre la violence.');
+    expect(ctx.com.executerCommande('regarder', false).sortie).toContain('Il n\'y a rien de particulier sur la table.');
   });
 
 });

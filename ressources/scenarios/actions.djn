@@ -833,6 +833,9 @@ action jeter ceci vers cela:
   phase prérequis:
     si ceci n'est pas accessible, refuser "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].".
     si ceci est le joueur, refuser "Je préfère ne pas me jeter. Drôle d'idée.".
+    si ceci est un vivant, refuser "Je suis contre la violence.".
+    si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
+    si ceci est cela, refuser "Je ne peux pas [le ceci] jeter vers [lui ceci]-même.".
     si cela est un vivant, refuser "Je suis contre la violence.".
     si ceci est liquide ou gazeux, refuser "Je ne sais jeter que les objets solides.".
     -- on veut en jeter 0…
