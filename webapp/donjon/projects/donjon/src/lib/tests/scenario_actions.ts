@@ -506,7 +506,7 @@ fin action
 -- =============
 --   EMBRASSER
 -- =============
-action embrasser:
+action embrasser ceci:
   phase prérequis:
     si ceci est le joueur, refuser "Pardon ?".
     si ceci n’est pas un vivant, refuser "Vous avez de drôles d’idées.".
@@ -834,6 +834,9 @@ action jeter ceci vers cela:
   phase prérequis:
     si ceci n'est pas accessible, refuser "[Intitulé ceci] [v être ipr pas ceci] accessible[s ceci].".
     si ceci est le joueur, refuser "Je préfère ne pas me jeter. Drôle d'idée.".
+    si ceci est un vivant, refuser "Je suis contre la violence.".
+    si ceci est fixé, refuser "[Pronom ceci] [v être ipr ceci] fixé[es ceci].".
+    si ceci est cela, refuser "Je ne peux pas [le ceci] jeter vers [lui ceci]-même.".
     si cela est un vivant, refuser "Je suis contre la violence.".
     si ceci est liquide ou gazeux, refuser "Je ne sais jeter que les objets solides.".
     -- on veut en jeter 0…
@@ -955,6 +958,8 @@ action mettre ceci dans cela:
     
   phase prérequis:
     si ceci est fixé, refuser "[Intitulé ceci] [v être ipr ceci] fixé[es ceci].".
+    si ceci est cela, refuser "Je ne peux pas [le ceci] mettre dans [lui ceci]-même.".
+    si cela se trouve dans ceci ou que cela se trouve sur ceci, refuser "[Intitulé cela] se trouve déjà dans [intitulé ceci].".
     si cela n'est ni un support ni un contenant ni un vivant, refuser "[Intitulé cela] n’est ni un contenant ni un support ni le joueur.".
     si cela est un contenant et fermé, refuser "[Intitulé cela] [v être ipr cela] fermé[es cela].".
     si ceci est liquide et si cela est un contenant et perméable, refuser "Ça va passer à travers.".
@@ -973,7 +978,7 @@ action mettre ceci dans cela:
     fin si.
 
   phase épilogue:
-    si (cela est un support ou un contenant) ou que (cela est vivant mais pas le joueur):
+    si (cela est un support ou un contenant) ou que (cela est un vivant mais pas le joueur):
       dire "C’est fait.".
     fin si.
 fin action
