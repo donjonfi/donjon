@@ -70,7 +70,7 @@
       "patterns": [
         {
           "name": "support.function",
-          "match": "\\b(afficher|ajouter|allumer|arrêter|attendre|augmenter|changer|charger|consommer|continuer|copier|créer|creer|décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|effacer|enlever|éteindre|exécuter(?! (\\w)+(er|re|ir))|fermer|jouer|lister|mémoriser|oublier|ouvrir|prendre|refuser|remplacer|retirer|sauver|stopper|terminer|verrouiller|vider)\\b(?!\\.)"
+          "match": "\\b(afficher|ajouter|allumer|annuler|arrêter|attendre|augmenter|changer|charger|commencer|consommer|continuer|copier|créer|creer|décharger|déplacer|déterminer|déverrouiller|dire|diminuer|donner|effacer|enlever|éteindre|exécuter(?! (\\w)+(er|re|ir))|fermer|interrompre|jouer|lister|mémoriser|oublier|ouvrir|prendre|refuser|remplacer|retirer|sauver|sélectionner|stopper|terminer|tester|verrouiller|vider)\\b(?!\\.)"
         },
         {
           "name": "keyword.other.direction.donjon",
@@ -98,7 +98,7 @@
       "patterns": [
         {
           "name": "variable.language",
-          "match": "\\b((C|c)eci|(C|c)ela|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|(le )?nombre de)\\b"
+          "match": "\\b((C|c)eci|(C|c)ela|cela|ici|celui-ci|celle-ci|ceux-ci|celles-ci|quantitéCeci|quantitéCela|prépositionCeci|prépositionCela|réponse|origine|destination|orientation|(le )?nombre de)\\b"
         },
         {
           "name": "variable.parameter",
@@ -110,7 +110,7 @@
       "patterns": [
         {
           "name": "keyword.control.donjon",
-          "match": "((?i)\\b(désactiver|activer|si|sinon|sinonsi|(autre )?choix|choisir( parmis)?|quand|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|règle|routine|si|choix|choisir)|fin|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE|forment une bascule|se contredisent|implique|exclut|est un état|non|principa(l|le|ux|les)|secondaires?|suppl(é|e)mentaires?|courantes?|compl(é|e)mentaires?|probables?|possibles?|masqu(é|e)es?)\\b)|(\\baction\\b(?!;|\\.))|((?i)^(\\s)*(red(é|e)finir\\s+(l['’]\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:))|((?i)^\\s*(phase (prérequis|exécution|épilogue)|définition(s)?|basique)\\s*:)|((?i)\\b(il y a|exprimée?s? en)\\b)|((?i)avec l['’]unité)"
+          "match": "((?i)\\b(désactiver|activer|si|sinon|sinonsi|(autre )?choix|choisir( parmi)?|quand|interpréter|comme|au hasard|en boucle|1ère fois|1ere fois|1re fois|[1-9][0-9]?(e|ème|eme)? fois|initialement|prioritairement|progressivement|puis|fin (action|réaction(s)?|règle|routine|si|choix|choisir)|fin|finsi|finchoisir|finchoix|mais (pas|bien|ni|soit|plus)|ainsi que|et( que)?|ou( que)?|ni|soit|partie|PARTIE|chapitre|CHAPITRE|scène|SCÈNE|forment une bascule|se contredisent|implique|exclut|est un état|non|principa(l|le|ux|les)|secondaires?|suppl(é|e)mentaires?|courantes?|compl(é|e)mentaires?|probables?|possibles?|masqu(é|e)es?|prépositions|aucune?)\\b)|(\\baction\\b(?!;|\\.))|((?i)^(\\s)*(red(é|e)finir\\s+(l['’]\\s*)?action|réaction(s)?|action|règle (avant|après|remplacer)|routine|concernant) (?=.+:))|((?i)^\\s*(phase (prérequis|exécution|épilogue)|définition(s)?|basique)\\s*:)|((?i)\\b(il y a|exprimée?s? en)\\b)|((?i)avec l['’]unité)"
         },
         {
           "name": "keyword.operator",
