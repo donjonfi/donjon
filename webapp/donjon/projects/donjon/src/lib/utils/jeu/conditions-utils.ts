@@ -1007,6 +1007,14 @@ export class ConditionsUtils {
       return !!cible && sujet === cible;
     }
 
+    // sujet « ceci »/« cela » déclaré intitulé dans l’action : volontiers comparé à un mot
+    // quelconque (ex. « si ceci est l’aide » dans « afficher ceci ») → pas de conseil « introuvable ».
+    const sujetNettoye = condition.sujet?.nom ? RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(condition.sujet.nom) : null;
+    const actionChoisie = contexteTour?.commande?.actionChoisie?.action;
+    const cibleParametre = sujetNettoye === 'ceci' ? actionChoisie?.cibleCeci : (sujetNettoye === 'cela' ? actionChoisie?.cibleCela : null);
+    const conseillerIntrouvable = !cibleParametre?.nom
+      || RechercheUtils.transformerCaracteresSpeciauxEtMajuscules(cibleParametre.nom) !== EClasseRacine.intitule;
+
     if (!condition.sujetComplement || !condition.sujetComplement.determinant) {
       // a) comparer d'abord l'intitulé du sujet avec le complément.
       // Permet « si ceci est Léon » sans article, et évite un warning parasite
@@ -1029,7 +1037,7 @@ export class ConditionsUtils {
       // (visible dans le lecteur en mode débug uniquement). On ne conseille pas pour les
       // simples intitulés (ex. « si l’infinitif de l’action est examiner ») qui ne portent
       // pas d’états et dont le complément est souvent un mot quelconque (verbe, etc.).
-      if (!resultCondition && condition.complement
+      if (!resultCondition && condition.complement && conseillerIntrouvable
         && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
         const etatExiste = this.jeu.etats.trouverEtat(condition.complement) !== null;
         let elementExiste = false;
@@ -1074,7 +1082,7 @@ export class ConditionsUtils {
             }
           }
           // complément qui n’est ni un élément, ni un état connu : la condition sera toujours fausse.
-          if (!resultCondition && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
+          if (!resultCondition && conseillerIntrouvable && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
             const cor = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
             const existe = (cor.elements.length + cor.concepts.length + cor.compteurs.length + cor.listes.length) > 0
               || this.jeu.etats.trouverEtat(condition.complement) !== null;
