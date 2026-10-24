@@ -48,7 +48,7 @@
     "@angular/compiler-cli": "^22.2.3",
     "@playwright/test": "^1.64.1",
     "@types/file-saver": "^2.0.5",
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.6.5",
     "@types/uuid": "^8.3.4",
     "@vitest/coverage-v8": "^5.0.5",
     "jsdom": "^30.1.3",
