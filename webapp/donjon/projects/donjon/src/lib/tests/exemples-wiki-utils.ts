@@ -1,20 +1,26 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { CompilateurV8 } from "../utils/compilation/compilateur-v8";
 import { Generateur } from "../utils/compilation/generateur";
 import { ContextePartie } from "../models/jouer/contexte-partie";
 import { HorlogeUtils } from "../utils/jeu/horloge-utils";
 import { actions } from "./scenario_actions";
 
-// Les .djn de ressources/scenarios/exemples/wiki/ sont servis par karma (cf. karma.conf.js, « files »).
-declare const __karma__: { files: { [url: string]: string } };
+// Les .djn de ressources/scenarios/exemples/wiki/ sont lus sur disque (vitest tourne sous Node,
+// cwd = webapp/donjon, d’où ng test est lancé).
+const DOSSIER_EXEMPLES_WIKI = join(process.cwd(), '../../ressources/scenarios/exemples/wiki');
 
-/** URL (karma) de tous les exemples wiki, triées. */
+/** Chemins (absolus, séparateurs « / ») de tous les exemples wiki, triés. */
 export function urlsExemplesWiki(): string[] {
-  return Object.keys(__karma__.files).filter(u => u.endsWith('.djn')).sort();
+  return (readdirSync(DOSSIER_EXEMPLES_WIKI, { recursive: true }) as string[])
+    .filter(f => f.endsWith('.djn'))
+    .map(f => join(DOSSIER_EXEMPLES_WIKI, f).replace(/\\/g, '/'))
+    .sort();
 }
 
 /** Chemin relatif à exemples/wiki/ (ex. « tuto-cirque/07_c_anatolette_temps.djn »). */
 export function cheminExempleWiki(url: string): string {
-  return decodeURIComponent(url).replace(/.*\/exemples\/wiki\//, '');
+  return url.replace(/.*\/exemples\/wiki\//, '');
 }
 
 /** Contenu du fichier exemples/wiki/<chemin>. */
@@ -23,11 +29,7 @@ export function lireExempleWiki(chemin: string): string {
   if (!url) {
     throw new Error(`Exemple wiki introuvable : ${chemin}`);
   }
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', url, false);
-  xhr.overrideMimeType('text/plain; charset=utf-8');
-  xhr.send();
-  return xhr.responseText;
+  return readFileSync(url, 'utf-8');
 }
 
 /**
@@ -36,8 +38,8 @@ export function lireExempleWiki(chemin: string): string {
  */
 export function commencerExempleWiki(chemin: string): { ctx: ContextePartie, intro: string } {
   const rc = CompilateurV8.analyserScenarioEtActions(lireExempleWiki(chemin), actions, false);
-  expect(rc.erreurs).withContext(chemin).toEqual([]);
-  expect(rc.messages.map(m => `L${m.numeroLigne}: ${m.titre}`)).withContext(chemin).toEqual([]);
+  expect(rc.erreurs, chemin).toEqual([]);
+  expect(rc.messages.map(m => `L${m.numeroLigne}: ${m.titre}`), chemin).toEqual([]);
   const ctx = new ContextePartie(Generateur.genererJeu(rc));
   HorlogeUtils.reinitialiser();
   ctx.nouvelleGraineAleatoire();
@@ -45,6 +47,6 @@ export function commencerExempleWiki(chemin: string): { ctx: ContextePartie, int
   ctx.eju.majAdjacenceLieux();
   const intro = ctx.com.executerCommande('commencer le jeu', false).sortie;
   ctx.jeu.commence = true;
-  expect(ctx.jeu.tamponErreurs).withContext(chemin).toEqual([]);
+  expect(ctx.jeu.tamponErreurs, chemin).toEqual([]);
   return { ctx, intro };
 }

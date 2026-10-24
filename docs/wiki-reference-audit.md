@@ -157,7 +157,7 @@ Exclusion : `inclure` (volontairement non testable via djnc).
    inline le scénario préfixé par `actions` (import `./scenario_actions`).
    `TestUtils.genererEtCommencerLeJeu` **lève si erreur de compil/analyse** → vaut compile-check ;
    asserter le comportement (`ctx.com.executerCommande(...).sortie`).
-3. `ng test donjon --include="**/<file>.spec.ts" --watch=false --browsers=ChromeHeadless`.
+3. `ng test donjon --include="**/<file>.spec.ts" --watch=false`.
 4. `scripts/sync-wiki-examples.ps1` (régénère les `wiki_*.djn` pour que `[[djnc>]]` résolve).
 5. Écrire/enrichir la page wiki + liens « Voir aussi ».
 6. Servir le wiki pour vérifier le rendu : `cd D:\GIT\2025\donjon3\wiki\v3 ; C:\php\php.exe -S localhost:8000`.

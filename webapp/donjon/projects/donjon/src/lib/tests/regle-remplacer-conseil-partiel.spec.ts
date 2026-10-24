@@ -7,8 +7,8 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('règle remplacer : conseils si remplacement partiel (F076)', () => {
 
-  it('[F076-T001] remplacer sans « définitions » alors que la base en a → conseils (aucune correspondance + forme restante)', () => {
-    const scenario = `
+    it('[F076-T001] remplacer sans « définitions » alors que la base en a → conseils (aucune correspondance + forme restante)', () => {
+        const scenario = `
       le salon est un lieu.
       action chanter ceci:
         définitions:
@@ -21,16 +21,16 @@ describe('règle remplacer : conseils si remplacement partiel (F076)', () => {
           dire "Version remplacée.".
       fin action
     `;
-    const jeu = TestUtils.genererLeJeu(scenario);
-    expect(jeu.tamponErreurs.join('\n')).withContext(jeu.tamponErreurs.join('\n')).toBe('');
-    const conseils = jeu.tamponConseils.join('\n');
-    expect(conseils).withContext(conseils).toContain('ne correspond à aucune action existante');
-    expect(conseils).withContext(conseils).toContain('n’est pas remplacée et reste active');
-    expect(conseils).withContext(conseils).toContain('définitions');
-  });
+        const jeu = TestUtils.genererLeJeu(scenario);
+        expect(jeu.tamponErreurs.join('\n'), jeu.tamponErreurs.join('\n')).toBe('');
+        const conseils = jeu.tamponConseils.join('\n');
+        expect(conseils, conseils).toContain('ne correspond à aucune action existante');
+        expect(conseils, conseils).toContain('n’est pas remplacée et reste active');
+        expect(conseils, conseils).toContain('définitions');
+    });
 
-  it('[F076-T002] remplacement complet conforme → aucun conseil', () => {
-    const scenario = `
+    it('[F076-T002] remplacement complet conforme → aucun conseil', () => {
+        const scenario = `
       le salon est un lieu.
       action chanter ceci:
         définitions:
@@ -45,13 +45,13 @@ describe('règle remplacer : conseils si remplacement partiel (F076)', () => {
           dire "Version remplacée.".
       fin action
     `;
-    const jeu = TestUtils.genererLeJeu(scenario);
-    expect(jeu.tamponErreurs.join('\n')).withContext(jeu.tamponErreurs.join('\n')).toBe('');
-    expect(jeu.tamponConseils.join('\n')).withContext(jeu.tamponConseils.join('\n')).toBe('');
-  });
+        const jeu = TestUtils.genererLeJeu(scenario);
+        expect(jeu.tamponErreurs.join('\n'), jeu.tamponErreurs.join('\n')).toBe('');
+        expect(jeu.tamponConseils.join('\n'), jeu.tamponConseils.join('\n')).toBe('');
+    });
 
-  it('[F076-T003] remplacer une forme sur deux → conseil mentionnant la forme restante', () => {
-    const scenario = `
+    it('[F076-T003] remplacer une forme sur deux → conseil mentionnant la forme restante', () => {
+        const scenario = `
       le salon est un lieu.
       action chanter:
         phase exécution:
@@ -68,13 +68,13 @@ describe('règle remplacer : conseils si remplacement partiel (F076)', () => {
           dire "Chant remplacé.".
       fin action
     `;
-    const jeu = TestUtils.genererLeJeu(scenario);
-    expect(jeu.tamponErreurs.join('\n')).withContext(jeu.tamponErreurs.join('\n')).toBe('');
-    const conseils = jeu.tamponConseils.join('\n');
-    expect(conseils).withContext(conseils).toContain('chanter ceci');
-    expect(conseils).withContext(conseils).toContain('n’est pas remplacée et reste active');
-    // la forme remplacée, elle, ne fait l’objet d’aucun conseil « aucune action existante »
-    expect(conseils).withContext(conseils).not.toContain('ne correspond à aucune action existante');
-  });
+        const jeu = TestUtils.genererLeJeu(scenario);
+        expect(jeu.tamponErreurs.join('\n'), jeu.tamponErreurs.join('\n')).toBe('');
+        const conseils = jeu.tamponConseils.join('\n');
+        expect(conseils, conseils).toContain('chanter ceci');
+        expect(conseils, conseils).toContain('n’est pas remplacée et reste active');
+        // la forme remplacée, elle, ne fait l’objet d’aucun conseil « aucune action existante »
+        expect(conseils, conseils).not.toContain('ne correspond à aucune action existante');
+    });
 
 });

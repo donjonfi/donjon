@@ -6,7 +6,7 @@
 
 ## 1. Résumé exécutif
 
-### État de la couverture (karma / istanbul)
+### État de la couverture (karma / istanbul, avant la migration Vitest)
 
 | Métrique | Couverture | Lu comme |
 |---|---|---|
@@ -619,7 +619,7 @@ Plusieurs propositions de tranches différentes touchent la même fonctionnalit�
 - **Nommage des tests** : IDs `[F0XX-TNNN]` (F = groupe de fonctionnalité, T = séquence). Specs sous `webapp/donjon/projects/donjon/src/lib/tests/`.
 - **Lancer un seul spec** (beaucoup plus rapide que la suite) :
   ```
-  ng test donjon --include="**/<fichier>.spec.ts" --watch=false --browsers=ChromeHeadless
+  ng test donjon --include="**/<fichier>.spec.ts" --watch=false
   ```
 
 ### ⚠️ Déconfliction des numéros F0XX

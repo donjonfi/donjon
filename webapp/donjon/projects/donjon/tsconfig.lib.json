@@ -9,7 +9,8 @@
     "types": []    
   },
   "exclude": [
-    "src/test.ts",
+    "src/test-setup.ts",
+    "src/test-providers.ts",
     "**/*.spec.ts"
   ],
 

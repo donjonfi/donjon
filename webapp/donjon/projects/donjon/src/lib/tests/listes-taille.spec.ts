@@ -12,53 +12,53 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Liste − Taille: liste vide (taille = 0)', () => {
 
-  let jeu: Jeu = new Jeu();
-  let liste = new Liste("historique", new GroupeNominal("l’", "historique"));
-  jeu.listes.push(liste);
-  const condUtils = new ConditionsUtils(jeu, false);
+    let jeu: Jeu = new Jeu();
+    let liste = new Liste("historique", new GroupeNominal("l’", "historique"));
+    jeu.listes.push(liste);
+    const condUtils = new ConditionsUtils(jeu, false);
 
-  // vaut
-  it('[F043-T001] taille vaut 0 → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // vaut
+    it('[F043-T001] taille vaut 0 → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T002] taille vaut 1 → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T002] taille vaut 1 → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T003] taille ne vaut pas 0 → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique ne vaut pas 0', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T003] taille ne vaut pas 0 → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique ne vaut pas 0', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T004] taille ne vaut pas 1 → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique ne vaut pas 1', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T004] taille ne vaut pas 1 → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique ne vaut pas 1', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  // atteint (>=)
-  it('[F043-T005] taille atteint 0 (0 >= 0) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 0', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // atteint (>=)
+    it('[F043-T005] taille atteint 0 (0 >= 0) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 0', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T006] taille atteint 1 (0 >= 1) → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 1', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T006] taille atteint 1 (0 >= 1) → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 1', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T007] taille n’atteint pas 1 (0 < 1) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 1', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T007] taille n’atteint pas 1 (0 < 1) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 1', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T008] taille n’atteint pas 0 → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 0', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T008] taille n’atteint pas 0 → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 0', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  // dépasse (>)
-  it('[F043-T009] taille dépasse 0 (0 > 0) → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique dépasse 0', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    // dépasse (>)
+    it('[F043-T009] taille dépasse 0 (0 > 0) → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique dépasse 0', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T010] taille ne dépasse pas 0 (not 0 > 0) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 0', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T010] taille ne dépasse pas 0 (not 0 > 0) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 0', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
 });
 
@@ -70,50 +70,50 @@ describe('Liste − Taille: liste vide (taille = 0)', () => {
 
 describe('Liste − Taille: liste avec 1 élément (taille = 1)', () => {
 
-  let jeu: Jeu = new Jeu();
-  let liste = new Liste("historique", new GroupeNominal("l’", "historique"));
-  liste.ajouterTexte('"premier"');
-  jeu.listes.push(liste);
-  const condUtils = new ConditionsUtils(jeu, false);
+    let jeu: Jeu = new Jeu();
+    let liste = new Liste("historique", new GroupeNominal("l’", "historique"));
+    liste.ajouterTexte('"premier"');
+    jeu.listes.push(liste);
+    const condUtils = new ConditionsUtils(jeu, false);
 
-  // vaut
-  it('[F043-T011] taille vaut 1 → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // vaut
+    it('[F043-T011] taille vaut 1 → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique vaut 1', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T012] taille vaut 0 → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T012] taille vaut 0 → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique vaut 0', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  // atteint (>=)
-  it('[F043-T013] taille atteint 1 (1 >= 1) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 1', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // atteint (>=)
+    it('[F043-T013] taille atteint 1 (1 >= 1) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 1', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T014] taille atteint 0 (1 >= 0) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 0', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T014] taille atteint 0 (1 >= 0) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 0', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T015] taille atteint 2 (1 >= 2) → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 2', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T015] taille atteint 2 (1 >= 2) → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 2', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T016] taille n’atteint pas 2 → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 2', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T016] taille n’atteint pas 2 → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 2', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  // dépasse (>)
-  it('[F043-T017] taille dépasse 0 (1 > 0) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique dépasse 0', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // dépasse (>)
+    it('[F043-T017] taille dépasse 0 (1 > 0) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique dépasse 0', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T018] taille dépasse 1 (1 > 1) → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique dépasse 1', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T018] taille dépasse 1 (1 > 1) → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique dépasse 1', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T019] taille ne dépasse pas 1 (not 1 > 1) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 1', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T019] taille ne dépasse pas 1 (not 1 > 1) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 1', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
 });
 
@@ -125,62 +125,62 @@ describe('Liste − Taille: liste avec 1 élément (taille = 1)', () => {
 
 describe('Liste − Taille: liste avec 5 éléments (taille = 5)', () => {
 
-  let jeu: Jeu = new Jeu();
-  let liste = new Liste("historique", new GroupeNominal("l’", "historique"));
-  liste.ajouterTexte('"a"');
-  liste.ajouterTexte('"b"');
-  liste.ajouterTexte('"c"');
-  liste.ajouterTexte('"d"');
-  liste.ajouterTexte('"e"');
-  jeu.listes.push(liste);
-  const condUtils = new ConditionsUtils(jeu, false);
+    let jeu: Jeu = new Jeu();
+    let liste = new Liste("historique", new GroupeNominal("l’", "historique"));
+    liste.ajouterTexte('"a"');
+    liste.ajouterTexte('"b"');
+    liste.ajouterTexte('"c"');
+    liste.ajouterTexte('"d"');
+    liste.ajouterTexte('"e"');
+    jeu.listes.push(liste);
+    const condUtils = new ConditionsUtils(jeu, false);
 
-  // vaut
-  it('[F043-T020] taille vaut 5 → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 5', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // vaut
+    it('[F043-T020] taille vaut 5 → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique vaut 5', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T021] taille vaut 4 → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique vaut 4', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T021] taille vaut 4 → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique vaut 4', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  // atteint (>=)
-  it('[F043-T022] taille atteint 5 (5 >= 5) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 5', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // atteint (>=)
+    it('[F043-T022] taille atteint 5 (5 >= 5) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 5', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T023] taille atteint 6 (5 >= 6) → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 6', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T023] taille atteint 6 (5 >= 6) → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 6', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T024] taille atteint 3 (5 >= 3) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique atteint 3', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T024] taille atteint 3 (5 >= 3) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique atteint 3', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T025] taille n’atteint pas 6 → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 6', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T025] taille n’atteint pas 6 → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 6', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T026] taille n’atteint pas 5 → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 5', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T026] taille n’atteint pas 5 → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique n’atteint pas 5', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  // dépasse (>)
-  it('[F043-T027] taille dépasse 4 (5 > 4) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique dépasse 4', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    // dépasse (>)
+    it('[F043-T027] taille dépasse 4 (5 > 4) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique dépasse 4', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T028] taille dépasse 5 (5 > 5) → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique dépasse 5', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T028] taille dépasse 5 (5 > 5) → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique dépasse 5', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
-  it('[F043-T029] taille ne dépasse pas 5 (not 5 > 5) → vrai', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 5', undefined, undefined, undefined, 0)).toBeTrue();
-  });
+    it('[F043-T029] taille ne dépasse pas 5 (not 5 > 5) → vrai', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 5', undefined, undefined, undefined, 0)).toBe(true);
+    });
 
-  it('[F043-T030] taille ne dépasse pas 4 (5 > 4) → faux', () => {
-    expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 4', undefined, undefined, undefined, 0)).toBeFalse();
-  });
+    it('[F043-T030] taille ne dépasse pas 4 (5 > 4) → faux', () => {
+        expect(condUtils.siEstVrai('la taille de l’historique ne dépasse pas 4', undefined, undefined, undefined, 0)).toBe(false);
+    });
 
 });
 
@@ -192,9 +192,9 @@ describe('Liste − Taille: liste avec 5 éléments (taille = 5)', () => {
 
 describe('Liste − Taille: scénario DSL (groupe d’accusés)', () => {
 
-  it('[F043-T031] taille atteint 5 après 5 ajouts', () => {
+    it('[F043-T031] taille atteint 5 après 5 ajouts', () => {
 
-    const scenario = `
+        const scenario = `
 Le tribunal est un lieu.
 Le groupe d’accusés est une liste.
 action accuser:
@@ -207,26 +207,26 @@ action vérifier:
 fin action
 `;
 
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
 
-    // 4 ajouts: le joueur ne doit pas être coupable
-    ctx.com.executerCommande("accuser", false);
-    ctx.com.executerCommande("accuser", false);
-    ctx.com.executerCommande("accuser", false);
-    ctx.com.executerCommande("accuser", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBeFalse();
+        // 4 ajouts: le joueur ne doit pas être coupable
+        ctx.com.executerCommande("accuser", false);
+        ctx.com.executerCommande("accuser", false);
+        ctx.com.executerCommande("accuser", false);
+        ctx.com.executerCommande("accuser", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBe(false);
 
-    // 5e ajout: atteint 5
-    ctx.com.executerCommande("accuser", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBeTrue();
+        // 5e ajout: atteint 5
+        ctx.com.executerCommande("accuser", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBe(true);
 
-  });
+    });
 
-  it('[F043-T032] taille dépasse 3 après 4 ajouts', () => {
+    it('[F043-T032] taille dépasse 3 après 4 ajouts', () => {
 
-    const scenario = `
+        const scenario = `
 Le couloir est un lieu.
 Les témoins sont une liste.
 action témoigner:
@@ -239,21 +239,21 @@ action contrôler:
 fin action
 `;
 
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
 
-    // 3 ajouts: ne dépasse pas encore 3
-    ctx.com.executerCommande("témoigner", false);
-    ctx.com.executerCommande("témoigner", false);
-    ctx.com.executerCommande("témoigner", false);
-    ctx.com.executerCommande("contrôler", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
+        // 3 ajouts: ne dépasse pas encore 3
+        ctx.com.executerCommande("témoigner", false);
+        ctx.com.executerCommande("témoigner", false);
+        ctx.com.executerCommande("témoigner", false);
+        ctx.com.executerCommande("contrôler", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(false);
 
-    // 4e ajout: dépasse 3 (4 > 3)
-    ctx.com.executerCommande("témoigner", false);
-    ctx.com.executerCommande("contrôler", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
+        // 4e ajout: dépasse 3 (4 > 3)
+        ctx.com.executerCommande("témoigner", false);
+        ctx.com.executerCommande("contrôler", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(true);
 
-  });
+    });
 
 });
 
@@ -265,9 +265,9 @@ fin action
 
 describe('Liste − Taille: intitulés de différentes complexités', () => {
 
-  // ─── 1. Simple masculin : "le compteur" → "du compteur" ─────────────────────
-  it('[F043-T033] simple masculin: la taille du compteur atteint 2', () => {
-    const scenario = `
+    // ─── 1. Simple masculin : "le compteur" → "du compteur" ─────────────────────
+    it('[F043-T033] simple masculin: la taille du compteur atteint 2', () => {
+        const scenario = `
 Le hall est un lieu.
 Le compteur est une liste.
 action marquer:
@@ -279,18 +279,18 @@ action vérifier:
   finsi
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("marquer", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
-    ctx.com.executerCommande("marquer", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("marquer", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(false);
+        ctx.com.executerCommande("marquer", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(true);
+    });
 
-  // ─── 2. Simple féminin : "la file" → "de la file" ───────────────────────────
-  it('[F043-T034] simple féminin: la taille de la file atteint 2', () => {
-    const scenario = `
+    // ─── 2. Simple féminin : "la file" → "de la file" ───────────────────────────
+    it('[F043-T034] simple féminin: la taille de la file atteint 2', () => {
+        const scenario = `
 Le hall est un lieu.
 La file est une liste.
 action entrer:
@@ -302,18 +302,18 @@ action vérifier:
   finsi
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("entrer", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
-    ctx.com.executerCommande("entrer", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("entrer", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(false);
+        ctx.com.executerCommande("entrer", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(true);
+    });
 
-  // ─── 3. Élidé : "l'archive" → "de l'archive" ────────────────────────────────
-  it('[F043-T035] élidé: la taille de l’archive atteint 2', () => {
-    const scenario = `
+    // ─── 3. Élidé : "l'archive" → "de l'archive" ────────────────────────────────
+    it('[F043-T035] élidé: la taille de l’archive atteint 2', () => {
+        const scenario = `
 Le hall est un lieu.
 L'archive est une liste.
 action archiver:
@@ -325,18 +325,18 @@ action vérifier:
   finsi
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("archiver", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
-    ctx.com.executerCommande("archiver", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("archiver", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(false);
+        ctx.com.executerCommande("archiver", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(true);
+    });
 
-  // ─── 4. Pluriel : "les éléments" → "des éléments" ───────────────────────────
-  it('[F043-T036] pluriel: la taille des éléments atteint 2', () => {
-    const scenario = `
+    // ─── 4. Pluriel : "les éléments" → "des éléments" ───────────────────────────
+    it('[F043-T036] pluriel: la taille des éléments atteint 2', () => {
+        const scenario = `
 Le hall est un lieu.
 Les éléments sont une liste.
 action ajouter:
@@ -348,18 +348,18 @@ action vérifier:
   finsi
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("ajouter", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
-    ctx.com.executerCommande("ajouter", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("ajouter", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(false);
+        ctx.com.executerCommande("ajouter", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(true);
+    });
 
-  // ─── 5. Composé masculin + épithète : "le groupe actif" → "du groupe actif" ─
-  it('[F043-T037] composé + épithète (masc): la taille du groupe actif atteint 2', () => {
-    const scenario = `
+    // ─── 5. Composé masculin + épithète : "le groupe actif" → "du groupe actif" ─
+    it('[F043-T037] composé + épithète (masc): la taille du groupe actif atteint 2', () => {
+        const scenario = `
 Le hall est un lieu.
 Le groupe actif est une liste.
 action recruter:
@@ -371,18 +371,18 @@ action vérifier:
   finsi
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("recruter", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
-    ctx.com.executerCommande("recruter", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("recruter", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(false);
+        ctx.com.executerCommande("recruter", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(true);
+    });
 
-  // ─── 6. Pluriel composé + épithète : "les notes importantes" → "des notes importantes" ─
-  it('[F043-T038] pluriel composé + épithète: la taille des notes importantes atteint 2', () => {
-    const scenario = `
+    // ─── 6. Pluriel composé + épithète : "les notes importantes" → "des notes importantes" ─
+    it('[F043-T038] pluriel composé + épithète: la taille des notes importantes atteint 2', () => {
+        const scenario = `
 Le hall est un lieu.
 Les notes importantes sont une liste.
 action noter:
@@ -394,18 +394,18 @@ action vérifier:
   finsi
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("noter", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeFalse();
-    ctx.com.executerCommande("noter", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBeTrue();
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("noter", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(false);
+        ctx.com.executerCommande("noter", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'satisfait', ctx.eju)).toBe(true);
+    });
 
-  // ─── 7. Nom composé (apostrophe) + épithète : "le groupe d’accusés actifs" ──
-  it("[F043-T039] nom composé (apostrophe) + épithète: la taille du groupe d’accusés actifs atteint 2", () => {
-    const scenario = `
+    // ─── 7. Nom composé (apostrophe) + épithète : "le groupe d’accusés actifs" ──
+    it("[F043-T039] nom composé (apostrophe) + épithète: la taille du groupe d’accusés actifs atteint 2", () => {
+        const scenario = `
 Le tribunal est un lieu.
 Le groupe d’accusés actifs est une liste.
 action accuser:
@@ -417,14 +417,14 @@ action vérifier:
   finsi
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("accuser", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBeFalse();
-    ctx.com.executerCommande("accuser", false);
-    ctx.com.executerCommande("vérifier", false);
-    expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBeTrue();
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("accuser", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBe(false);
+        ctx.com.executerCommande("accuser", false);
+        ctx.com.executerCommande("vérifier", false);
+        expect(ctx.jeu.etats.possedeEtatElement(ctx.jeu.joueur, 'coupable', ctx.eju)).toBe(true);
+    });
 
 });
 
@@ -436,10 +436,10 @@ fin action
 
 describe('Liste − Balises [c] et [s] pour la taille d’une liste', () => {
 
-  // ─── [c taille du X] — valeur numérique ─────────────────────────────────────
+    // ─── [c taille du X] — valeur numérique ─────────────────────────────────────
 
-  it('[F043-T040] [c taille du compteur] — vaut 0 puis 2', () => {
-    const scenario = `
+    it('[F043-T040] [c taille du compteur] — vaut 0 puis 2', () => {
+        const scenario = `
 Le hall est un lieu.
 Le compteur est une liste.
 action ajouter:
@@ -449,15 +449,15 @@ action afficher:
   dire "[c taille du compteur]".
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
-    ctx.com.executerCommande("ajouter", false);
-    ctx.com.executerCommande("ajouter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("2");
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
+        ctx.com.executerCommande("ajouter", false);
+        ctx.com.executerCommande("ajouter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("2");
+    });
 
-  it('[F043-T041] [c taille des éléments] — vaut 0 puis 3', () => {
-    const scenario = `
+    it('[F043-T041] [c taille des éléments] — vaut 0 puis 3', () => {
+        const scenario = `
 Le hall est un lieu.
 Les éléments sont une liste.
 action ajouter:
@@ -467,16 +467,16 @@ action afficher:
   dire "[c taille des éléments]".
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
-    ctx.com.executerCommande("ajouter", false);
-    ctx.com.executerCommande("ajouter", false);
-    ctx.com.executerCommande("ajouter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("3");
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
+        ctx.com.executerCommande("ajouter", false);
+        ctx.com.executerCommande("ajouter", false);
+        ctx.com.executerCommande("ajouter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("3");
+    });
 
-  it('[F043-T042] [c taille de l’archive] — vaut 0 puis 1', () => {
-    const scenario = `
+    it('[F043-T042] [c taille de l’archive] — vaut 0 puis 1', () => {
+        const scenario = `
 Le hall est un lieu.
 L’archive est une liste.
 action archiver:
@@ -486,16 +486,16 @@ action afficher:
   dire "[c taille de l’archive]".
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
-    ctx.com.executerCommande("archiver", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("1");
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0");
+        ctx.com.executerCommande("archiver", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("1");
+    });
 
-  // ─── [s taille du X] — pluriel (vide si 1, "s" sinon) ──────────────────────
+    // ─── [s taille du X] — pluriel (vide si 1, "s" sinon) ──────────────────────
 
-  it('[F043-T043] [s taille du compteur] — "" si 1 élément, "s" si 2', () => {
-    const scenario = `
+    it('[F043-T043] [s taille du compteur] — "" si 1 élément, "s" si 2', () => {
+        const scenario = `
 Le hall est un lieu.
 Le compteur est une liste.
 action ajouter:
@@ -505,16 +505,16 @@ action afficher:
   dire "élément[s taille du compteur]".
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("ajouter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("élément");
-    expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("éléments");
-    ctx.com.executerCommande("ajouter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("éléments");
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("ajouter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("élément");
+        expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("éléments");
+        ctx.com.executerCommande("ajouter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("éléments");
+    });
 
-  it('[F043-T044] [s taille des éléments] — "" si 1 élément, "s" si 2', () => {
-    const scenario = `
+    it('[F043-T044] [s taille des éléments] — "" si 1 élément, "s" si 2', () => {
+        const scenario = `
 Le hall est un lieu.
 Les éléments sont une liste.
 action ajouter:
@@ -524,16 +524,16 @@ action afficher:
   dire "élément[s taille des éléments]".
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("ajouter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("élément");
-    expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("éléments");
-    ctx.com.executerCommande("ajouter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("éléments");
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("ajouter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("élément");
+        expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("éléments");
+        ctx.com.executerCommande("ajouter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("éléments");
+    });
 
-  it('[F043-T045] [s taille de l’archive] — "" si 1 doc, "s" si 2', () => {
-    const scenario = `
+    it('[F043-T045] [s taille de l’archive] — "" si 1 doc, "s" si 2', () => {
+        const scenario = `
 Le hall est un lieu.
 L’archive est une liste.
 action archiver:
@@ -543,16 +543,16 @@ action afficher:
   dire "document[s taille de l’archive]".
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctx.com.executerCommande("archiver", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("document");
-    expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("documents");
-    ctx.com.executerCommande("archiver", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("documents");
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctx.com.executerCommande("archiver", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("document");
+        expect(ctx.com.executerCommande("afficher", false).sortie).not.toContain("documents");
+        ctx.com.executerCommande("archiver", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("documents");
+    });
 
-  it('[F043-T046] [c] et [s] combinés dans un même dire', () => {
-    const scenario = `
+    it('[F043-T046] [c] et [s] combinés dans un même dire', () => {
+        const scenario = `
 Le hall est un lieu.
 Les notes importantes sont une liste.
 action noter:
@@ -562,12 +562,12 @@ action afficher:
   dire "Il y a [c taille des notes importantes] note[s taille des notes importantes].".
 fin action
 `;
-    const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0 note.");
-    ctx.com.executerCommande("noter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("1 note.");
-    ctx.com.executerCommande("noter", false);
-    expect(ctx.com.executerCommande("afficher", false).sortie).toContain("2 notes.");
-  });
+        const ctx = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("0 note.");
+        ctx.com.executerCommande("noter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("1 note.");
+        ctx.com.executerCommande("noter", false);
+        expect(ctx.com.executerCommande("afficher", false).sortie).toContain("2 notes.");
+    });
 
 });
