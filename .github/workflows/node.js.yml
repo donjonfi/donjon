@@ -5,7 +5,7 @@ name: Build & Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 'ci/**' ]
   pull_request:
     branches: [ master ]
 
@@ -23,9 +23,9 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -33,3 +33,33 @@ jobs:
     - run: npm ci
     - run: npx ng build donjon
     - run: npm run test:prod
+
+  e2e:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: webapp/donjon
+    env:
+      NG_CLI_ANALYTICS: 'false'
+
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: webapp/donjon/package-lock.json
+    - run: npm ci
+    - run: node ensure-standalone.js
+    - run: npx ng build donjon-jouer --configuration development
+    - run: npx ng build donjon-creer --configuration development
+    - run: npx playwright install --with-deps chromium
+    - run: npx playwright test
+    - uses: actions/upload-artifact@v7
+      if: failure()
+      with:
+        name: playwright-test-results
+        path: webapp/donjon/test-results/
+        retention-days: 7

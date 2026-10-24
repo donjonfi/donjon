@@ -251,7 +251,7 @@ Runner : **Vitest** (builder `@angular/build:unit-test`, Node + jsdom, globals `
 
 ### Tests e2e (Playwright)
 
-`webapp/donjon/e2e/*.e2e.ts`, lancés par `npm run e2e` (démarre `ng serve` de `donjon-jouer` sur 4201 et `donjon-creer` sur 4200, ou réutilise ceux déjà lancés). Hors `npm test` et hors CI. Première fois : `npx playwright install chromium`.
+`webapp/donjon/e2e/*.e2e.ts`, lancés par `npm run e2e` : `e2e:build` compile `donjon-jouer` et `donjon-creer` (config development, après `ensure-standalone.js`), puis Playwright sert `dist/*/browser` via `e2e/serveur-statique.mjs` (Node pur, repli sur `index.html` pour les routes) sur 127.0.0.1:4201 / 4200. Après une modif de code, relancer `npm run e2e` (pas seulement `playwright test`) pour recompiler. Hors `npm test` ; job CI `e2e` séparé. Première fois : `npx playwright install chromium`.
 
 Ils jouent le jeu de référence `ressources/scenarios/jeux/coince_v3.djn` en tapant les commandes de `coince_v3.sol` jusqu'à la victoire, dans le lecteur (`jouer.e2e.ts`) et dans l'éditeur après « Analyser » (`creer.e2e.ts`). Le `.djn` est servi par interception réseau (`page.route`) à la place de `assets/jeux/jeu.djn` (lecteur de dev, `chargementAutoJeu`) ou de `assets/modeles/<nom>.djn` (éditeur, URL `/<nom>`) : rien à copier dans les assets. Helpers dans `e2e/utils.ts` (`executerCommande` attend que la sortie `#taResultat` change, `appuyerSurUneTouche` pour « Veuillez appuyer sur une touche… »).
 

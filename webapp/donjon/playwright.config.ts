@@ -17,20 +17,21 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'jouer', testMatch: '**/jouer*.e2e.ts', use: { baseURL: 'http://localhost:4201' } },
-    { name: 'creer', testMatch: '**/creer*.e2e.ts', use: { baseURL: 'http://localhost:4200' } },
+    { name: 'jouer', testMatch: '**/jouer*.e2e.ts', use: { baseURL: 'http://127.0.0.1:4201' } },
+    { name: 'creer', testMatch: '**/creer*.e2e.ts', use: { baseURL: 'http://127.0.0.1:4200' } },
   ],
+  // Les applis sont compilées avant (`npm run e2e:build`, appelé par `npm run e2e`) puis servies en statique.
   webServer: [
     {
-      command: 'npx ng serve donjon-jouer --configuration development --port 4201',
-      url: 'http://localhost:4201',
-      timeout: 240_000,
+      command: 'node e2e/serveur-statique.mjs dist/donjon-jouer/browser 4201',
+      url: 'http://127.0.0.1:4201',
+      timeout: 30_000,
       reuseExistingServer: !process.env['CI'],
     },
     {
-      command: 'npx ng serve donjon-creer --configuration development --port 4200',
-      url: 'http://localhost:4200',
-      timeout: 240_000,
+      command: 'node e2e/serveur-statique.mjs dist/donjon-creer/browser 4200',
+      url: 'http://127.0.0.1:4200',
+      timeout: 30_000,
       reuseExistingServer: !process.env['CI'],
     },
   ],
