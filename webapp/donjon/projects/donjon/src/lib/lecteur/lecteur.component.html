@@ -22,8 +22,8 @@
           </div>
         </div>
       }
-      <div id="taResultat" #taResultat class="sortie-jeu" [class.tactile-actif]="tactileActif" [innerHTML]="ecran"
-        [style.padding.px]="margeInterface">
+      <div id="taResultat" #taResultat class="sortie-jeu" [class.tactile-actif]="liensTactilesActifs" [innerHTML]="ecran"
+        [style.padding.px]="margeInterface" (click)="onClicSortie($event)">
       </div>
       @if (afficherCartoucheBas) {
         <div class="cartouche-jeu cartouche-jeu-bas">
@@ -60,8 +60,18 @@
         <button type="button" class="btn btn-outline-secondary" (click)="annulerSaisieManuelle()" title="Retour au menu">← Retour</button>
       }
     </div>
+    <!-- attente (touche, suite du texte, secondes) : le joueur ne peut que continuer -->
+    @if (attenteTactile) {
+      <div class="djn-barre-tactile px-1 mt-2">
+        @if (attenteTactile === 'suite') {
+          <button type="button" class="btn btn-primary djn-barre-tactile-bouton" (click)="continuerTactile()">Suite</button>
+        } @else {
+          <button type="button" class="btn btn-secondary djn-barre-tactile-bouton" disabled>Patientez…</button>
+        }
+      </div>
+    }
     <!-- barre tactile : commandes courantes + constructeur global -->
-    @if (tactileActif && !saisieTactileRequise && !saisieManuelleTactile && !interruptionAttendreChoixEnCours) {
+    @if (tactileActif && !attenteTactile && !saisieTactileRequise && !saisieManuelleTactile && !interruptionAttendreChoixEnCours) {
       <div class="djn-barre-tactile px-1 mt-2">
         <button type="button" class="btn btn-primary djn-barre-tactile-bouton" (click)="ouvrirConstructeurTactile()">⚡ Actions</button>
         @if (dernierObjetInteragi) {
@@ -112,7 +122,7 @@
           }
           @if (interruptionAttendreToucheEnCours) {
             <p class="mb-0">
-              {{ tactileActif ? 'Touchez le texte pour continuer.' : 'Appuyez sur n’importe quelle touche pour continuer.' }}
+              {{ tactileActif ? 'Touchez le texte ou « Suite » pour continuer.' :'Appuyez sur n’importe quelle touche pour continuer.' }}
               @if (debogueur) {
                 <br>&nbsp;
                 }
