@@ -28,7 +28,7 @@ export default defineConfig({
       reuseExistingServer: !process.env['CI'],
     },
     {
-      command: 'npx ng serve donjon-creer --configuration development --port 4200',
+      command: 'node ensure-standalone.js && npx ng serve donjon-creer --configuration development --port 4200',
       url: 'http://localhost:4200',
       timeout: 240_000,
       reuseExistingServer: !process.env['CI'],
