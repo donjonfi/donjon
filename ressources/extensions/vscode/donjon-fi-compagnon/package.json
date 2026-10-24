@@ -73,7 +73,10 @@
         },
         "donjon.compagnonViewColumn": {
           "type": "string",
-          "enum": ["active", "beside"],
+          "enum": [
+            "active",
+            "beside"
+          ],
           "enumDescriptions": [
             "Ouvre le compagnon dans un nouvel onglet du même groupe que le .djn (par défaut)",
             "Ouvre le compagnon dans un nouveau groupe à droite (vue côte-à-côte)"
@@ -92,6 +95,6 @@
   "devDependencies": {
     "@types/node": "^18.0.0",
     "@types/vscode": "^1.71.0",
-    "typescript": "^5.0.0"
+    "typescript": "^7.0.2"
   }
 }
