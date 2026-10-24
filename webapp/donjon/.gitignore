@@ -47,3 +47,7 @@ Thumbs.db
 
 # Modeles wiki generes par scripts/sync-wiki-examples.ps1 (source : ressources/scenarios/exemples/wiki/)
 /projects/donjon-creer/src/assets/modeles/wiki_*.djn
+
+# Playwright (tests e2e)
+/test-results/
+/playwright-report/

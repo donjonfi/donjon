@@ -17,7 +17,8 @@
     "build:compagnon": "ng build donjon-compagnon --configuration bundle && node ../../scripts/sync-compagnon.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:prod": "ng test donjon --watch=false --coverage"
+    "test:prod": "ng test donjon --watch=false --coverage",
+    "e2e": "playwright test"
   },
   "private": true,
   "dependencies": {
@@ -44,6 +45,7 @@
     "@angular/build": "^22.2.4",
     "@angular/cli": "^22.2.4",
     "@angular/compiler-cli": "^22.2.3",
+    "@playwright/test": "^1.64.1",
     "@types/file-saver": "^2.0.5",
     "@types/node": "^22.0.0",
     "@types/uuid": "^8.3.4",
