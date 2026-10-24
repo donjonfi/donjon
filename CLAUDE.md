@@ -237,12 +237,18 @@ Quand on modifie une feature visible côté auteur, vérifier si la page wiki co
 
 ## Testing
 
-Library tests live in `webapp/donjon/projects/donjon/src/lib/tests/`. Naming convention : `[F0XX-TNNN]` IDs (F = feature group, T = sequence within the group). Run a single spec file with `ng test donjon --include="**/<file>.spec.ts" --watch=false --browsers=ChromeHeadless` — beaucoup plus rapide que la suite complète.
+Library tests live in `webapp/donjon/projects/donjon/src/lib/tests/`. Naming convention : `[F0XX-TNNN]` IDs (F = feature group, T = sequence within the group). Run a single spec file with `ng test donjon --include="**/<file>.spec.ts" --watch=false` — beaucoup plus rapide que la suite complète.
 
 Integration tests use `TestUtils.genererEtCommencerLeJeu(scenario)` (`utils/test-utils.ts`) to compile a Donjon DSL scenario and start a game, then drive it via `ctx.com.executerCommande(...)` and assert on `sortie`, `ctx.jeu.tamponErreurs`, `ctx.jeu.tamponConseils`. Scenario strings use backticks (template literals), pas la concaténation.
+
+Runner : **Vitest** (builder `@angular/build:unit-test`, Node + jsdom, globals `describe`/`it`/`expect`/`vi`). zone.js est chargé par `projects/donjon/src/test-setup.ts` (+ `test-providers.ts`), mais **après** `@angular/core/testing` → pas de `fakeAsync`/`tick` : utiliser `vi.useFakeTimers()` / `vi.advanceTimersByTime(ms)`. Différences avec l'ex-Jasmine à garder en tête :
+- `vi.spyOn(obj, 'm')` **appelle la vraie méthode** ; pour un bouchon (ex-`spyOn` Jasmine) : `.mockImplementation(() => undefined)`. Les spies sont restaurés après chaque test (`test-setup.ts`).
+- pas de `this` partagé entre `beforeEach` et `it` : variables locales.
+- message d'assertion : `expect(x, 'contexte')` (ex-`withContext`) ; délai par défaut 5 s, y compris pour un test synchrone (3e argument de `it` pour l'allonger).
+- les `.djn` de `ressources/scenarios/exemples/wiki/` sont lus sur disque (`exemples-wiki-utils.ts`, `node:fs`, cwd = `webapp/donjon`).
 
 `tamponConseils` n'apparaît dans le lecteur qu'en mode `[debogueur]="true"` (actif dans `donjon-creer` et `donjon-compagnon`, pas dans `donjon-jouer`). `eju.ajouterConseil(...)` est le canal pour les avertissements visibles uniquement au créateur.
 
 ## CI
 
-GitHub Actions (`.github/workflows/node.js.yml`) runs on push/PR to `master`: installs deps, builds `donjon` library, then runs `test:prod` (headless Chrome with coverage).
+GitHub Actions (`.github/workflows/node.js.yml`) runs on push/PR to `master`: installs deps, builds `donjon` library, then runs `test:prod` (Vitest with coverage).

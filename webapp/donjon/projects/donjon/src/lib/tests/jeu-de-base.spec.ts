@@ -10,30 +10,24 @@ const scenario = `
 Le titre du jeu est "Nouveau jeu".
 L’auteur du jeu est "Anonyme".
 L’identifiant du jeu est "d0f1c14b-9386-4ac4-b14e-5b0d322b11e4".
-
 -- positionner le joueur dans le jeu
 Le joueur se trouve dans le salon.
-
 -- LE SALON
 Le salon est un lieu.
 Sa description est "Vous êtes dans un salon.".
-
 La table basse est un support dans le salon.
 Sa description est "Il s'agit d'une table basse en bois clair.".
 interpréter la table comme la table basse.
-
 La pomme est un objet mangeable sur la table basse.
 Sa description est "Vous avez envie de croquer dedans.".
 action croquer la pomme:
   effacer la pomme.
   dire "Vous n’en avez fait qu’une bouchée !".
 fin action
-
 Le magazine de récup est un objet dans le salon.
 Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
 Sa description est "Il s'agit des programmes TV de la semaine dernière.".
 Le texte du magazine de récup est "Ils repassent un film de Noël ce soir.".
-
 -- règle: sortie spécifique la 1ère et 2e fois que le joueur prend la pomme.
 règle après prendre la pomme:
   si la règle se déclenche pour la première fois:
@@ -44,22 +38,18 @@ règle après prendre la pomme:
     continuer l’action.
   fin si
 fin règle
-`
+`;
 
 const actions = `
-
 -- ======================
 --   COMMENCER (jeu, nouvelle partie)
 -- ======================
 action commencer ceci:
-
   définitions:
     ceci est un intitulé.
-    
   phase prérequis:
     si ceci n’est ni le jeu ni la nouvelle partie, refuser "Je peux seulement commencer le jeu.".
     si ceci est le jeu et si le jeu est commencé, refuser "Le jeu a déjà commencé.".
-    
   phase exécution:
     -- début du jeu
     si ceci vaut le jeu:
@@ -72,24 +62,18 @@ action commencer ceci:
     sinonsi ceci vaut une nouvelle partie:
       exécuter la commande "recommencer".
     fin si
-    
 fin action
-
 
 -- ============
 --   EXAMINER
 -- ============
-
 action examiner ceci:
-
   définitions:
     Ceci est un intitulé.
-
   phase prérequis:
     si ceci n’est ni un élément ni une direction, refuser "Je ne comprends pas ce que vous voulez examiner.".
     si ceci n’est ni visible ni l’inventaire ni adjacent ni une direction, refuser "Je ne [le ceci] vois pas actuellement.".
     si ceci est une personne, refuser "Pas sûr qu'[pronom ceci] [v avoir spr ceci] envie de jouer au docteur.".
-
   phase exécution:
     -- objet
     si ceci est un objet:
@@ -157,14 +141,12 @@ action examiner ceci:
       dire "Hum ceci [intitulé ceci] n’est ni un objet ni un lieu. Je ne connais pas.".
     fin si    
 fin action
-
 L'aide pour l'action examiner est "{*Examiner*}
   Permet d'examiner un élément du jeu pour avoir des détails ou trouver un objet.
   {+exemples+} :
   > {-examiner {/l'arbre/}-}
   > {-examiner {/l'épée/}}
   {+raccourci+} : {-x-}, {-ex-}".
-
 `;
 
 describe('Test du jeu de base', () => {
@@ -172,59 +154,59 @@ describe('Test du jeu de base', () => {
 
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(scenario);
-        expect(phrases).toHaveSize(28); // nombre de phrases
-        expect(phrases[0].morceaux).toHaveSize(2); // Le titre du jeu est "Nouveau jeu".
-        expect(phrases[4].morceaux).toHaveSize(1); // Le salon est un lieu.
-        expect(phrases[16].morceaux).toHaveSize(2); //Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
+        expect(phrases).toHaveLength(28); // nombre de phrases
+        expect(phrases[0].morceaux).toHaveLength(2); // Le titre du jeu est "Nouveau jeu".
+        expect(phrases[4].morceaux).toHaveLength(1); // Le salon est un lieu.
+        expect(phrases[16].morceaux).toHaveLength(2); //Son aperçu est "[initialement]Un magazine traîne sur le sol.[fin choix]".
     });
 
     it('[F040-T002] Action croquer la pomme', () => {
         const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
-        expect(rc.actions).toHaveSize(1); // action croquer la pomme
+        expect(rc.actions).toHaveLength(1); // action croquer la pomme
         expect(rc.actions[0].infinitif).toEqual("croquer");
         expect(rc.actions[0].cibleCeci.nom).toEqual("pomme");
-        expect(rc.actions[0].phasePrerequis).toHaveSize(0);
-        expect(rc.actions[0].phaseExecution).toHaveSize(2);
-        expect(rc.actions[0].phaseEpilogue).toHaveSize(0);
+        expect(rc.actions[0].phasePrerequis).toHaveLength(0);
+        expect(rc.actions[0].phaseExecution).toHaveLength(2);
+        expect(rc.actions[0].phaseEpilogue).toHaveLength(0);
 
         const jeu = Generateur.genererJeu(rc);
 
-        expect(jeu.actions).toHaveSize(1);
+        expect(jeu.actions).toHaveLength(1);
         expect(jeu.actions[0].infinitif).toEqual("croquer");
         expect(jeu.actions[0].cibleCeci.nom).toEqual("pomme");
-        expect(jeu.actions[0].phasePrerequis).toHaveSize(0);
-        expect(jeu.actions[0].phaseExecution).toHaveSize(2);
-        expect(jeu.actions[0].phaseEpilogue).toHaveSize(0);
+        expect(jeu.actions[0].phasePrerequis).toHaveLength(0);
+        expect(jeu.actions[0].phaseExecution).toHaveLength(2);
+        expect(jeu.actions[0].phaseEpilogue).toHaveLength(0);
     });
 
     it('[F040-T003] Règle après prendre la pomme', () => {
         const rc = CompilateurV8.analyserScenarioSeul(scenario, false);
-        expect(rc.regles).toHaveSize(1); // règle après prendre la pomme
-        expect(rc.regles[0].evenements).toHaveSize(1); // prendre la pomme
+        expect(rc.regles).toHaveLength(1); // règle après prendre la pomme
+        expect(rc.regles[0].evenements).toHaveLength(1); // prendre la pomme
         expect(rc.regles[0].evenements[0].infinitif).toEqual("prendre");
         expect(rc.regles[0].evenements[0].commandeComprise).toEqual("prendre la pomme");
         expect(rc.regles[0].typeRegle).toEqual(TypeRegle.apres);
-        expect(rc.regles[0].instructions).toHaveSize(1); // si la règle se déclenche…
+        expect(rc.regles[0].instructions).toHaveLength(1); // si la règle se déclenche…
 
         const jeu = Generateur.genererJeu(rc);
 
-        expect(jeu.auditeurs).toHaveSize(1); // règle après prendre la pomme
-        expect(jeu.auditeurs[0].evenements).toHaveSize(1); // prendre la pomme
+        expect(jeu.auditeurs).toHaveLength(1); // règle après prendre la pomme
+        expect(jeu.auditeurs[0].evenements).toHaveLength(1); // prendre la pomme
         expect(jeu.auditeurs[0].evenements[0].infinitif).toEqual("prendre");
         expect(jeu.auditeurs[0].evenements[0].ceci).toEqual("pomme");
         expect(jeu.auditeurs[0].type).toEqual(TypeRegle.apres);
-        expect(jeu.auditeurs[0].estRegleActionQuelconque).toBeFalse();
+        expect(jeu.auditeurs[0].estRegleActionQuelconque).toBe(false);
         expect(jeu.auditeurs[0].declenchements).toEqual(0);
-        expect(jeu.auditeurs[0].instructions).toHaveSize(1); // si la règle se déclenche…
+        expect(jeu.auditeurs[0].instructions).toHaveLength(1); // si la règle se déclenche…
 
     });
 
     it('[F040-T004] Objets: pomme', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         console.log("rc.monde.objets=", rc.monde.objets);
-        expect(rc.monde.objets).toHaveSize(1+3); // (joueur,) table basse, pomme, magazine
+        expect(rc.monde.objets).toHaveLength(1 + 3); // (joueur,) table basse, pomme, magazine
         const jeu = Generateur.genererJeu(rc);
-        expect(jeu.objets).toHaveSize(2+3); // (l’inventaire, le joueur,) table basse, pomme, magazine
+        expect(jeu.objets).toHaveLength(2 + 3); // (l’inventaire, le joueur,) table basse, pomme, magazine
         const ctxPartie = new ContextePartie(jeu);
         let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
@@ -235,13 +217,13 @@ describe('Test du jeu de base', () => {
         ctxCommande = ctxPartie.com.executerCommande("examiner pomme", false);
         expect(ctxCommande.sortie).toEqual("Vous avez envie de croquer dedans.{N}");
     });
-    
+
     it('[F040-T005] Objets: magazine', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         console.log("rc.monde.objets=", rc.monde.objets);
-        expect(rc.monde.objets).toHaveSize(1+3); // (joueur,) table basse, pomme, magazine
+        expect(rc.monde.objets).toHaveLength(1 + 3); // (joueur,) table basse, pomme, magazine
         const jeu = Generateur.genererJeu(rc);
-        expect(jeu.objets).toHaveSize(2+3); // (l’inventaire, le joueur,) table basse, pomme, magazine
+        expect(jeu.objets).toHaveLength(2 + 3); // (l’inventaire, le joueur,) table basse, pomme, magazine
         const ctxPartie = new ContextePartie(jeu);
         let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
@@ -260,9 +242,9 @@ describe('Test du jeu de base', () => {
     it('[F040-T006] Objets: table basse', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
         console.log("rc.monde.objets=", rc.monde.objets);
-        expect(rc.monde.objets).toHaveSize(1+3); // (joueur,) table basse, pomme, magazine
+        expect(rc.monde.objets).toHaveLength(1 + 3); // (joueur,) table basse, pomme, magazine
         const jeu = Generateur.genererJeu(rc);
-        expect(jeu.objets).toHaveSize(2+3); // (l’inventaire, le joueur,) table basse, pomme, magazine
+        expect(jeu.objets).toHaveLength(2 + 3); // (l’inventaire, le joueur,) table basse, pomme, magazine
         const ctxPartie = new ContextePartie(jeu);
         let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 

@@ -12,41 +12,35 @@ import { TypeInterruption } from "../models/jeu/interruption";
 
 describe('Paramètre activerChoixNumeriques — #187', () => {
 
-  it('[F030-T001] activerChoixNumeriques est false par défaut', () => {
-    const jeu = TestUtils.genererLeJeu('Le salon est un lieu.');
-    expect(jeu.parametres.activerChoixNumeriques).toBeFalse();
-  });
+    it('[F030-T001] activerChoixNumeriques est false par défaut', () => {
+        const jeu = TestUtils.genererLeJeu('Le salon est un lieu.');
+        expect(jeu.parametres.activerChoixNumeriques).toBe(false);
+    });
 
-  it('[F030-T002] activer choix numériques positionne activerChoixNumeriques à true', () => {
-    const jeu = TestUtils.genererLeJeu(
-      'activer choix numériques.\n' +
-      'Le salon est un lieu.'
-    );
-    expect(jeu.parametres.activerChoixNumeriques).toBeTrue();
-  });
+    it('[F030-T002] activer choix numériques positionne activerChoixNumeriques à true', () => {
+        const jeu = TestUtils.genererLeJeu('activer choix numériques.\n' +
+            'Le salon est un lieu.');
+        expect(jeu.parametres.activerChoixNumeriques).toBe(true);
+    });
 
-  it('[F030-T003] activer choix numérotés positionne activerChoixNumeriques à true', () => {
-    const jeu = TestUtils.genererLeJeu(
-      'activer choix numérotés.\n' +
-      'Le salon est un lieu.'
-    );
-    expect(jeu.parametres.activerChoixNumeriques).toBeTrue();
-  });
+    it('[F030-T003] activer choix numérotés positionne activerChoixNumeriques à true', () => {
+        const jeu = TestUtils.genererLeJeu('activer choix numérotés.\n' +
+            'Le salon est un lieu.');
+        expect(jeu.parametres.activerChoixNumeriques).toBe(true);
+    });
 
-  it('[F030-T004] désactiver choix numériques après activation positionne activerChoixNumeriques à false', () => {
-    const jeu = TestUtils.genererLeJeu(
-      'activer choix numériques.\n' +
-      'désactiver choix numériques.\n' +
-      'Le salon est un lieu.'
-    );
-    expect(jeu.parametres.activerChoixNumeriques).toBeFalse();
-  });
+    it('[F030-T004] désactiver choix numériques après activation positionne activerChoixNumeriques à false', () => {
+        const jeu = TestUtils.genererLeJeu('activer choix numériques.\n' +
+            'désactiver choix numériques.\n' +
+            'Le salon est un lieu.');
+        expect(jeu.parametres.activerChoixNumeriques).toBe(false);
+    });
 
 });
 
 describe('Instruction choisir — interruption attendreChoix — #187', () => {
 
-  const scenarioBase = `
+    const scenarioBase = `
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
 action boire:
@@ -62,48 +56,48 @@ action boire:
 fin action
 `;
 
-  it('[F030-T005] choisir crée une interruption attendreChoix (mode lettres par défaut)', () => {
-    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioBase, false);
-    expect(ctxPartie.jeu.parametres.activerChoixNumeriques).toBeFalse();
-    ctxPartie.com.executerCommande('boire', false);
-    const interruption = ctxPartie.jeu.tamponInterruptions[0];
-    expect(interruption).toBeDefined();
-    expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
-  });
+    it('[F030-T005] choisir crée une interruption attendreChoix (mode lettres par défaut)', () => {
+        const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioBase, false);
+        expect(ctxPartie.jeu.parametres.activerChoixNumeriques).toBe(false);
+        ctxPartie.com.executerCommande('boire', false);
+        const interruption = ctxPartie.jeu.tamponInterruptions[0];
+        expect(interruption).toBeDefined();
+        expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
+    });
 
-  it('[F030-T006] choisir expose 3 choix dans l\'interruption (mode lettres)', () => {
-    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioBase, false);
-    ctxPartie.com.executerCommande('boire', false);
-    const choix = ctxPartie.jeu.tamponInterruptions[0].choix;
-    expect(choix.length).toEqual(3);
-    expect(choix[0].valeurs[0].toString()).toEqual('"eau"');
-    expect(choix[1].valeurs[0].toString()).toEqual('"café"');
-    expect(choix[2].valeurs[0].toString()).toEqual('"jus"');
-  });
+    it('[F030-T006] choisir expose 3 choix dans l\'interruption (mode lettres)', () => {
+        const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenarioBase, false);
+        ctxPartie.com.executerCommande('boire', false);
+        const choix = ctxPartie.jeu.tamponInterruptions[0].choix;
+        expect(choix.length).toEqual(3);
+        expect(choix[0].valeurs[0].toString()).toEqual('"eau"');
+        expect(choix[1].valeurs[0].toString()).toEqual('"café"');
+        expect(choix[2].valeurs[0].toString()).toEqual('"jus"');
+    });
 
-  it('[F030-T007] choisir crée une interruption attendreChoix (mode nombres)', () => {
-    const scenario = 'activer choix numériques.\n' + scenarioBase;
-    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    expect(ctxPartie.jeu.parametres.activerChoixNumeriques).toBeTrue();
-    ctxPartie.com.executerCommande('boire', false);
-    const interruption = ctxPartie.jeu.tamponInterruptions[0];
-    expect(interruption).toBeDefined();
-    expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
-  });
+    it('[F030-T007] choisir crée une interruption attendreChoix (mode nombres)', () => {
+        const scenario = 'activer choix numériques.\n' + scenarioBase;
+        const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        expect(ctxPartie.jeu.parametres.activerChoixNumeriques).toBe(true);
+        ctxPartie.com.executerCommande('boire', false);
+        const interruption = ctxPartie.jeu.tamponInterruptions[0];
+        expect(interruption).toBeDefined();
+        expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
+    });
 
-  it('[F030-T008] choisir expose 3 choix dans l\'interruption (mode nombres)', () => {
-    const scenario = 'activer choix numériques.\n' + scenarioBase;
-    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctxPartie.com.executerCommande('boire', false);
-    const choix = ctxPartie.jeu.tamponInterruptions[0].choix;
-    expect(choix.length).toEqual(3);
-    expect(choix[0].valeurs[0].toString()).toEqual('"eau"');
-    expect(choix[1].valeurs[0].toString()).toEqual('"café"');
-    expect(choix[2].valeurs[0].toString()).toEqual('"jus"');
-  });
+    it('[F030-T008] choisir expose 3 choix dans l\'interruption (mode nombres)', () => {
+        const scenario = 'activer choix numériques.\n' + scenarioBase;
+        const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctxPartie.com.executerCommande('boire', false);
+        const choix = ctxPartie.jeu.tamponInterruptions[0].choix;
+        expect(choix.length).toEqual(3);
+        expect(choix[0].valeurs[0].toString()).toEqual('"eau"');
+        expect(choix[1].valeurs[0].toString()).toEqual('"café"');
+        expect(choix[2].valeurs[0].toString()).toEqual('"jus"');
+    });
 
-  it('[F030-T009] choisir avec plus de 9 choix (multi-chiffres) — interrupt correctement créée', () => {
-    const scenario = `
+    it('[F030-T009] choisir avec plus de 9 choix (multi-chiffres) — interrupt correctement créée', () => {
+        const scenario = `
 activer choix numériques.
 Le joueur se trouve dans le salon.
 Le salon est un lieu.
@@ -125,14 +119,14 @@ action tester:
   fin choisir
 fin action
 `;
-    const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
-    ctxPartie.com.executerCommande('tester', false);
-    const interruption = ctxPartie.jeu.tamponInterruptions[0];
-    expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
-    expect(interruption.choix.length).toEqual(12);
-    expect(interruption.choix[9].valeurs[0].toString()).toEqual('"dix"');
-    expect(interruption.choix[10].valeurs[0].toString()).toEqual('"onze"');
-    expect(interruption.choix[11].valeurs[0].toString()).toEqual('"douze"');
-  });
+        const ctxPartie = TestUtils.genererEtCommencerLeJeu(scenario, false);
+        ctxPartie.com.executerCommande('tester', false);
+        const interruption = ctxPartie.jeu.tamponInterruptions[0];
+        expect(interruption.typeInterruption).toEqual(TypeInterruption.attendreChoix);
+        expect(interruption.choix.length).toEqual(12);
+        expect(interruption.choix[9].valeurs[0].toString()).toEqual('"dix"');
+        expect(interruption.choix[10].valeurs[0].toString()).toEqual('"onze"');
+        expect(interruption.choix[11].valeurs[0].toString()).toEqual('"douze"');
+    });
 
 });

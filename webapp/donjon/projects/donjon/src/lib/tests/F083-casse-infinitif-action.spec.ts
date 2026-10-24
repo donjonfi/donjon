@@ -7,8 +7,8 @@ import { TestUtils } from "../utils/test-utils";
 
 describe('Casse de l’infinitif d’action — règles avant/après (F083)', () => {
 
-  it('[F083-T001] une règle « après » se déclenche pour une action à infinitif majuscule', () => {
-    const ctx = TestUtils.genererEtCommencerLeJeu(`
+    it('[F083-T001] une règle « après » se déclenche pour une action à infinitif majuscule', () => {
+        const ctx = TestUtils.genererEtCommencerLeJeu(`
 La salle est un lieu.
 
 action Recalibrer:
@@ -20,13 +20,13 @@ règle après Recalibrer:
   dire "La machine ronronne.".
 fin règle
 `);
-    // le déclenchement de la règle « après » prouve que « recalibrer » a matché l'action « Recalibrer »
-    const sortie = ctx.com.executerCommande('recalibrer', false).sortie;
-    expect(sortie).withContext(sortie).toContain('La machine ronronne.');
-  });
+        // le déclenchement de la règle « après » prouve que « recalibrer » a matché l'action « Recalibrer »
+        const sortie = ctx.com.executerCommande('recalibrer', false).sortie;
+        expect(sortie, sortie).toContain('La machine ronronne.');
+    });
 
-  it('[F083-T002] une règle « avant » se déclenche pour une action à infinitif majuscule', () => {
-    const ctx = TestUtils.genererEtCommencerLeJeu(`
+    it('[F083-T002] une règle « avant » se déclenche pour une action à infinitif majuscule', () => {
+        const ctx = TestUtils.genererEtCommencerLeJeu(`
 La salle est un lieu.
 
 action Recalibrer:
@@ -38,9 +38,9 @@ règle avant Recalibrer:
   dire "Vérification préalable.".
 fin règle
 `);
-    // le déclenchement de la règle « avant » prouve que « recalibrer » a matché l'action « Recalibrer »
-    const sortie = ctx.com.executerCommande('recalibrer', false).sortie;
-    expect(sortie).withContext(sortie).toContain('Vérification préalable.');
-  });
+        // le déclenchement de la règle « avant » prouve que « recalibrer » a matché l'action « Recalibrer »
+        const sortie = ctx.com.executerCommande('recalibrer', false).sortie;
+        expect(sortie, sortie).toContain('Vérification préalable.');
+    });
 
 });

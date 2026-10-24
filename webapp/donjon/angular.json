@@ -10,7 +10,7 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "builder": "@angular/build:ng-packagr",
           "options": {
             "project": "projects/donjon/ng-package.json"
           },
@@ -25,11 +25,13 @@
           "defaultConfiguration": "production"
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "projects/donjon/src/test.ts",
             "tsConfig": "projects/donjon/tsconfig.spec.json",
-            "karmaConfig": "projects/donjon/karma.conf.js"
+            "runner": "vitest",
+            "buildTarget": "donjon:build:development",
+            "setupFiles": ["projects/donjon/src/test-setup.ts"],
+            "providersFile": "projects/donjon/src/test-providers.ts"
           }
         }
       }
@@ -49,7 +51,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular/build:application",
           "options": {
             "allowedCommonJsDependencies": [
               "brace"
@@ -140,7 +142,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "donjon-creer:build:production"
@@ -153,26 +155,17 @@
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "donjon-creer:build"
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "projects/donjon-creer/src/test.ts",
-            "polyfills": "projects/donjon-creer/src/polyfills.ts",
             "tsConfig": "projects/donjon-creer/tsconfig.spec.json",
-            "karmaConfig": "projects/donjon-creer/karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/donjon-creer/src/assets"
-            ],
-            "styles": [
-              "projects/donjon-creer/src/styles.scss"
-            ],
-            "scripts": []
+            "runner": "vitest",
+            "buildTarget": "donjon-creer:build:development"
           }
         }
       }
@@ -192,7 +185,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular/build:application",
           "options": {
             "outputPath": {
               "base": "dist/donjon-compagnon"
@@ -266,7 +259,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "donjon-compagnon:build:production"
@@ -295,7 +288,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular/build:application",
           "options": {
             "allowedCommonJsDependencies": [
               "brace"
@@ -415,7 +408,7 @@
           "defaultConfiguration": "multi"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "donjon-jouer:build:production"
@@ -428,26 +421,17 @@
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "donjon-jouer:build"
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "projects/donjon-jouer/src/test.ts",
-            "polyfills": "projects/donjon-jouer/src/polyfills.ts",
             "tsConfig": "projects/donjon-jouer/tsconfig.spec.json",
-            "karmaConfig": "projects/donjon-jouer/karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/donjon-jouer/src/assets"
-            ],
-            "styles": [
-              "projects/donjon-jouer/src/styles.scss"
-            ],
-            "scripts": []
+            "runner": "vitest",
+            "buildTarget": "donjon-jouer:build:development"
           }
         }
       }

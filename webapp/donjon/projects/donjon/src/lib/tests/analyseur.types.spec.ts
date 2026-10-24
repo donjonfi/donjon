@@ -120,85 +120,77 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('[F010-T013] Nouveau type : « Un meuble est un objet. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
-        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-            "Un meuble est un objet."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases("Un meuble est un objet.");
+        expect(phrases).toHaveLength(1); // 1 phrase
+        expect(phrases[0].morceaux).toHaveLength(1); // 1 morceau
         // tester l’analyse complète
         expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.type); // trouvé un nouveau type
-        expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // nouveau type ajouté
-        expect(ctxAnalyse.typesUtilisateur.has('meuble')).toBeTrue(); // nouveau type retrouvé
+        expect(ctxAnalyse.typesUtilisateur).toHaveLength(1); // nouveau type ajouté
+        expect(ctxAnalyse.typesUtilisateur.has('meuble')).toBe(true); // nouveau type retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('meuble').intitule).toBe('meuble'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('meuble').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('meuble').typeParent).toBe('objet'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('meuble').etats).toHaveSize(0); // aucun attribut spécifique
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+        expect(ctxAnalyse.typesUtilisateur.get('meuble').etats).toHaveLength(0); // aucun attribut spécifique
+        expect(ctxAnalyse.erreurs).toHaveLength(0); // aucune erreur
 
     });
 
     it('[F010-T014] Nouveau type : « Une fée est une personne magique. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
-        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-            "Une fée est une personne magique."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases("Une fée est une personne magique.");
+        expect(phrases).toHaveLength(1); // 1 phrase
+        expect(phrases[0].morceaux).toHaveLength(1); // 1 morceau
         // tester l’analyse complète
         expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.type); // trouvé un nouveau type
-        expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // nouveau type ajouté
-        expect(ctxAnalyse.typesUtilisateur.has('fee')).toBeTrue(); // nouveau type retrouvé
+        expect(ctxAnalyse.typesUtilisateur).toHaveLength(1); // nouveau type ajouté
+        expect(ctxAnalyse.typesUtilisateur.has('fee')).toBe(true); // nouveau type retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('fee').intitule).toBe('fée'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('fee').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('fee').typeParent).toBe('personne'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('fee').etats).toHaveSize(1); // attribut spécifique défini
+        expect(ctxAnalyse.typesUtilisateur.get('fee').etats).toHaveLength(1); // attribut spécifique défini
         expect(ctxAnalyse.typesUtilisateur.get('fee').etats[0]).toBe('magique'); // attribut spécifique
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+        expect(ctxAnalyse.erreurs).toHaveLength(0); // aucune erreur
 
     });
 
     it('[F010-T015] Nouveau type : « Une fée est magique. » (💥)', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
-        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-            "Une fée est magique."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases("Une fée est magique.");
+        expect(phrases).toHaveLength(1); // 1 phrase
+        expect(phrases[0].morceaux).toHaveLength(1); // 1 morceau
         // tester l’analyse complète
         expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique      
         ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.aucun); // pas trouvé un nouveau type
-        expect(ctxAnalyse.typesUtilisateur).toHaveSize(0); // pas de nouveau type ajouté
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+        expect(ctxAnalyse.typesUtilisateur).toHaveLength(0); // pas de nouveau type ajouté
+        expect(ctxAnalyse.erreurs).toHaveLength(0); // aucune erreur
 
     });
 
 
     it('[F010-T016] Nouveau type : « La fée est une personne. » (💥)', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
-        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-            "La fée est une personne."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases("La fée est une personne.");
+        expect(phrases).toHaveLength(1); // 1 phrase
+        expect(phrases[0].morceaux).toHaveLength(1); // 1 morceau
         // tester l’analyse complète
         expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.elementSansPosition);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerNouveauType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.aucun); // pas trouvé un nouveau type
-        expect(ctxAnalyse.typesUtilisateur).toHaveSize(0); // pas de nouveau type ajouté
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+        expect(ctxAnalyse.typesUtilisateur).toHaveLength(0); // pas de nouveau type ajouté
+        expect(ctxAnalyse.erreurs).toHaveLength(0); // aucune erreur
 
     });
 
@@ -208,34 +200,30 @@ describe('Analyseur − Nouveaux types (classes)', () => {
 
     it('[F010-T017] Précision type : « Une statue est fixée. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
-        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-            "Une statue est fixée."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases("Une statue est fixée.");
+        expect(phrases).toHaveLength(1); // 1 phrase
+        expect(phrases[0].morceaux).toHaveLength(1); // 1 morceau
         // tester l’analyse complète
         expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique
         ctxAnalyse = new ContexteAnalyseV8(); // (raz contexte)
         const resultat = AnalyseurType.testerPrecisionType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.precisionType); // trouvé un nouveau type
-        expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // nouveau type ajouté
-        expect(ctxAnalyse.typesUtilisateur.has('statue')).toBeTrue(); // nouveau type retrouvé
+        expect(ctxAnalyse.typesUtilisateur).toHaveLength(1); // nouveau type ajouté
+        expect(ctxAnalyse.typesUtilisateur.has('statue')).toBe(true); // nouveau type retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('statue').intitule).toBe('statue'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('statue').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('statue').typeParent).toBe('objet'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('statue').etats).toHaveSize(1); // attribut spécifique
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+        expect(ctxAnalyse.typesUtilisateur.get('statue').etats).toHaveLength(1); // attribut spécifique
+        expect(ctxAnalyse.erreurs).toHaveLength(0); // aucune erreur
 
     });
 
     it('[F010-T018] Précision type : « Un lutin est bavard, farceur et petit. » ', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
-        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-            "Un lutin est bavard, farceur et petit."
-        );
-        expect(phrases).toHaveSize(1); // 1 phrase
-        expect(phrases[0].morceaux).toHaveSize(1); // 1 morceau
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases("Un lutin est bavard, farceur et petit.");
+        expect(phrases).toHaveLength(1); // 1 phrase
+        expect(phrases[0].morceaux).toHaveLength(1); // 1 morceau
         // tester l’analyse complète
         expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.precisionType);
         // tester l’analyse spécifique
@@ -245,32 +233,30 @@ describe('Analyseur − Nouveaux types (classes)', () => {
         ctxAnalyse.typesUtilisateur.set('lutin', new Definition('lutin', 'personne', Nombre.s, ['gentil']));
         const resultat = AnalyseurType.testerPrecisionType(phrases[0], ctxAnalyse);
         expect(resultat).toEqual(ResultatAnalysePhrase.precisionType); // trouvé un nouveau type
-        expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // pas de nouveau type ajouté
-        expect(ctxAnalyse.typesUtilisateur.has('lutin')).toBeTrue(); // type existant retrouvé
+        expect(ctxAnalyse.typesUtilisateur).toHaveLength(1); // pas de nouveau type ajouté
+        expect(ctxAnalyse.typesUtilisateur.has('lutin')).toBe(true); // type existant retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').intitule).toBe('lutin'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('lutin').typeParent).toBe('personne'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveSize(4); // attributs spécifiques (1 + 3)
-        expect(ctxAnalyse.erreurs).toHaveSize(0); // aucune erreur
+        expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveLength(4); // attributs spécifiques (1 + 3)
+        expect(ctxAnalyse.erreurs).toHaveLength(0); // aucune erreur
 
     });
 
     it('[F010-T019] Précision type : Type défini 2x doit générer erreur', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
-        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(
-            "Un lutin est une personne farceuse. Un lutin est une créature-magique aimable."
-        );
-        expect(phrases).toHaveSize(2); // 2 phrases
+        let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases("Un lutin est une personne farceuse. Un lutin est une créature-magique aimable.");
+        expect(phrases).toHaveLength(2); // 2 phrases
         // tester l’analyse complète
         expect(AnalyseurV8Definitions.testerDefinition(phrases[0], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
         expect(AnalyseurV8Definitions.testerDefinition(phrases[1], ctxAnalyse)).toBe(ResultatAnalysePhrase.type);
-        expect(ctxAnalyse.typesUtilisateur).toHaveSize(1); // 1 nouveau type ajouté (et pas 2)
-        expect(ctxAnalyse.typesUtilisateur.has('lutin')).toBeTrue(); // type existant retrouvé
+        expect(ctxAnalyse.typesUtilisateur).toHaveLength(1); // 1 nouveau type ajouté (et pas 2)
+        expect(ctxAnalyse.typesUtilisateur.has('lutin')).toBe(true); // type existant retrouvé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').intitule).toBe('lutin'); // intitulé
         expect(ctxAnalyse.typesUtilisateur.get('lutin').nombre).toBe(Nombre.s); // nombre
         expect(ctxAnalyse.typesUtilisateur.get('lutin').typeParent).toBe('creature-magique'); // type parent
-        expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveSize(2); // attributs spécifiques (1+1)
-        expect(ctxAnalyse.messages).toHaveSize(1); // 1 message a été généré
+        expect(ctxAnalyse.typesUtilisateur.get('lutin').etats).toHaveLength(2); // attributs spécifiques (1+1)
+        expect(ctxAnalyse.messages).toHaveLength(1); // 1 message a été généré
         expect(ctxAnalyse.messages[0].code).toBe(CodeMessage.typeParentRedefini);
     });
 

@@ -16,12 +16,10 @@ import { actions } from "./scenario_actions";
 const scenarioLeon = `
 Le salon est un lieu.
 Léon est une personne ici.
-
 règle avant parler à Léon:
   dire "Mauvaise idée !".
   refuser l’action.
 fin règle
-
 règle avant examiner ceci:
   si ceci est Léon:
     dire "Vous n’allez pas examiner Léon !".
@@ -34,12 +32,10 @@ fin règle
 const scenarioBob = `
 Le salon est un lieu.
 Bob est une personne ici.
-
 règle avant parler à Bob:
   dire "Mauvaise idée !".
   refuser l’action.
 fin règle
-
 règle avant examiner ceci:
   si ceci est Bob:
     dire "Vous n’allez pas examiner Bob !".
@@ -49,63 +45,62 @@ fin règle
 `;
 
 function preparerJeu(scenario: string) {
-  const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
-  expect(rc.erreurs).toHaveSize(0);
-  const jeu = Generateur.genererJeu(rc);
-  const ctxPartie = new ContextePartie(jeu);
-  ctxPartie.com.executerCommande("commencer le jeu", true);
-  return ctxPartie;
+    const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
+    expect(rc.erreurs).toHaveLength(0);
+    const jeu = Generateur.genererJeu(rc);
+    const ctxPartie = new ContextePartie(jeu);
+    ctxPartie.com.executerCommande("commencer le jeu", true);
+    return ctxPartie;
 }
 
 describe('Règle/condition avec nom accentué (« Léon »)', () => {
 
-  it('[F029-T001] le scénario compile sans erreur', () => {
-    const rc = CompilateurV8.analyserScenarioEtActions(scenarioLeon, actions, true);
-    expect(rc.erreurs).toHaveSize(0);
-    const jeu = Generateur.genererJeu(rc);
-    // Léon doit exister dans le jeu
-    const leon = jeu.objets.find(o => o.intitule?.toString().toLowerCase().includes('léon'));
-    expect(leon).toBeTruthy();
-  });
+    it('[F029-T001] le scénario compile sans erreur', () => {
+        const rc = CompilateurV8.analyserScenarioEtActions(scenarioLeon, actions, true);
+        expect(rc.erreurs).toHaveLength(0);
+        const jeu = Generateur.genererJeu(rc);
+        // Léon doit exister dans le jeu
+        const leon = jeu.objets.find(o => o.intitule?.toString().toLowerCase().includes('léon'));
+        expect(leon).toBeTruthy();
+    });
 
-  it('[F029-T002] « parler à Léon » déclenche la règle avant', () => {
-    const ctx = preparerJeu(scenarioLeon);
-    const sortie = ctx.com.executerCommande("parler à Léon", false).sortie;
-    expect(sortie).toContain("Mauvaise idée");
-  });
+    it('[F029-T002] « parler à Léon » déclenche la règle avant', () => {
+        const ctx = preparerJeu(scenarioLeon);
+        const sortie = ctx.com.executerCommande("parler à Léon", false).sortie;
+        expect(sortie).toContain("Mauvaise idée");
+    });
 
-  it('[F029-T003] « examiner Léon » déclenche la condition « si ceci est Léon »', () => {
-    const ctx = preparerJeu(scenarioLeon);
-    const sortie = ctx.com.executerCommande("examiner Léon", false).sortie;
-    expect(sortie).toContain("Vous n’allez pas examiner Léon");
-  });
+    it('[F029-T003] « examiner Léon » déclenche la condition « si ceci est Léon »', () => {
+        const ctx = preparerJeu(scenarioLeon);
+        const sortie = ctx.com.executerCommande("examiner Léon", false).sortie;
+        expect(sortie).toContain("Vous n’allez pas examiner Léon");
+    });
 
-  // Test de contrôle : la même structure avec « Bob » (nom sans accent).
-  it('[F029-T004] référence « Bob » : « parler à Bob » déclenche la règle avant', () => {
-    const ctx = preparerJeu(scenarioBob);
-    const sortie = ctx.com.executerCommande("parler à Bob", false).sortie;
-    expect(sortie).toContain("Mauvaise idée");
-  });
+    // Test de contrôle : la même structure avec « Bob » (nom sans accent).
+    it('[F029-T004] référence « Bob » : « parler à Bob » déclenche la règle avant', () => {
+        const ctx = preparerJeu(scenarioBob);
+        const sortie = ctx.com.executerCommande("parler à Bob", false).sortie;
+        expect(sortie).toContain("Mauvaise idée");
+    });
 
-  it('[F029-T005] référence « Bob » : « examiner Bob » déclenche « si ceci est Bob »', () => {
-    const ctx = preparerJeu(scenarioBob);
-    const sortie = ctx.com.executerCommande("examiner Bob", false).sortie;
-    expect(sortie).toContain("Vous n’allez pas examiner Bob");
-  });
+    it('[F029-T005] référence « Bob » : « examiner Bob » déclenche « si ceci est Bob »', () => {
+        const ctx = preparerJeu(scenarioBob);
+        const sortie = ctx.com.executerCommande("examiner Bob", false).sortie;
+        expect(sortie).toContain("Vous n’allez pas examiner Bob");
+    });
 
-  it('[F029-T006] « si ceci est Léon » ne pousse PAS de conseil (Léon est un élément connu)', () => {
-    const ctx = preparerJeu(scenarioLeon);
-    const avant = ctx.jeu.tamponConseils.length;
-    ctx.com.executerCommande("examiner Léon", false);
-    const conseils = ctx.jeu.tamponConseils.slice(avant);
-    expect(conseils.some(c => c.includes("Léon"))).toBeFalse();
-  });
+    it('[F029-T006] « si ceci est Léon » ne pousse PAS de conseil (Léon est un élément connu)', () => {
+        const ctx = preparerJeu(scenarioLeon);
+        const avant = ctx.jeu.tamponConseils.length;
+        ctx.com.executerCommande("examiner Léon", false);
+        const conseils = ctx.jeu.tamponConseils.slice(avant);
+        expect(conseils.some(c => c.includes("Léon"))).toBe(false);
+    });
 
-  it('[F029-T008] pas de conseil parasite « examiner » via scenario_actions ; conseil légitime pour état inexistant « épuisé »', () => {
-    const scenarioImbrique = `
+    it('[F029-T008] pas de conseil parasite « examiner » via scenario_actions ; conseil légitime pour état inexistant « épuisé »', () => {
+        const scenarioImbrique = `
 Le salon est un lieu.
 Léon est une personne ici.
-
 règle avant examiner ceci:
   si ceci est Léon:
     dire "Vous n’allez pas examiner Léon !".
@@ -118,32 +113,31 @@ règle avant examiner ceci:
   fin si
 fin règle
 `;
-    const ctx = preparerJeu(scenarioImbrique);
-    const avant = ctx.jeu.tamponConseils.length;
-    ctx.com.executerCommande("examiner Léon", false);
-    const conseils = ctx.jeu.tamponConseils.slice(avant);
-    // Ne doit PAS pousser de conseil "examiner" (verbe d'action, pas un état)
-    expect(conseils.some(c => c.includes("examiner"))).toBeFalse();
-    // Doit pousser le conseil pour "épuisé" (état réellement inexistant)
-    expect(conseils.some(c => c.includes("épuisé"))).toBeTrue();
-  });
+        const ctx = preparerJeu(scenarioImbrique);
+        const avant = ctx.jeu.tamponConseils.length;
+        ctx.com.executerCommande("examiner Léon", false);
+        const conseils = ctx.jeu.tamponConseils.slice(avant);
+        // Ne doit PAS pousser de conseil "examiner" (verbe d'action, pas un état)
+        expect(conseils.some(c => c.includes("examiner"))).toBe(false);
+        // Doit pousser le conseil pour "épuisé" (état réellement inexistant)
+        expect(conseils.some(c => c.includes("épuisé"))).toBe(true);
+    });
 
-  it('[F029-T007] un complément inconnu (ni état, ni élément) pousse un conseil', () => {
-    const scenarioTypo = `
+    it('[F029-T007] un complément inconnu (ni état, ni élément) pousse un conseil', () => {
+        const scenarioTypo = `
 Le salon est un lieu.
 Léon est une personne ici.
-
 règle avant examiner ceci:
   si ceci est inexistant:
     dire "Ne sera jamais affiché.".
   fin si
 fin règle
 `;
-    const ctx = preparerJeu(scenarioTypo);
-    const avant = ctx.jeu.tamponConseils.length;
-    ctx.com.executerCommande("examiner Léon", false);
-    const conseils = ctx.jeu.tamponConseils.slice(avant);
-    expect(conseils.some(c => c.includes("inexistant"))).toBeTrue();
-  });
+        const ctx = preparerJeu(scenarioTypo);
+        const avant = ctx.jeu.tamponConseils.length;
+        ctx.com.executerCommande("examiner Léon", false);
+        const conseils = ctx.jeu.tamponConseils.slice(avant);
+        expect(conseils.some(c => c.includes("inexistant"))).toBe(true);
+    });
 
 });

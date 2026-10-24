@@ -10,7 +10,7 @@ describe('Synonymes auto − Découpe', () => {
         expect(ej.intitule.nomEpithete).toEqual("Ballon rouge");
         Generateur.genererSynonymesAuto(ej);
         // chaque mot-clé est généré au singulier ET au pluriel
-        expect(ej.synonymes).toHaveSize(4);
+        expect(ej.synonymes).toHaveLength(4);
         expect(ej.synonymes[0].nomEpithete).toEqual("ballon");
         expect(ej.synonymes[1].nomEpithete).toEqual("ballons");
         expect(ej.synonymes[2].nomEpithete).toEqual("rouge");
@@ -21,7 +21,7 @@ describe('Synonymes auto − Découpe', () => {
         const ej = new ElementJeu(1, "la lettre verte", PhraseUtils.getGroupeNominalDefini("la lettre verte", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("lettre verte");
         Generateur.genererSynonymesAuto(ej);
-        expect(ej.synonymes).toHaveSize(4);
+        expect(ej.synonymes).toHaveLength(4);
         expect(ej.synonymes[0].nomEpithete).toEqual("lettre");
         expect(ej.synonymes[1].nomEpithete).toEqual("lettres");
         expect(ej.synonymes[2].nomEpithete).toEqual("verte");
@@ -34,7 +34,7 @@ describe('Synonymes auto − Découpe', () => {
         expect(ej.intitule.nomEpithete).toEqual("Monsieur Dubois");
         Generateur.genererSynonymesAuto(ej);
         // « dubois » est invariable (se termine par s) → pas de forme singulier mutilée (« duboi »)
-        expect(ej.synonymes).toHaveSize(3);
+        expect(ej.synonymes).toHaveLength(3);
         expect(ej.synonymes[0].nomEpithete).toEqual("monsieur");
         expect(ej.synonymes[1].nomEpithete).toEqual("monsieurs");
         expect(ej.synonymes[2].nomEpithete).toEqual("dubois");
@@ -42,11 +42,11 @@ describe('Synonymes auto − Découpe', () => {
 
     it('[F049-T004] Clé verte rouillée', () => {
         const ej = new ElementJeu(1, "Clé de bois sec", PhraseUtils.getGroupeNominalDefini("Clé de bois sec", false), ClassesRacines.Objet);
-        
+
         expect(ej.intitule.nomEpithete).toEqual("Clé de bois sec");
         Generateur.genererSynonymesAuto(ej);
         // mots simples au singulier+pluriel (« bois » invariable) ; combinaisons à 2 mots inchangées
-        expect(ej.synonymes).toHaveSize(8);
+        expect(ej.synonymes).toHaveLength(8);
         expect(ej.synonymes[0].nomEpithete).toEqual("cle");
         expect(ej.synonymes[1].nomEpithete).toEqual("cles");
         expect(ej.synonymes[2].nomEpithete).toEqual("cle bois");
@@ -61,7 +61,7 @@ describe('Synonymes auto − Découpe', () => {
         const ej = new ElementJeu(1, "Jacques", PhraseUtils.getGroupeNominalDefini("Jacques", false), ClassesRacines.Objet);
         expect(ej.intitule.nomEpithete).toEqual("Jacques");
         Generateur.genererSynonymesAuto(ej);
-        expect(ej.synonymes).toHaveSize(0);
+        expect(ej.synonymes).toHaveLength(0);
     });
 });
 
@@ -76,9 +76,9 @@ describe('Synonymes auto − Découpe', () => {
         const ctx = TestUtils.genererEtCommencerLeJeu(scenario);
 
         // (index 0 et 1 utilisés pour inventaire et joueur)
-        expect(ctx.jeu.objets).toHaveSize(4);
+        expect(ctx.jeu.objets).toHaveLength(4);
         expect(ctx.jeu.objets[2].nom).toEqual("chateau d'if");
-        expect(ctx.jeu.objets[2].synonymes).toHaveSize(4);
+        expect(ctx.jeu.objets[2].synonymes).toHaveLength(4);
         expect(ctx.jeu.objets[2].synonymes[0].nom).toEqual('chateau');
         expect(ctx.jeu.objets[2].synonymes[0].epithete).toBeFalsy();
         expect(ctx.jeu.objets[2].synonymes[1].nom).toEqual('chateaux');
@@ -86,7 +86,7 @@ describe('Synonymes auto − Découpe', () => {
         expect(ctx.jeu.objets[2].synonymes[2].epithete).toBeFalsy();
         expect(ctx.jeu.objets[2].synonymes[3].nom).toEqual('ifs');
         expect(ctx.jeu.objets[3].nom).toEqual('comte du chateau');
-        expect(ctx.jeu.objets[3].synonymes).toHaveSize(4);
+        expect(ctx.jeu.objets[3].synonymes).toHaveLength(4);
         expect(ctx.jeu.objets[3].synonymes[0].nom).toEqual('comte');
         expect(ctx.jeu.objets[3].synonymes[0].epithete).toBeFalsy();
         expect(ctx.jeu.objets[3].synonymes[1].nom).toEqual('comtes');
@@ -100,7 +100,7 @@ describe('Synonymes auto − Découpe', () => {
         // A) VÉRIFIER DÉCOUPE
         // B) VÉRIFIER CORRESPONDANCE OBJETS
 
-        expect(ctxCom.candidats).toHaveSize(2);
+        expect(ctxCom.candidats).toHaveLength(2);
         expect(ctxCom.candidats[0].score).toBeGreaterThan(ctxCom.candidats[1].score);
 
         // infinitif
@@ -108,14 +108,14 @@ describe('Synonymes auto − Découpe', () => {
         // préposition0
         expect(ctxCom.candidats[0].els.preposition0).toBeUndefined();
         // ceci
-        expect(ctxCom.candidats[0].isCeciV1).toBeTrue();
+        expect(ctxCom.candidats[0].isCeciV1).toBe(true);
         expect(ctxCom.candidats[0].ceciIntituleV1.toString()).toEqual('comte');
         expect(ctxCom.candidats[0].correspondCeci.nbCor).toEqual(1);
         expect(ctxCom.candidats[0].correspondCeci.elements[0].nom).toEqual("comte du chateau");
         // préposition1
         expect(ctxCom.candidats[0].els.preposition1).toEqual('concernant');
         // cela
-        expect(ctxCom.candidats[0].isCelaV1).toBeTrue();
+        expect(ctxCom.candidats[0].isCelaV1).toBe(true);
         expect(ctxCom.candidats[0].celaIntituleV1.toString()).toEqual('le chateau');
         expect(ctxCom.candidats[0].correspondCela.nbCor).toEqual(1);
         expect(ctxCom.candidats[0].correspondCela.elements[0].nom).toEqual("chateau d'if");
@@ -125,12 +125,12 @@ describe('Synonymes auto − Découpe', () => {
         // préposition0
         expect(ctxCom.candidats[1].els.preposition0).toBeUndefined();
         // ceci
-        expect(ctxCom.candidats[1].isCeciV1).toBeTrue();
+        expect(ctxCom.candidats[1].isCeciV1).toBe(true);
         expect(ctxCom.candidats[1].ceciIntituleV1.toString()).toEqual('comte sur le chateau');
         // préposition1
         expect(ctxCom.candidats[1].els.preposition1).toBeUndefined();
         // cela
-        expect(ctxCom.candidats[1].isCelaV1).toBeFalse();
+        expect(ctxCom.candidats[1].isCelaV1).toBe(false);
         expect(ctxCom.candidats[1].celaIntituleV1).toBeUndefined();
 
     });

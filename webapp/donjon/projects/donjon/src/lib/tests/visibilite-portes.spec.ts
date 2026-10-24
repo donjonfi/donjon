@@ -14,25 +14,18 @@ const sansLiens = (s: string) => s.replace(/@@lien:\d+@@/g, '');
 
 const scenario = `        
 La caverne est un lieu.
-
 La porte classiqueOuverte est une porte ouverte au nord de la caverne.
 Le cheminClassiqueAccessible est un lieu au nord de la caverne.
-
 La porte classiqueFermée est une porte fermée au nord-est de la caverne.
 Le cheminClassiqueObstrué est un lieu au nord-est de la caverne.
-
 La porte invisibleFermée est une porte invisible et fermée à l'intérieur de la caverne.
 Le cheminVisibleMaisSansAccès est un lieu à l'intérieur de la caverne.
-
 La porte invisibleOuverteEst est une porte invisible et ouverte à l’est de la caverne.
 Le cheminVisibleEtAccessible est un lieu à l’est de la caverne.
-
 La porte invisibleOuverteOuest est une porte invisible et ouverte à l’ouest de la caverne.
 Le cheminInvisibleEtAccessible est un lieu invisible à l’ouest de la caverne.
-
 La porte visibleOuverteSurCheminInvisible est une porte ouverte au sud-est de la caverne.
 Le cheminInvisibleAccessible est un lieu invisible au sud-est de la caverne.
-
 La porte invisibleSurInvisible est une porte invisible au sud-ouest de la caverne.
 Le cheminInvisibleSurInvisible est un lieu invisible au sud-ouest de la caverne.
 `;
@@ -40,14 +33,11 @@ Le cheminInvisibleSurInvisible est un lieu invisible au sud-ouest de la caverne.
 const scenarioCarrefour = `
 Le carrefour est un lieu.
 Sa description est "Un carrefour en pleine forêt.".
-
 La clairière est un lieu au nord du carrefour.
 La grotte est un lieu à l'est du carrefour.
 Le village est un lieu au sud du carrefour.
-
 Le grand rocher est un obstacle au nord du carrefour.
 Sa description est "Un énorme rocher bloque le passage.".
-
 Le fossé est un obstacle discret à l'est du carrefour.
 Sa description est "Un fossé profond coupe la route.".
 `;
@@ -55,14 +45,11 @@ Sa description est "Un fossé profond coupe la route.".
 const scenarioCarrefourFosseMentionne = `
 Le carrefour est un lieu.
 Sa description est "Un carrefour en pleine forêt. Vous remarquez un fossé[@fossé] à l'est.".
-
 La clairière est un lieu au nord du carrefour.
 La grotte est un lieu à l'est du carrefour.
 Le village est un lieu au sud du carrefour.
-
 Le grand rocher est un obstacle au nord du carrefour.
 Sa description est "Un énorme rocher bloque le passage.".
-
 Le fossé est un obstacle discret à l'est du carrefour.
 Sa description est "Un fossé profond coupe la route.".
 `;
@@ -70,122 +57,110 @@ Sa description est "Un fossé profond coupe la route.".
 const scenarioCarrefourRocherMentionne = `
 Le carrefour est un lieu.
 Sa description est "Un carrefour en pleine forêt. Le grand rocher[@grand rocher] barre le passage au nord.".
-
 La clairière est un lieu au nord du carrefour.
 Le village est un lieu au sud du carrefour.
-
 Le grand rocher est un obstacle au nord du carrefour.
 Sa description est "Un énorme rocher bloque le passage.".
 `;
 
 describe('Test obstacle discret', () => {
 
-  it('[F052-T001] regarder — obstacle discret non affiché, classique affiché', () => {
-    const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefour, actions, true);
-    expect(rc.monde.objets).toHaveSize(1 + 2); // (joueur,) grand rocher, fossé
-    const jeu = Generateur.genererJeu(rc);
-    expect(jeu.objets).toHaveSize(2 + 2); // (inventaire, joueur,) grand rocher, fossé
-    const ctxPartie = new ContextePartie(jeu);
-    ctxPartie.com.executerCommande("commencer le jeu", true);
+    it('[F052-T001] regarder — obstacle discret non affiché, classique affiché', () => {
+        const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefour, actions, true);
+        expect(rc.monde.objets).toHaveLength(1 + 2); // (joueur,) grand rocher, fossé
+        const jeu = Generateur.genererJeu(rc);
+        expect(jeu.objets).toHaveLength(2 + 2); // (inventaire, joueur,) grand rocher, fossé
+        const ctxPartie = new ContextePartie(jeu);
+        ctxPartie.com.executerCommande("commencer le jeu", true);
 
-    const grandRocher = ctxPartie.jeu.objets[2];
-    expect(grandRocher.nom).toEqual("grand rocher");
-    const fosse = ctxPartie.jeu.objets[3];
-    expect(fosse.nom).toEqual("fosse");
+        const grandRocher = ctxPartie.jeu.objets[2];
+        expect(grandRocher.nom).toEqual("grand rocher");
+        const fosse = ctxPartie.jeu.objets[3];
+        expect(fosse.nom).toEqual("fosse");
 
-    // fossé : discret, pas encore vu
-    expect(fosse.etats).toContain(ctxPartie.jeu.etats.discretID);
-    expect(fosse.etats).not.toContain(ctxPartie.jeu.etats.vuID);
+        // fossé : discret, pas encore vu
+        expect(fosse.etats).toContain(ctxPartie.jeu.etats.discretID);
+        expect(fosse.etats).not.toContain(ctxPartie.jeu.etats.vuID);
 
-    // regarder : grand rocher décrit, fossé non (discret)
-    const ctxCommande = ctxPartie.com.executerCommande("regarder", true);
-    expect(ctxCommande.sortie).toEqual(
-      "{_{*Le carrefour*}_}" +
-      "{n}Un carrefour en pleine forêt.{N}" +
-      "{U}Le grand rocher bloque la sortie (nord).{N}" +
-      "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- est : ? ({/obstrué/}){n}{i}- sud : ?{N}"
-    );
-    // fossé toujours non vu après regarder
-    expect(fosse.etats).not.toContain(ctxPartie.jeu.etats.vuID);
-  });
+        // regarder : grand rocher décrit, fossé non (discret)
+        const ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+        expect(ctxCommande.sortie).toEqual("{_{*Le carrefour*}_}" +
+            "{n}Un carrefour en pleine forêt.{N}" +
+            "{U}Le grand rocher bloque la sortie (nord).{N}" +
+            "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- est : ? ({/obstrué/}){n}{i}- sud : ?{N}");
+        // fossé toujours non vu après regarder
+        expect(fosse.etats).not.toContain(ctxPartie.jeu.etats.vuID);
+    });
 
-  it('[F052-T002] afficher sorties — obstacle discret toujours obstruant', () => {
-    const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefour, actions, true);
-    const jeu = Generateur.genererJeu(rc);
-    const ctxPartie = new ContextePartie(jeu);
-    ctxPartie.com.executerCommande("commencer le jeu", true);
+    it('[F052-T002] afficher sorties — obstacle discret toujours obstruant', () => {
+        const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefour, actions, true);
+        const jeu = Generateur.genererJeu(rc);
+        const ctxPartie = new ContextePartie(jeu);
+        ctxPartie.com.executerCommande("commencer le jeu", true);
 
-    const ctxCommande = ctxPartie.com.executerCommande("afficher sorties", false);
-    expect(ctxCommande.sortie).toEqual(
-      "Sorties\u202F: {n}" +
-      "{i}- nord : ? ({/obstrué/}){n}" +
-      "{i}- est : ? ({/obstrué/}){n}" +
-      "{i}- sud : ?{N}"
-    );
-  });
+        const ctxCommande = ctxPartie.com.executerCommande("afficher sorties", false);
+        expect(ctxCommande.sortie).toEqual("Sorties\u202F: {n}" +
+            "{i}- nord : ? ({/obstrué/}){n}" +
+            "{i}- est : ? ({/obstrué/}){n}" +
+            "{i}- sud : ?{N}");
+    });
 
-  it('[F052-T003] obstacle discret mentionné dans description — pas affiché deux fois, interagissable', () => {
-    const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefourFosseMentionne, actions, true);
-    const jeu = Generateur.genererJeu(rc);
-    const ctxPartie = new ContextePartie(jeu);
-    ctxPartie.com.executerCommande("commencer le jeu", true);
+    it('[F052-T003] obstacle discret mentionné dans description — pas affiché deux fois, interagissable', () => {
+        const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefourFosseMentionne, actions, true);
+        const jeu = Generateur.genererJeu(rc);
+        const ctxPartie = new ContextePartie(jeu);
+        ctxPartie.com.executerCommande("commencer le jeu", true);
 
-    const fosse = ctxPartie.jeu.objets[3];
-    expect(fosse.nom).toEqual("fosse");
+        const fosse = ctxPartie.jeu.objets[3];
+        expect(fosse.nom).toEqual("fosse");
 
-    // regarder : fossé mentionné dans la description via [@fossé], pas affiché une deuxième fois
-    let ctxCommande = ctxPartie.com.executerCommande("regarder", true);
-    expect(sansLiens(ctxCommande.sortie)).toEqual(
-      "{_{*Le carrefour*}_}" +
-      "{n}Un carrefour en pleine forêt. Vous remarquez un fossé à l'est.{N}" +
-      "{U}Le grand rocher bloque la sortie (nord).{N}" +
-      "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- est : ? ({/obstrué/}){n}{i}- sud : ?{N}"
-    );
+        // regarder : fossé mentionné dans la description via [@fossé], pas affiché une deuxième fois
+        let ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+        expect(sansLiens(ctxCommande.sortie)).toEqual("{_{*Le carrefour*}_}" +
+            "{n}Un carrefour en pleine forêt. Vous remarquez un fossé à l'est.{N}" +
+            "{U}Le grand rocher bloque la sortie (nord).{N}" +
+            "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- est : ? ({/obstrué/}){n}{i}- sud : ?{N}");
 
-    // fossé : vu (via [@fossé]), mentionné, toujours discret
-    expect(fosse.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(fosse.etats).toContain(ctxPartie.jeu.etats.mentionneID);
-    expect(fosse.etats).toContain(ctxPartie.jeu.etats.discretID);
+        // fossé : vu (via [@fossé]), mentionné, toujours discret
+        expect(fosse.etats).toContain(ctxPartie.jeu.etats.vuID);
+        expect(fosse.etats).toContain(ctxPartie.jeu.etats.mentionneID);
+        expect(fosse.etats).toContain(ctxPartie.jeu.etats.discretID);
 
-    // examiner fossé : possible puisque vu
-    ctxCommande = ctxPartie.com.executerCommande("examiner fossé", false);
-    expect(ctxCommande.sortie).toEqual("Un fossé profond coupe la route.{N}");
-  });
+        // examiner fossé : possible puisque vu
+        ctxCommande = ctxPartie.com.executerCommande("examiner fossé", false);
+        expect(ctxCommande.sortie).toEqual("Un fossé profond coupe la route.{N}");
+    });
 
-  it('[F052-T004] obstacle non-discret mentionné dans description via [@] — pas affiché deux fois', () => {
-    const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefourRocherMentionne, actions, true);
-    expect(rc.monde.objets).toHaveSize(1 + 1); // (joueur,) grand rocher
-    const jeu = Generateur.genererJeu(rc);
-    expect(jeu.objets).toHaveSize(2 + 1); // (inventaire, joueur,) grand rocher
-    const ctxPartie = new ContextePartie(jeu);
-    ctxPartie.com.executerCommande("commencer le jeu", true);
+    it('[F052-T004] obstacle non-discret mentionné dans description via [@] — pas affiché deux fois', () => {
+        const rc = CompilateurV8.analyserScenarioEtActions(scenarioCarrefourRocherMentionne, actions, true);
+        expect(rc.monde.objets).toHaveLength(1 + 1); // (joueur,) grand rocher
+        const jeu = Generateur.genererJeu(rc);
+        expect(jeu.objets).toHaveLength(2 + 1); // (inventaire, joueur,) grand rocher
+        const ctxPartie = new ContextePartie(jeu);
+        ctxPartie.com.executerCommande("commencer le jeu", true);
 
-    const grandRocher = ctxPartie.jeu.objets[2];
-    expect(grandRocher.nom).toEqual("grand rocher");
+        const grandRocher = ctxPartie.jeu.objets[2];
+        expect(grandRocher.nom).toEqual("grand rocher");
 
-    // regarder : grand rocher cité dans la description, pas affiché une deuxième fois en section obstacle
-    let ctxCommande = ctxPartie.com.executerCommande("regarder", true);
-    expect(sansLiens(ctxCommande.sortie)).toEqual(
-      "{_{*Le carrefour*}_}" +
-      "{n}Un carrefour en pleine forêt. Le grand rocher barre le passage au nord.{N}" +
-      "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- sud : ?{N}"
-    );
-    // grand rocher vu via [@grand rocher]
-    expect(grandRocher.etats).toContain(ctxPartie.jeu.etats.vuID);
-    expect(grandRocher.etats).toContain(ctxPartie.jeu.etats.mentionneID);
+        // regarder : grand rocher cité dans la description, pas affiché une deuxième fois en section obstacle
+        let ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+        expect(sansLiens(ctxCommande.sortie)).toEqual("{_{*Le carrefour*}_}" +
+            "{n}Un carrefour en pleine forêt. Le grand rocher barre le passage au nord.{N}" +
+            "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- sud : ?{N}");
+        // grand rocher vu via [@grand rocher]
+        expect(grandRocher.etats).toContain(ctxPartie.jeu.etats.vuID);
+        expect(grandRocher.etats).toContain(ctxPartie.jeu.etats.mentionneID);
 
-    // examiner grand rocher : interaction possible
-    ctxCommande = ctxPartie.com.executerCommande("examiner grand rocher", false);
-    expect(ctxCommande.sortie).toEqual("Un énorme rocher bloque le passage.{N}");
+        // examiner grand rocher : interaction possible
+        ctxCommande = ctxPartie.com.executerCommande("examiner grand rocher", false);
+        expect(ctxCommande.sortie).toEqual("Un énorme rocher bloque le passage.{N}");
 
-    // regarder à nouveau : grand rocher toujours absent de la section auto (description du lieu le mentionne déjà)
-    ctxCommande = ctxPartie.com.executerCommande("regarder", true);
-    expect(sansLiens(ctxCommande.sortie)).toEqual(
-      "{_{*Le carrefour*}_}" +
-      "{n}Un carrefour en pleine forêt. Le grand rocher barre le passage au nord.{N}" +
-      "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- sud : ?{N}"
-    );
-  });
+        // regarder à nouveau : grand rocher toujours absent de la section auto (description du lieu le mentionne déjà)
+        ctxCommande = ctxPartie.com.executerCommande("regarder", true);
+        expect(sansLiens(ctxCommande.sortie)).toEqual("{_{*Le carrefour*}_}" +
+            "{n}Un carrefour en pleine forêt. Le grand rocher barre le passage au nord.{N}" +
+            "{P}Sorties\u202F: {n}{i}- nord : ? ({/obstrué/}){n}{i}- sud : ?{N}");
+    });
 
 });
 
@@ -193,14 +168,14 @@ describe('Test de la visibilité des portes', () => {
     it('[F052-T005] Nombre de phrases', () => {
         let ctxAnalyse = new ContexteAnalyseV8();
         let phrases = CompilateurV8Utils.convertirCodeSourceEnPhrases(scenario);
-        expect(phrases).toHaveSize(15); // nombre de phrases
+        expect(phrases).toHaveLength(15); // nombre de phrases
     });
 
     it('[F052-T006] Regarder', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
-        expect(rc.monde.objets).toHaveSize(1 + 7); // (joueur,) portes et chemins
+        expect(rc.monde.objets).toHaveLength(1 + 7); // (joueur,) portes et chemins
         const jeu = Generateur.genererJeu(rc);
-        expect(jeu.objets).toHaveSize(2 + 7); // (inventaire, joueur,) portes et chemins
+        expect(jeu.objets).toHaveLength(2 + 7); // (inventaire, joueur,) portes et chemins
         const ctxPartie = new ContextePartie(jeu);
         let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
@@ -210,9 +185,9 @@ describe('Test de la visibilité des portes', () => {
 
     it('[F052-T007] Afficher les sorties', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
-        expect(rc.monde.objets).toHaveSize(1 + 7); // (joueur,) portes et chemins
+        expect(rc.monde.objets).toHaveLength(1 + 7); // (joueur,) portes et chemins
         const jeu = Generateur.genererJeu(rc);
-        expect(jeu.objets).toHaveSize(2 + 7); // (inventaire, joueur,) portes et chemins
+        expect(jeu.objets).toHaveLength(2 + 7); // (inventaire, joueur,) portes et chemins
         const ctxPartie = new ContextePartie(jeu);
         let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
@@ -268,9 +243,9 @@ désactiver affichage des obstacles.
 
     it('[F052-T010] examiner portes', () => {
         const rc = CompilateurV8.analyserScenarioEtActions(scenario, actions, true);
-        expect(rc.monde.objets).toHaveSize(1 + 7); // (joueur,) portes
-        const jeu = Generateur.genererJeu(rc)
-        expect(jeu.objets).toHaveSize(2 + 7); // (inventaire, joueur,) portes
+        expect(rc.monde.objets).toHaveLength(1 + 7); // (joueur,) portes
+        const jeu = Generateur.genererJeu(rc);
+        expect(jeu.objets).toHaveLength(2 + 7); // (inventaire, joueur,) portes
         const ctxPartie = new ContextePartie(jeu);
         let ctxCommande = ctxPartie.com.executerCommande("commencer le jeu", true);
 
