@@ -38,6 +38,9 @@ export async function executerCommande(page: Page, commande: string): Promise<vo
 export async function appuyerSurUneTouche(page: Page): Promise<void> {
   await expect(sortie(page)).toContainText('Veuillez appuyer sur une touche');
   const avant = await sortie(page).innerHTML();
-  await page.locator('#txtCommande').press('Space');
-  await expect.poll(() => sortie(page).innerHTML(), { message: 'sortie après appui sur une touche' }).not.toBe(avant);
+  // le lecteur ignore les touches tant que la commande précédente n'est pas finie (commandeEnCours) : réessayer
+  await expect(async () => {
+    await page.locator('#txtCommande').press('Space');
+    await expect.poll(() => sortie(page).innerHTML(), { message: 'sortie après appui sur une touche', timeout: 1_000 }).not.toBe(avant);
+  }).toPass();
 }
