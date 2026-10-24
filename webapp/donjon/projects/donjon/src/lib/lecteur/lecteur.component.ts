@@ -268,6 +268,45 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     return this.interruptionAttendreChoixLibreEnCours || this.interruptionQuestionCommande;
   }
 
+  /**
+   * Attente en mode tactile : le joueur ne peut que continuer.
+   * - 'suite' : attendre touche ou suite du texte (bouton « Suite ») ;
+   * - 'patienter' : attendre N secondes (bouton « Patientez… » grisé) ;
+   * - null : pas d’attente (barre tactile habituelle).
+   */
+  public get attenteTactile(): 'suite' | 'patienter' | null {
+    if (!this.tactileActif) {
+      return null;
+    }
+    if (this.interruptionAttendreToucheEnCours || this.resteDeLaSortie?.length) {
+      return 'suite';
+    }
+    if (this.interruptionAttendreSecondesEnCours) {
+      return 'patienter';
+    }
+    return null;
+  }
+
+  /** Les éléments du jeu sont-ils soulignés et cliquables (pas pendant une attente) ? */
+  public get liensTactilesActifs(): boolean {
+    return this.tactileActif && !this.attenteTactile;
+  }
+
+  /** Continuer après une attente (bouton « Suite » ou tap sur le texte). */
+  public continuerTactile(): void {
+    if (this.commandeEnCours) {
+      return;
+    }
+    if (this.resteDeLaSortie?.length) {
+      this.afficherSuiteSortie();
+      if (!this.manuTricheActif) {
+        this.commande = "";
+      }
+    } else if (this.interruptionAttendreToucheEnCours) {
+      this.terminerInterruption(undefined);
+    }
+  }
+
   /** Saisie clavier demandée ponctuellement par le joueur (« Taper une commande… » du menu tactile). */
   public saisieManuelleTactile = false;
 
@@ -487,45 +526,43 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
-    // Délégation d’événement : un seul listener pour tous les liens {L}NNN{L} rendus dans la sortie.
-    // La ligne est encodée dans le href (`#LNNN`) car le sanitizer Angular retire les data-attributes.
-    this.resultatInputRef.nativeElement.addEventListener('click', (event: Event) => {
-      const lien = (event.target as HTMLElement).closest('.t-lien-ligne') as HTMLAnchorElement | null;
-      if (lien) {
-        event.preventDefault();
-        const match = (lien.getAttribute('href') ?? '').match(/^#L(\d+)$/);
-        if (match) {
-          const ligne = parseInt(match[1], 10);
-          if (!isNaN(ligne)) this.referenceLigne.emit(ligne);
-        }
-        return;
+  }
+
+  /**
+   * Clic dans la sortie (délégation d’événement, branchée dans le template pour
+   * qu’Angular re-rende la vue après coup) : lien de ligne, suite ou lien tactile.
+   */
+  public onClicSortie(event: Event): void {
+    // Liens {L}NNN{L} : la ligne est encodée dans le href (`#LNNN`) car le sanitizer Angular retire les data-attributes.
+    const lien = (event.target as HTMLElement).closest('.t-lien-ligne') as HTMLAnchorElement | null;
+    if (lien) {
+      event.preventDefault();
+      const match = (lien.getAttribute('href') ?? '').match(/^#L(\d+)$/);
+      if (match) {
+        const ligne = parseInt(match[1], 10);
+        if (!isNaN(ligne)) this.referenceLigne.emit(ligne);
       }
-      // mode tactile : un tap sur la sortie remplace « appuyez sur une touche »
-      // (suite du texte paginé ou interruption attendre touche)
-      if (this.tactileActif && !this.commandeEnCours) {
-        if (this.resteDeLaSortie?.length) {
-          this.afficherSuiteSortie();
-          if (!this.manuTricheActif) {
-            this.commande = "";
-          }
-          return;
-        } else if (this.interruptionAttendreToucheEnCours) {
-          this.terminerInterruption(undefined);
-          return;
-        }
-      }
-      // lien tactile (élément du jeu ou sortie) — la cible est encodée dans le
-      // href (`#E12`, `#D-n`) car le sanitizer Angular retire les data-attributes.
-      // Inactif hors mode tactile (les liens restent dans le HTML mais sont
-      // neutralisés par CSS + ici, cf. `.tactile-actif`).
-      const lienTactile = this.tactileActif
-        ? (event.target as HTMLElement).closest('.djn-lien-tactile') as HTMLAnchorElement | null
-        : null;
+      return;
+    }
+    const lienTactile = (event.target as HTMLElement).closest('.djn-lien-tactile') as HTMLAnchorElement | null;
+    // mode tactile : un tap sur la sortie remplace « appuyez sur une touche »
+    // (suite du texte paginé ou interruption attendre touche)
+    if (this.attenteTactile === 'suite') {
+      // un tap sur un lien inactif ne doit pas suivre son href
       if (lienTactile) {
         event.preventDefault();
-        this.onClicLienTactile(lienTactile.getAttribute('href') ?? '');
       }
-    });
+      this.continuerTactile();
+      return;
+    }
+    // lien tactile (élément du jeu ou sortie) — la cible est encodée dans le
+    // href (`#E12`, `#D-n`) car le sanitizer Angular retire les data-attributes.
+    // Inactif hors mode tactile et pendant une attente (les liens restent dans
+    // le HTML mais sont neutralisés par CSS + ici, cf. `.tactile-actif`).
+    if (lienTactile && this.liensTactilesActifs) {
+      event.preventDefault();
+      this.onClicLienTactile(lienTactile.getAttribute('href') ?? '');
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
