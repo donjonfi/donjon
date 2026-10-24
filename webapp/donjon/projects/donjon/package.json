@@ -6,9 +6,9 @@
   },
   "description": "Donjon FI Core Lib",
   "peerDependencies": {
-    "@angular/common": "^21.2.9",
-    "@angular/core": "^21.2.9",
-    "ngx-bootstrap": "^21.0.1"
+    "@angular/common": "^21.2.25",
+    "@angular/core": "^21.2.25",
+    "ngx-bootstrap": "^21.2.2"
   },
   "dependencies": {
     "tslib": "^2.4.0"
