@@ -18,7 +18,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:prod": "ng test donjon --watch=false --coverage",
-    "e2e": "playwright test"
+    "e2e": "npm run e2e:build && playwright test",
+    "e2e:build": "node ensure-standalone.js && ng build donjon-jouer --configuration development && ng build donjon-creer --configuration development"
   },
   "private": true,
   "dependencies": {
