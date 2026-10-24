@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { ElementsJeuUtils } from '../../../utils/commun/elements-jeu-utils';
 import { Jeu } from '../../../models/jeu/jeu';
 import { Lieu } from '../../../models/jeu/lieu';
@@ -9,6 +9,7 @@ import { ObjetPresent } from '../models/objet-present';
     selector: 'app-visualisation',
     templateUrl: './visualisation.component.html',
     styleUrls: ['./visualisation.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VisualisationComponent implements OnInit {

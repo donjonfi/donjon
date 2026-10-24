@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { ElementsJeuUtils } from '../../../utils/commun/elements-jeu-utils';
 import { Lieu } from '../../../models/jeu/lieu';
 import { ListeEtats } from '../../../utils/jeu/liste-etats';
@@ -13,6 +13,7 @@ import { ObstacleVoisin } from '../models/obstacle-voisin';
     selector: 'app-visu-lieu',
     templateUrl: './visu-lieu.component.html',
     styleUrls: ['./visu-lieu.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VisuLieuComponent implements OnInit, OnChanges {

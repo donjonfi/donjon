@@ -2,14 +2,13 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "paths": {
       "donjon": [
-        "projects/donjon/src/public-api.ts"
+        "./projects/donjon/src/public-api.ts"
       ],
       "file-saver-es": [
-        "@types/file-saver"
+        "./node_modules/@types/file-saver"
       ]
     },
     "esModuleInterop": true,

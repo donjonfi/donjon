@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 
 import { ActionsTactilesUtils } from '../../utils/jeu/tactile/actions-tactiles-utils';
 import { EClasseRacine } from '../../models/commun/constantes';
@@ -37,6 +37,7 @@ interface PropositionVariante {
   selector: 'djn-menu-tactile',
   templateUrl: './menu-tactile.component.html',
   styleUrls: ['./menu-tactile.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MenuTactileComponent implements OnChanges {

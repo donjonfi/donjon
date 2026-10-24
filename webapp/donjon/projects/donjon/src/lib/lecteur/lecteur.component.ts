@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, DOCUMENT } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
 import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
@@ -36,6 +36,7 @@ export interface SegmentDiff {
   selector: 'djn-lecteur',
   templateUrl: './lecteur.component.html',
   styleUrls: ['./lecteur.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {

@@ -2,7 +2,7 @@ import { ACE_CONFIG, AceConfigInterface, AceModule } from 'ngx-ace-wrapper';
 import { LocationStrategy } from '@angular/common';
 import { NoopLocationStrategy } from './noop-location-strategy';
 import { STANDALONE_MODE } from '../environments/environment';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 
 import { ApercuModule, CarteScenarioModule, DonjonModule, VisualisationModule } from 'donjon';
 import { AppComponent } from './app.component';
@@ -44,7 +44,7 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
       useValue: DEFAULT_ACE_CONFIG
     },
     ...(STANDALONE_MODE ? [{ provide: LocationStrategy, useClass: NoopLocationStrategy }] : []),
-    provideHttpClient(withInterceptorsFromDi())
+    provideHttpClient(withXhr(), withInterceptorsFromDi())
   ]
 })
 export class AppModule { }

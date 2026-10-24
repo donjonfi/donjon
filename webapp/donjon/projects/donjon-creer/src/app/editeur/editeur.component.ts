@@ -16,7 +16,7 @@ import 'brace/theme/solarized_dark';
 import * as FileSaver from 'file-saver-es';
 
 import { Action, Aide, CompilateurV8, EMessageAnalyse, ElementGenerique, FichierEnregistrement, Generateur, Jeu, LecteurComponent, MessageAnalyse, Monde, Regle, RoutineSimple, Sauvegarde, StringUtils, versionNum } from 'donjon';
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { AceConfigInterface } from 'ngx-ace-wrapper';
 import { ActivatedRoute } from '@angular/router';
@@ -34,6 +34,7 @@ import { ErreurInclure, LineMapEntry, resoudreInclures, traduireLigne } from './
   selector: 'app-editeur',
   templateUrl: './editeur.component.html',
   styleUrls: ['./editeur.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditeurComponent implements OnInit, OnDestroy {

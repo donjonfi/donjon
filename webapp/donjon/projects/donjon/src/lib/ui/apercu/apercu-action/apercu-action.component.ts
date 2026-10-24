@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { Action } from '../../../models/compilateur/action';
 
@@ -6,6 +6,7 @@ import { Action } from '../../../models/compilateur/action';
     selector: 'app-apercu-action',
     templateUrl: './apercu-action.component.html',
     styleUrls: ['./apercu-action.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApercuActionComponent implements OnInit {

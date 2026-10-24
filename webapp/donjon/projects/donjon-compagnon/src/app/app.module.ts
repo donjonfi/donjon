@@ -1,6 +1,6 @@
 import { LocationStrategy } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 
 import { ApercuModule, CarteScenarioModule, DonjonModule, VisualisationModule } from 'donjon';
 import { AppComponent } from './app.component';
@@ -30,7 +30,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
   ],
   providers: [
     ...(STANDALONE_MODE ? [{ provide: LocationStrategy, useClass: NoopLocationStrategy }] : []),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
   ],
 })
 export class AppModule { }

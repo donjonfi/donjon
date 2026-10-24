@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { Reaction } from '../../../interfaces/compilateur/reaction';
 
@@ -6,6 +6,7 @@ import { Reaction } from '../../../interfaces/compilateur/reaction';
     selector: 'app-apercu-reaction',
     templateUrl: './apercu-reaction.component.html',
     styleUrls: ['./apercu-reaction.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApercuReactionComponent implements OnInit {
