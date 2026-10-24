@@ -249,6 +249,12 @@ Runner : **Vitest** (builder `@angular/build:unit-test`, Node + jsdom, globals `
 
 `tamponConseils` n'apparaît dans le lecteur qu'en mode `[debogueur]="true"` (actif dans `donjon-creer` et `donjon-compagnon`, pas dans `donjon-jouer`). `eju.ajouterConseil(...)` est le canal pour les avertissements visibles uniquement au créateur.
 
+### Tests e2e (Playwright)
+
+`webapp/donjon/e2e/*.e2e.ts`, lancés par `npm run e2e` (démarre `ng serve` de `donjon-jouer` sur 4201 et `donjon-creer` sur 4200, ou réutilise ceux déjà lancés). Hors `npm test` et hors CI. Première fois : `npx playwright install chromium`.
+
+Ils jouent le jeu de référence `ressources/scenarios/jeux/coince_v3.djn` en tapant les commandes de `coince_v3.sol` jusqu'à la victoire, dans le lecteur (`jouer.e2e.ts`) et dans l'éditeur après « Analyser » (`creer.e2e.ts`). Le `.djn` est servi par interception réseau (`page.route`) à la place de `assets/jeux/jeu.djn` (lecteur de dev, `chargementAutoJeu`) ou de `assets/modeles/<nom>.djn` (éditeur, URL `/<nom>`) : rien à copier dans les assets. Helpers dans `e2e/utils.ts` (`executerCommande` attend que la sortie `#taResultat` change, `appuyerSurUneTouche` pour « Veuillez appuyer sur une touche… »).
+
 ## CI
 
 GitHub Actions (`.github/workflows/node.js.yml`) runs on push/PR to `master`: installs deps, builds `donjon` library, then runs `test:prod` (Vitest with coverage).
