@@ -721,7 +721,7 @@ export class Generateur {
           const cle = synonyme + ' > ' + action.infinitifSansAccent;
           if (!synonymesRetires.has(cle)) {
             synonymesRetires.add(cle);
-            jeu.tamponConseils.push(`« ${synonymeBrut} » était un synonyme de « ${action.infinitif} » : c’est l’action « ${synonymeBrut} » qui est utilisée.`);
+            jeu.tamponConseils.push(`« ${synonymeBrut} » n’est plus un synonyme de « ${action.infinitif} » : une action « ${synonymeBrut} » existe.`);
           }
         });
     });

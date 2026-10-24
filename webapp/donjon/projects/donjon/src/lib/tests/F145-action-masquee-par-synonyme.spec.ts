@@ -47,7 +47,7 @@ describe('[F145] Action masquée par un synonyme d’une autre action', () => {
   it('[F145-T002] conseil : le synonyme est retiré de l’autre action', () => {
     const ctx = commencer(ACTION_LANCER);
     expect(ctx.jeu.tamponConseils).toEqual([
-      '« lancer » était un synonyme de « jeter » : c’est l’action « lancer » qui est utilisée.',
+      '« lancer » n’est plus un synonyme de « jeter » : une action « lancer » existe.',
     ]);
   });
 
