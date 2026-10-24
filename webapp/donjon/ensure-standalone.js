@@ -10,6 +10,8 @@
  *   produit par generate-jouer-one-template.js dans build-all, après le build du
  *   bundle. Le placeholder suffit pour compiler : JOUER_ONE_HTML n'est consommé
  *   qu'en STANDALONE_MODE (export single-file), pas en dev/CI classique.
+ * - jouer-standalone.ts (donjon-jouer) : régénéré via generate-jouer-bundle.js
+ *   depuis actions.djn ; sans lui, `ng build donjon-jouer` échoue sur un clone neuf.
  *
  * Idempotent. Usage : node ensure-standalone.js
  */
@@ -62,3 +64,6 @@ export const JOUER_ONE_HTML = \`<!doctype html><html><head><meta charset="utf-8"
 } else {
   console.log('jouer-one-template.ts : déjà présent, conservé.');
 }
+
+// 3. jouer-standalone.ts (donjon-jouer) — sources toujours disponibles, on régénère.
+require('./generate-jouer-bundle.js');
