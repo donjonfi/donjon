@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Regle } from '../../../interfaces/compilateur/regle';
 import { TypeEvenement } from '../../../models/jouer/type-evenement';
 
@@ -6,6 +6,7 @@ import { TypeEvenement } from '../../../models/jouer/type-evenement';
     selector: 'app-apercu-regle',
     templateUrl: './apercu-regle.component.html',
     styleUrls: ['./apercu-regle.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApercuRegleComponent implements OnInit {

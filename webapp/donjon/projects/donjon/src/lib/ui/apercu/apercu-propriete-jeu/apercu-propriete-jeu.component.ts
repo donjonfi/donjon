@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PositionObjet, PrepositionSpatiale } from '../../../models/jeu/position-objet';
 import { ProprieteJeu, TypeProprieteJeu } from '../../../models/jeu/propriete-jeu';
 
@@ -6,6 +6,7 @@ import { ProprieteJeu, TypeProprieteJeu } from '../../../models/jeu/propriete-je
     selector: 'app-apercu-propriete-jeu',
     templateUrl: './apercu-propriete-jeu.component.html',
     styleUrls: ['./apercu-propriete-jeu.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApercuProprieteJeuComponent implements OnInit {

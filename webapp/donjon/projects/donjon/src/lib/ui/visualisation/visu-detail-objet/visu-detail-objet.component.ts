@@ -2,7 +2,7 @@ import { Classe } from '../../../models/commun/classe';
 import { ClasseUtils } from '../../../utils/commun/classe-utils';
 import { ElementsJeuUtils } from '../../../utils/commun/elements-jeu-utils';
 import { ListeEtats } from '../../../utils/jeu/liste-etats';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 import { ObjetPresent } from '../models/objet-present';
 
@@ -10,6 +10,7 @@ import { ObjetPresent } from '../models/objet-present';
     selector: 'app-visu-detail-objet',
     templateUrl: './visu-detail-objet.component.html',
     styleUrls: ['./visu-detail-objet.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VisuDetailObjetComponent implements OnInit, OnChanges {

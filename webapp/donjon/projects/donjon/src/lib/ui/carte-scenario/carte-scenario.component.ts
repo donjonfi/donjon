@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { CarteArete, CarteBuilder, CarteLieuInfo, CarteNoeud, CarteScenario, CarteSortieCardinale, CarteSortieSpeciale } from '../../utils/jeu/carte-builder';
 import { ELocalisation, Localisation } from '../../models/jeu/localisation';
@@ -39,6 +39,7 @@ interface CelluleAscii {
   selector: 'app-carte-scenario',
   templateUrl: './carte-scenario.component.html',
   styleUrls: ['./carte-scenario.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class CarteScenarioComponent implements OnChanges {

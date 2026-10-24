@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { GroupeNominal } from '../../../models/commun/groupe-nominal';
 
@@ -6,6 +6,7 @@ import { GroupeNominal } from '../../../models/commun/groupe-nominal';
     selector: 'app-apercu-sujet',
     templateUrl: './apercu-sujet.component.html',
     styleUrls: ['./apercu-sujet.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApercuSujetComponent implements OnInit {

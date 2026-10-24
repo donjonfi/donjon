@@ -1,12 +1,13 @@
 import { Classe } from '../../../models/commun/classe';
 import { ClasseUtils } from '../../../utils/commun/classe-utils';
 import { ElementGenerique } from '../../../models/compilateur/element-generique';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-apercu-element-generique',
     templateUrl: './apercu-element-generique.component.html',
     styleUrls: ['./apercu-element-generique.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApercuElementGeneriqueComponent implements OnInit {

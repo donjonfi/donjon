@@ -1,7 +1,7 @@
 import * as FileSaver from 'file-saver-es';
 
 import { CompilateurV8, CompilateurV8Utils, Generateur, Jeu, LecteurComponent, Sauvegarde, StringUtils, version, versionNum } from 'donjon';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +14,7 @@ import { lastValueFrom } from 'rxjs';
     selector: 'app-jouer',
     templateUrl: './jouer.component.html',
     styleUrls: ['./jouer.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class JouerComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { ElementsJeuUtils } from '../../../utils/commun/elements-jeu-utils';
 import { ListeEtats } from '../../../utils/jeu/liste-etats';
 import { PrepositionSpatiale } from '../../../models/jeu/position-objet';
@@ -9,6 +9,7 @@ import { ObjetPresent } from '../models/objet-present';
     selector: 'app-visu-objet',
     templateUrl: './visu-objet.component.html',
     styleUrls: ['./visu-objet.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VisuObjetComponent implements OnInit {

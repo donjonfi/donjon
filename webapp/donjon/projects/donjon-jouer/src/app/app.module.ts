@@ -1,7 +1,7 @@
 import { LocationStrategy } from '@angular/common';
 import { NoopLocationStrategy } from './noop-location-strategy';
 import { STANDALONE_MODE } from '../environments/environment';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -29,7 +29,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
   ],
   providers: [
     ...(STANDALONE_MODE ? [{ provide: LocationStrategy, useClass: NoopLocationStrategy }] : []),
-    provideHttpClient(withInterceptorsFromDi())
+    provideHttpClient(withXhr(), withInterceptorsFromDi())
   ]
 })
 export class AppModule { }

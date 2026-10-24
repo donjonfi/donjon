@@ -4,12 +4,13 @@ import { ElementGenerique } from '../../../models/compilateur/element-generique'
 import { Monde } from '../../../models/compilateur/monde';
 import { Regle } from '../../../interfaces/compilateur/regle';
 import { TypeRegle } from '../../../models/compilateur/type-regle';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-apercu-monde',
     templateUrl: './apercu-monde.component.html',
     styleUrls: ['./apercu-monde.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApercuMondeComponent implements OnChanges {
