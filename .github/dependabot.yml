@@ -16,6 +16,9 @@ updates:
       # générateur aléatoire des replays .sol/.rec : ne pas changer sans vérification
       - dependency-name: rand-seed
         update-types: ["version-update:semver-major"]
+      # suit la LTS de Node (CI : lts/*), montée à la main quand la LTS change
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: npm
     directories:
       - /ressources/extensions/vscode/donjon-fi-compagnon

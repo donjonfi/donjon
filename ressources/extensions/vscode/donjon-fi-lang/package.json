@@ -35,7 +35,7 @@
   "devDependencies": {
     "@types/node": "^18.0.0",
     "@types/vscode": "^1.71.0",
-    "typescript": "^5.4.0"
+    "typescript": "^7.0.2"
   },
   "contributes": {
     "languages": [
@@ -70,8 +70,12 @@
       {
         "language": "donjon",
         "scopes": {
-          "variable": ["entity.name.variable.donjon"],
-          "type": ["entity.name.type.donjon"]
+          "variable": [
+            "entity.name.variable.donjon"
+          ],
+          "type": [
+            "entity.name.type.donjon"
+          ]
         }
       }
     ],
