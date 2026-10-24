@@ -159,14 +159,6 @@
           "options": {
             "buildTarget": "donjon-creer:build"
           }
-        },
-        "test": {
-          "builder": "@angular/build:unit-test",
-          "options": {
-            "tsConfig": "projects/donjon-creer/tsconfig.spec.json",
-            "runner": "vitest",
-            "buildTarget": "donjon-creer:build:development"
-          }
         }
       }
     },
@@ -424,14 +416,6 @@
           "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "donjon-jouer:build"
-          }
-        },
-        "test": {
-          "builder": "@angular/build:unit-test",
-          "options": {
-            "tsConfig": "projects/donjon-jouer/tsconfig.spec.json",
-            "runner": "vitest",
-            "buildTarget": "donjon-jouer:build:development"
           }
         }
       }
