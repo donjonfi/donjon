@@ -10,9 +10,10 @@ Ce dossier regroupe les **extensions VS Code** de Donjon FI. Chaque sous-dossier
 |---|---|---|
 | `donjon-fi-lang/` | `donjon-fi.donjon-fi-language` | Support langage `.djn` : grammaire TextMate, snippets, semantic tokens, providers (definition / hover / rename / symbols / document links). Pur côté éditeur — aucune dépendance runtime sur le moteur Donjon. |
 | `donjon-fi-compagnon/` | `donjon-fi.donjon-fi-compagnon` | Webview qui embarque l'app Angular `donjon-compagnon` (depuis `webapp/donjon/projects/donjon-compagnon/`) pour analyser, tester, visualiser un scénario. Dépend de `donjon-fi-lang` via `extensionPack`. |
-| `donjon-fi-runner/` | `donjon-fi.donjon-fi-runner` | **DÉPRÉCIÉE** — coquille vide qui ne fait que dépendre du compagnon via `extensionPack`. Ne pas y ajouter de code. |
 
-Les trois partagent la même `version` (alignée sur la version moteur, cf. `feedback_donjon_version_bump`). Le numéro est aussi présent dans les `constantes.ts` du moteur et dans `actions.djn` — `bump-version.ps1` à la racine `scripts/` met tout à jour.
+L’ancienne extension `donjon-fi-runner` (dépréciée) a été supprimée du dépôt.
+
+Les deux partagent la même `version` (alignée sur la version moteur, cf. `feedback_donjon_version_bump`). Le numéro est aussi présent dans les `constantes.ts` du moteur et dans `actions.djn` — `bump-version.ps1` à la racine `scripts/` met tout à jour.
 
 ## Build
 
