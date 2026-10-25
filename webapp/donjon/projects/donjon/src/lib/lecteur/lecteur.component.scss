@@ -727,6 +727,13 @@
   background-color: #fcf8ef;
 }
 
+// Tours précédents hors de la vue : le navigateur saute leur mise en page et leur rendu
+// (« auto » mémorise la hauteur réelle une fois le tour affiché).
+.djn-tour:not(:last-child) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 150px;
+}
+
 // Lien vers une ligne du scénario, généré par le tag {L}NNN{L} dans les messages d’erreur runtime.
 .t-lien-ligne {
   color: var(--bs-link-color, #0d6efd);

@@ -254,13 +254,24 @@ export class LiensElementsUtils {
    * le verbe conjugué, qu’il ne faut pas transformer en lien.
    */
   private static regExpLibelle(libelle: string): RegExp {
-    if (libelle.toLowerCase() === 'est') {
-      return /(?<=l['’]|-\s)est(?![\p{L}\p{N}-])/giu;
+    let regExp = LiensElementsUtils.cacheRegExpLibelles.get(libelle);
+    if (!regExp) {
+      if (libelle.toLowerCase() === 'est') {
+        regExp = /(?<=l['’]|-\s)est(?![\p{L}\p{N}-])/giu;
+      } else {
+        regExp = new RegExp(
+          '(?<![\\p{L}\\p{N}-])' + LiensElementsUtils.echapperRegExp(libelle) + '(?![\\p{L}\\p{N}-])',
+          'giu');
+      }
+      LiensElementsUtils.cacheRegExpLibelles.set(libelle, regExp);
     }
-    return new RegExp(
-      '(?<![\\p{L}\\p{N}-])' + LiensElementsUtils.echapperRegExp(libelle) + '(?![\\p{L}\\p{N}-])',
-      'giu');
+    // regex globale réutilisée : repartir du début du texte
+    regExp.lastIndex = 0;
+    return regExp;
   }
+
+  /** Regex déjà compilées, par libellé (évite d’en recompiler une par libellé et par segment de texte). */
+  private static readonly cacheRegExpLibelles = new Map<string, RegExp>();
 
   /**
    * Référence du lien pour une plage de texte : la ref unique si le libellé ne

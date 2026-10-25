@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, Input, NgZone, OnChanges, OnDestroy, OnInit, Optional, Output, SimpleChanges, ViewChild, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
 import { Interruption, TypeContexte, TypeInterruption } from '../models/jeu/interruption';
 
 import { Abreviations } from '../utils/jeu/abreviations';
 import { BalisesHtml } from '../utils/jeu/balises-html';
 import { CommandesUtils } from '../utils/jeu/commandes-utils';
 import { ContextePartie } from '../models/jouer/contexte-partie';
+import { BlocEcran, ChoixEcran, SEUIL_CHARGEMENT_TOURS_PX, TOURS_PAR_PAGE_PAR_DEFAUT } from '../models/jouer/contexte-ecran';
 import { Jeu } from '../models/jeu/jeu';
 
 import { Choix } from '../models/compilateur/choix';
@@ -21,7 +22,7 @@ import { InterruptionsUtils } from '../utils/jeu/interruptions-utils';
 import { ProgrammationTemps } from '../models/jeu/programmation-temps';
 import { ElementJeu } from '../models/jeu/element-jeu';
 import { ELocalisation, Localisation } from '../models/jeu/localisation';
-import { LiensElementsUtils } from '../utils/jeu/tactile/liens-elements-utils';
+import { CibleLien, LiensElementsUtils } from '../utils/jeu/tactile/liens-elements-utils';
 import { RoutineEnAttente } from '../models/jeu/routine-en-attente';
 import { RoutineSimple } from '../models/compilateur/routine-simple';
 import { HorlogeUtils } from '../utils/jeu/horloge-utils';
@@ -56,6 +57,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    * Le joueur peut basculer manuellement entre clavier et tactile (sauf si desactive).
    */
   @Input() interfaceTactile: 'auto' | 'active' | 'desactive' = 'auto';
+  /**
+   * Nombre de tours de l’écran principal gardés dans le DOM (une « page »), et nombre de tours
+   * rechargés à chaque fois que le joueur remonte en haut de la sortie. Tout l’historique reste en mémoire.
+   */
+  @Input() toursParPage = TOURS_PAR_PAGE_PAR_DEFAUT;
   /** Annuler un certain nombre de tours */
   @Output() nouvellePartieOuAnnulerTour = new EventEmitter();
   /** Émet le numéro de ligne lorsqu’un lien `{L}NNN{L}` est cliqué dans la sortie. */
@@ -521,12 +527,51 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
   constructor(
     @Inject(DOCUMENT) private htmlDocument: Document,
-    private elementRef: ElementRef<HTMLElement>
-  ) { }
+    private elementRef: ElementRef<HTMLElement>,
+    @Optional() zone?: NgZone
+  ) {
+    // (lecteur instancié hors injection, ex. dans les tests : exécution directe)
+    this.zone = zone ?? LecteurComponent.ZONE_DIRECTE;
+  }
+
+  private readonly zone: Pick<NgZone, 'run' | 'runOutsideAngular'>;
+  private static readonly ZONE_DIRECTE: Pick<NgZone, 'run' | 'runOutsideAngular'> = {
+    run: <T>(fn: () => T) => fn(),
+    runOutsideAngular: <T>(fn: () => T) => fn(),
+  };
 
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
+    // écouter le défilement hors zone Angular (pas de détection de changements à chaque pixel)
+    this.zone.runOutsideAngular(() => {
+      this.resultatInputRef.nativeElement.addEventListener('scroll', this.onDefilementSortie, { passive: true });
+    });
+  }
+
+  /** Le joueur remonte en haut de la sortie : recharger les tours précédents s’il y en a. */
+  private readonly onDefilementSortie = () => {
+    if (!this.chargementToursPrecedents && this.nbBlocsMasques > 0
+      && this.resultatInputRef.nativeElement.scrollTop < SEUIL_CHARGEMENT_TOURS_PX) {
+      this.chargerToursPrecedents();
+    }
+  };
+
+  /**
+   * Ajouter au DOM le paquet de tours précédent, en gardant le texte lu à la même place à l’écran
+   * (la hauteur ajoutée au-dessus est compensée sur la position de défilement).
+   */
+  private chargerToursPrecedents(): void {
+    const sortie: HTMLElement = this.resultatInputRef.nativeElement;
+    const hauteurAvant = sortie.scrollHeight;
+    this.chargementToursPrecedents = true;
+    this.zone.run(() => {
+      this.nbBlocsAffiches += this.toursParPage;
+    });
+    requestAnimationFrame(() => {
+      sortie.scrollTop += sortie.scrollHeight - hauteurAvant;
+      this.chargementToursPrecedents = false;
+    });
   }
 
   /**
@@ -543,6 +588,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
         const ligne = parseInt(match[1], 10);
         if (!isNaN(ligne)) this.referenceLigne.emit(ligne);
       }
+      return;
+    }
+    // lien « tester l’audio » (message d’accueil des jeux avec effets sonores)
+    if (this.audioActif && (event.target as HTMLElement).closest('.tester-audio')) {
+      this.testerAudio();
       return;
     }
     const lienTactile = (event.target as HTMLElement).closest('.djn-lien-tactile') as HTMLAnchorElement | null;
@@ -581,8 +631,62 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     }
   }
 
-  public get ecran(): string {
-    return this.partie?.ecran.ecran ?? "";
+  /**
+   * Blocs de l’écran principal présents dans le DOM : seulement les derniers tours.
+   * Tout l’historique reste en mémoire ; les tours plus anciens sont rechargés par
+   * paquets quand le joueur remonte en haut de la sortie (cf. chargerToursPrecedents).
+   */
+  public get blocsPrincipal(): BlocEcran[] {
+    const tous = this.partie?.ecran.blocsPrincipal;
+    if (!tous) {
+      return LecteurComponent.AUCUN_BLOC;
+    }
+    if (tous.length <= this.nbBlocsAffiches) {
+      return tous;
+    }
+    // même tableau tant que rien n’a changé (getter appelé à chaque détection de changements)
+    const cache = this.cacheBlocsPrincipal;
+    if (cache?.source === tous && cache.longueur === tous.length && cache.nb === this.nbBlocsAffiches) {
+      return cache.blocs;
+    }
+    const blocs = tous.slice(-this.nbBlocsAffiches);
+    this.cacheBlocsPrincipal = { source: tous, longueur: tous.length, nb: this.nbBlocsAffiches, blocs };
+    return blocs;
+  }
+
+  /** Nombre de tours de l’écran principal pas (encore) rechargés dans le DOM. */
+  public get nbBlocsMasques(): number {
+    return Math.max(0, (this.partie?.ecran.blocsPrincipal.length ?? 0) - this.nbBlocsAffiches);
+  }
+
+  /** Nombre de tours de l’écran principal actuellement dans le DOM (multiple de toursParPage). */
+  private nbBlocsAffiches = this.toursParPage;
+  private chargementToursPrecedents = false;
+  private cacheBlocsPrincipal: { source: BlocEcran[], longueur: number, nb: number, blocs: BlocEcran[] } | undefined;
+
+  public get blocsSecondaire(): BlocEcran[] {
+    return this.partie?.ecran.blocsSecondaire ?? LecteurComponent.AUCUN_BLOC;
+  }
+
+  public get blocsTemporaire(): BlocEcran[] {
+    return this.partie?.ecran.blocsTemporaire ?? LecteurComponent.AUCUN_BLOC;
+  }
+
+  public get ecranAffiche(): ChoixEcran {
+    return this.partie?.ecran.ecranAffiche ?? ChoixEcran.principal;
+  }
+
+  private static readonly AUCUN_BLOC: BlocEcran[] = [];
+  protected readonly ChoixEcran = ChoixEcran;
+
+  /**
+   * Cibles des liens tactiles, calculées une seule fois par état du jeu
+   * (invalidées après chaque exécution du moteur : commande, routine, tour interrompu).
+   */
+  private ciblesLiensTactiles: CibleLien[] | undefined;
+
+  private getCiblesLiensTactiles(): CibleLien[] {
+    return this.ciblesLiensTactiles ??= LiensElementsUtils.construireCibles(this.partie.jeu, this.partie.eju);
   }
 
   /** Initialiser une nouvelle partie (ou reprendre une partie) */
@@ -607,9 +711,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     // enrichir la sortie avec des liens cliquables sur les éléments du jeu
     // (toujours, sauf si désactivé : ainsi la bascule clavier ⇄ tactile ne
     // laisse pas de texte ancien sans liens)
+    this.ciblesLiensTactiles = undefined;
+    this.nbBlocsAffiches = this.toursParPage;
     if (this.interfaceTactile !== 'desactive' && !this.tactileDesactiveParLeJeu) {
       this.partie.ecran.enrichisseurLiens = (html: string) =>
-        LiensElementsUtils.enrichirLiens(html, LiensElementsUtils.construireCibles(this.partie.jeu, this.partie.eju));
+        LiensElementsUtils.enrichirLiens(html, this.getCiblesLiensTactiles());
     } else {
       // Tactile désactivé : pas d’enrichissement générique, mais on crée quand même les liens des
       // mentions (`mot[@nom]`) — comme les autres liens, ils restent invisibles/inertes (CSS) tant
@@ -804,9 +910,13 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   }
 
   private lancerRoutinesProgrammees() {
-    setTimeout(() => {
-      this.verifierChrono();
-    }, 1000);
+    // la boucle du chrono tourne hors zone Angular (sinon : détection de changements de tout
+    // le lecteur chaque seconde) ; on ne revient dans la zone que pour exécuter une routine.
+    this.zone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.verifierChrono();
+      }, 1000);
+    });
   }
 
   private comptabiliserDerniereInterruptionDeLaPartie(): void {
@@ -850,7 +960,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
           }
 
           // récupérer les programmations terminées et exécuter la routine
-          programmationTerminee.forEach(programmationIndex => {
+          // (dans la zone Angular : la sortie de la routine doit être affichée)
+          if (programmationTerminee.length) this.zone.run(() => programmationTerminee.forEach(programmationIndex => {
             // retirer la programmation terminée
             const programmation = this.jeu.programmationsTemps.splice(programmationIndex, 1)[0];
             if (this.partie.verbeux) {
@@ -879,7 +990,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
             } else {
               this.partie.eju.ajouterErreur(`Programmation routine: ${resLiaison.erreur}`);
             }
-          });
+          }));
 
         }
       }
@@ -1057,6 +1168,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     }
 
     const sortieRoutine = this.partie.com.executerRoutine(routine, enAttente.ceciVal, enAttente.celaVal);
+    this.ciblesLiensTactiles = undefined;
     this.partie.ecran.ajouterParagrapheDonjon(sortieRoutine);
     this.scrollSortie();
 
@@ -1381,6 +1493,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       } else {
         throw new Error("TypeContexte pas pris en charge");
       }
+      this.ciblesLiensTactiles = undefined;
 
       // Enregistrement de la sortie pour génération d'un enregistrement (.rec)
       this.partie.enregistrerSortieEtapeCourante(sortieCommande ?? '');
@@ -1492,27 +1605,27 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.sansDefilement) {
       this.sansDefilement = false;
     } else {
-      // scroll 1
-      setTimeout(() => {
-        this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
-        // en mode tactile, ne pas voler le focus (ouvrirait le clavier virtuel)
-        if (!this.tactileActif) {
-          this.commandeInputRef.nativeElement.focus();
-        }
-
-        // activer le lien tester l’audio au besoin
-        if (this.audioActif) {
-          this.elementRef.nativeElement.querySelector('.tester-audio')?.addEventListener('click', this.testerAudio.bind(this));
-        }
-
-        // scroll 2 (afin de prendre en compte temps chargement images)
+      // retour en bas : ne garder dans le DOM que les derniers tours
+      this.nbBlocsAffiches = this.toursParPage;
+      // hors zone Angular : défiler et donner le focus ne demandent pas de détection de changements
+      this.zone.runOutsideAngular(() => {
+        // scroll 1
         setTimeout(() => {
-          this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
-          if (!this.tactileActif) {
-            this.commandeInputRef.nativeElement.focus();
-          }
-        }, 500);
-      }, 100);
+          this.defilerSortieEnBas();
+          // scroll 2 (afin de prendre en compte temps chargement images)
+          setTimeout(() => {
+            this.defilerSortieEnBas();
+          }, 500);
+        }, 100);
+      });
+    }
+  }
+
+  private defilerSortieEnBas() {
+    this.resultatInputRef.nativeElement.scrollTop = this.resultatInputRef.nativeElement.scrollHeight;
+    // en mode tactile, ne pas voler le focus (ouvrirait le clavier virtuel)
+    if (!this.tactileActif) {
+      this.commandeInputRef.nativeElement.focus();
     }
   }
 
@@ -3232,6 +3345,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
    * @param ecrireCommande faut-il écrire la commande dans la sortie du jeu ?
    */
   private envoyerCommande(commandeBrute: string, commandeNettoyee: string, ajouterCommandeDansHistoriqueEtSauvegarde: boolean, nouveauParagraphe: boolean, ecrireCommande: boolean, continuerTricheApresCommande: boolean): void {
+    // nouveau tour => nouveau bloc de sortie (l’écho de la commande ouvre son propre paragraphe)
+    if (ecrireCommande) {
+      this.partie.ecran.nouveauBloc();
+    }
     // VÉRIFIER FIN DE PARTIE
     // vérifier si le jeu n’est pas déjà terminé
     if (this.partie.jeu.termine && !commandeNettoyee.match(/^(déboguer|sauver|recommencer|effacer|afficher l’aide|générer solution|générer enregistrement|annuler|nombre (de )?(mots|caractères)|(commencer )?nouvelle partie)\b/i)) {
@@ -3264,6 +3381,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
 
       // EXÉCUTION DE LA COMMANDE
       const contexteCommande = this.partie.com.executerCommande(commandeNettoyee, false);
+      this.ciblesLiensTactiles = undefined;
 
       // Enregistrement de la sortie pour génération d'un enregistrement (.rec).
       // On capture toujours : si ajouterCommandeDansHistoriqueEtSauvegarde=false (intro :
@@ -3598,6 +3716,7 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
   }
 
   ngOnDestroy(): void {
+    this.resultatInputRef?.nativeElement.removeEventListener('scroll', this.onDefilementSortie);
     if (this.partie) {
       this.partie.unload();
     }
