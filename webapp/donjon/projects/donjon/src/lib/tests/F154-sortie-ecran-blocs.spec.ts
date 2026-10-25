@@ -138,6 +138,8 @@ fin action
             toursParPage?: number;
             tactile?: 'active' | 'desactive';
             sauvegarde?: Sauvegarde;
+            /** Rejouer la sauvegarde en « triche auto » plutôt que la reprendre. */
+            tricheAuto?: boolean;
             enregistrement?: FichierEnregistrement;
         }
 
@@ -177,7 +179,11 @@ fin action
             vi.spyOn(lecteur as any, "verifierTamponErreurs").mockImplementation(() => undefined);
             if (options.sauvegarde) {
                 jeu.sauvegarde = options.sauvegarde;
-                lecteur.restaurerProchainJeu();
+                if (options.tricheAuto) {
+                    (lecteur as any).autoTricheEnAttente = true;
+                } else {
+                    lecteur.restaurerProchainJeu();
+                }
             }
             if (options.enregistrement) {
                 (lecteur as any).enregistrementEnCours = options.enregistrement;
@@ -466,16 +472,21 @@ fin action
             expect(racine().querySelector('.djn-rejeu-ecran')).toBeNull();
         }, 30_000);
 
-        it('[F154-T024] reprise d’une sauvegarde : les écrans secondaire et temporaire apparaissent sur le principal', () => {
+        /** Partie avec les écrans secondaire et temporaire, terminée sur l’écran principal. */
+        function sauvegardeAvecEcrans(): Sauvegarde {
             monter(SCENARIO);
             executer('regarder');
             executer('feuilleter le carnet');
             executer('refermer le carnet');
             executer('consulter le journal');
             toucher();
-            const sauvegarde = JSON.parse(JSON.stringify((lecteur as any).partie.creerSauvegardePourFichier())) as Sauvegarde;
+            return JSON.parse(JSON.stringify((lecteur as any).partie.creerSauvegardePourFichier())) as Sauvegarde;
+        }
 
-            monter(SCENARIO, { sauvegarde });
+        it('[F154-T024] triche auto : les écrans secondaire et temporaire apparaissent sur le principal', () => {
+            const sauvegarde = sauvegardeAvecEcrans();
+
+            monter(SCENARIO, { sauvegarde, tricheAuto: true });
             expect(lecteur.ecranAffiche).toBe(ChoixEcran.principal);
             const secondaire = racine().querySelector('#taResultat > .djn-ecran:first-child .djn-rejeu-secondaire');
             expect(secondaire?.textContent, 'carnet recopié').toContain('une page griffonnée.');
@@ -512,12 +523,12 @@ fin action
             expect(racine().querySelector('.djn-rejeu-ecran')).toBeNull();
         });
 
-        it('[F154-T025] reprise qui se termine sur l’écran secondaire : écran secondaire affiché avec son contenu', () => {
+        it('[F154-T025] triche auto qui se termine sur l’écran secondaire : écran secondaire affiché avec son contenu', () => {
             monter(SCENARIO);
             executer('feuilleter le carnet');
             const sauvegarde = JSON.parse(JSON.stringify((lecteur as any).partie.creerSauvegardePourFichier())) as Sauvegarde;
 
-            monter(SCENARIO, { sauvegarde });
+            monter(SCENARIO, { sauvegarde, tricheAuto: true });
             expect(lecteur.ecranAffiche).toBe(ChoixEcran.secondaire);
             expect(ecranVisible().textContent).toContain('une page griffonnée.');
             executer('regarder');
@@ -526,6 +537,32 @@ fin action
             const passage = racine().querySelector('#taResultat > .djn-ecran:first-child .djn-rejeu-secondaire');
             expect(passage?.textContent).toContain('une page griffonnée.');
             expect(passage?.textContent, 'seule la partie rejouée est recopiée').not.toContain('> regarder');
+        });
+
+        it('[F154-T027] reprise d’une partie sauvegardée : pas de passages recopiés, seul l’écran actif est affiché', () => {
+            const sauvegarde = sauvegardeAvecEcrans();
+
+            monter(SCENARIO, { sauvegarde });
+            expect(lecteur.ecranAffiche).toBe(ChoixEcran.principal);
+            expect(racine().querySelector('.djn-rejeu-ecran')).toBeNull();
+            const texte = ecranVisible().textContent ?? '';
+            expect(texte).toContain('rangez le carnet');
+            expect(texte, 'écran secondaire non visible').not.toContain('griffonnée');
+            expect(texte, 'écran temporaire non visible').not.toContain('rien à signaler');
+        });
+
+        it('[F154-T028] reprise d’une partie sauvegardée sur l’écran secondaire : seul l’écran secondaire est affiché', () => {
+            monter(SCENARIO);
+            executer('regarder');
+            executer('feuilleter le carnet');
+            const sauvegarde = JSON.parse(JSON.stringify((lecteur as any).partie.creerSauvegardePourFichier())) as Sauvegarde;
+
+            monter(SCENARIO, { sauvegarde });
+            expect(lecteur.ecranAffiche).toBe(ChoixEcran.secondaire);
+            expect(ecranVisible().textContent).toContain('une page griffonnée.');
+            expect(racine().querySelector('.djn-rejeu-ecran')).toBeNull();
+            executer('refermer le carnet');
+            expect(ecranVisible().textContent, 'retour au principal sans passage recopié').not.toContain('griffonnée');
         });
     });
 

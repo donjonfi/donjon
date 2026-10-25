@@ -860,10 +860,11 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
       // éviter de programmer les déclenchements de routines
       this.partie.ins.restaurationPartieEnCours = true;
-      // reprise d’une partie / triche auto : le joueur ne verra que l’écran principal, y recopier
-      // les autres écrans (pas au magnéto, ni pour « annuler » qui rejoue la partie en cours)
-      this.partie.ecran.recopierAutresEcrans = !this.enregistrementActif && !this.enregistrementEnAttente
-        && !this.interruptionEnCoursAvantAnnulation;
+      // triche auto : la sortie sert de récapitulatif de la partie rejouée, y recopier les écrans
+      // secondaire et temporaire (pas pour la reprise d’une partie, qui n’affiche que l’écran actif,
+      // ni pour « annuler » qui rejoue la partie en cours, ni au magnéto)
+      this.partie.ecran.recopierAutresEcrans = this.autoTricheEnAttente && !this.restaurationSauvegardeEnAttente
+        && !this.enregistrementActif && !this.enregistrementEnAttente && !this.interruptionEnCoursAvantAnnulation;
     }
 
     // si la commande commencer le jeu existe, commencer le jeu
