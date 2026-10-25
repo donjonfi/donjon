@@ -1348,7 +1348,6 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
           // graine
           case ExprReg.caractereGraine:
             this.partie.nouvelleGraineAleatoire(valeur);
-            this.ajouterConseil(`Générateur de hasard mis à jour selon fichier solution`);
             // afficher commande suivante
             this.executerProchaineEtapeManuTriche();
             break;
