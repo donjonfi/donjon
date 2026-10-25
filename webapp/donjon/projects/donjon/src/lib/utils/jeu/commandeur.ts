@@ -1,7 +1,7 @@
 import { ContexteTour, PhaseTour } from '../../models/jouer/contexte-tour';
 import { TypeContexte } from '../../models/jeu/interruption';
 
-import { ActionCeciCela } from '../../models/compilateur/action';
+import { Action, ActionCeciCela } from '../../models/compilateur/action';
 import { ActionsUtils } from './actions-utils';
 import { AleatoireUtils } from './aleatoire-utils';
 import { AnalyseurCommunUtils } from '../compilation/analyseur/analyseur-commun-utils';
@@ -318,6 +318,10 @@ export class Commandeur {
       // TODO: AFFICHER LOCALISATION DE L’OBJET?
 
       if (candidatActionChoisi.ceci?.length > 1 || candidatActionChoisi.cela?.length > 1) {
+        // prépositions des choix proposés : celles du joueur si l’action les accepte
+        const action = candidatActionChoisi.action;
+        const prepCeci = Commandeur.prepositionDesambiguisation(candidatCommande.els.preposition0, action.prepositionsCeciProbables, action.prepositionsCeciPossibles);
+        const prepCela = Commandeur.prepositionDesambiguisation(candidatCommande.els.preposition1, action.prepositionsCelaProbables, action.prepositionsCelaPossibles);
         // s’il y a plusieurs correspondances équivalentes pour ceci ET cela
         if (candidatActionChoisi.ceci?.length > 1 && candidatActionChoisi.cela?.length > 1) {
           // on a déjà précisé => appliqué la correction
@@ -339,7 +343,7 @@ export class Commandeur {
             candidatActionChoisi.ceci.forEach(candidatCeci => {
               candidatActionChoisi.cela.forEach(candidatCela => {
                 let choixCela = new Choix([
-                  `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${candidatCeci}=} ${candidatActionChoisi.action.prepositionCela} {=${candidatCela}=}`
+                  `${action.infinitif} ${Commandeur.complementDesambiguisation(prepCeci, candidatCeci.toString(), true)} ${Commandeur.complementDesambiguisation(prepCela, candidatCela.toString(), true)}`
                 ]);
                 qCeciCela.Choix.push(choixCela);
               });
@@ -381,7 +385,7 @@ export class Commandeur {
               const intituleCeci = (candidatCeci?.classe && ClasseUtils.heriteDe(candidatCeci.classe, EClasseRacine.ressource))
                 ? ElementsJeuUtils.intituleEchoRessource(candidatCeci, candidatCommande.ceciQuantiteV1)
                 : candidatCeci.intitule;
-              let valeur = `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} {=${intituleCeci}=}`;
+              let valeur = `${action.infinitif} ${Commandeur.complementDesambiguisation(prepCeci, intituleCeci.toString(), true)}`;
               // préciser l’emplacement (utile pour départager des ressources de même nom)
               const pos = candidatCeci?.position;
               if (pos) {
@@ -397,7 +401,7 @@ export class Commandeur {
                 }
               }
               if (candidatActionChoisi.cela?.length) {
-                valeur += ` ${candidatActionChoisi.action.prepositionCela} ${candidatActionChoisi.cela[0].intitule}`;
+                valeur += ` ${Commandeur.complementDesambiguisation(prepCela, candidatActionChoisi.cela[0].intitule.toString(), false)}`;
               }
               qCeci.Choix.push(new Choix([valeur]));
             });
@@ -420,7 +424,7 @@ export class Commandeur {
             qCela.Choix = [];
             candidatActionChoisi.cela.forEach(candidatCela => {
               let choixCela = new Choix([
-                `${candidatActionChoisi.action.infinitif} ${candidatActionChoisi.action.prepositionCeci ? (candidatActionChoisi.action.prepositionCeci + ' ') : ''} ${candidatActionChoisi.ceci[0].intitule} ${candidatActionChoisi.action.prepositionCela} {=${candidatCela.intitule}=}`
+                `${action.infinitif} ${Commandeur.complementDesambiguisation(prepCeci, candidatActionChoisi.ceci[0].intitule.toString(), false)} ${Commandeur.complementDesambiguisation(prepCela, candidatCela.intitule.toString(), true)}`
               ]);
               // let choixCela = new Choix([candidatCela.intitule.toString()]);
               qCela.Choix.push(choixCela);
@@ -552,6 +556,32 @@ export class Commandeur {
 
   /** Taille maximale de l’historique des éléments manipulés (interface tactile). */
   private static readonly MAX_HISTORIQUE_ELEMENTS = 12;
+
+  /**
+   * Préposition affichée dans un choix de désambiguïsation : celle du joueur si l’action
+   * l’accepte (probable ou possible), ramenée à sa forme de base ; sinon celle de l’en-tête.
+   */
+  private static prepositionDesambiguisation(employee: string | undefined, probables: string[], possibles: string[]): string | undefined {
+    if (employee) {
+      const norm = Action.normaliserPreposition(employee);
+      if ([...probables, ...possibles].some(p => Action.normaliserPreposition(p) === norm)) {
+        return norm;
+      }
+    }
+    return probables[0];
+  }
+
+  /** « préposition intitulé » avec contraction (à le → au, de les → des…), intitulé éventuellement surligné. */
+  private static complementDesambiguisation(preposition: string | undefined, intitule: string, surligner: boolean): string {
+    const m = (preposition === 'à' || preposition === 'de') ? intitule.match(/^(le|les) (.+)$/i) : null;
+    if (m) {
+      const pluriel = m[1].toLowerCase() === 'les';
+      preposition = (preposition === 'à') ? (pluriel ? 'aux' : 'au') : (pluriel ? 'des' : 'du');
+      intitule = m[2];
+    }
+    const texte = surligner ? `{=${intitule}=}` : intitule;
+    return preposition ? `${preposition} ${texte}` : texte;
+  }
 
   /**
    * Essayer de trouver une action correspondant à la commande.
