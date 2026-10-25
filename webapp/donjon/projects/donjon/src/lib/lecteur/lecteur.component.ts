@@ -860,6 +860,10 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     if (this.restaurationSauvegardeEnAttente || this.autoTricheEnAttente || this.interruptionEnCoursAvantAnnulation) {
       // éviter de programmer les déclenchements de routines
       this.partie.ins.restaurationPartieEnCours = true;
+      // reprise d’une partie / triche auto : le joueur ne verra que l’écran principal, y recopier
+      // les autres écrans (pas au magnéto, ni pour « annuler » qui rejoue la partie en cours)
+      this.partie.ecran.recopierAutresEcrans = !this.enregistrementActif && !this.enregistrementEnAttente
+        && !this.interruptionEnCoursAvantAnnulation;
     }
 
     // si la commande commencer le jeu existe, commencer le jeu
@@ -1849,6 +1853,8 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
     } else {
       this.ajouterContenuHtmlAvecTagsDonjon("<br>" + BalisesHtml.convertirEnHtml("{/Aucun fichier solution (.sol) chargé./}", this.partie.dossierRessourcesComplet));
     }
+    // fin de la restauration : les écrans secondaire et temporaire ne sont plus recopiés
+    this.partie.ecran.recopierAutresEcrans = false;
 
     // si on était occupé à annuler des tours de jeu, terminer le tour commencé
     // avant le début de l'annulation

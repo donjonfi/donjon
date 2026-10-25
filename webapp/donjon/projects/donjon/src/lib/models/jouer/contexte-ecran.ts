@@ -40,6 +40,27 @@ export class ContexteEcran {
   /** L’écran temporaire du jeu */
   private _blocsTemporaire: BlocEcran[] = [this.creerBloc()];
 
+  /** Écran dont le passage recopié sur l’écran principal est ouvert (cf. recopierAutresEcrans). */
+  private passageRecopieOuvert: ChoixEcran | undefined;
+
+  private _recopierAutresEcrans = false;
+
+  /**
+   * Pendant une restauration (triche auto, reprise d’une sauvegarde), le joueur ne voit que
+   * l’écran principal à la fin : le texte des écrans secondaire et temporaire y est donc aussi
+   * recopié, dans un passage encadré, à sa place dans la chronologie.
+   */
+  get recopierAutresEcrans(): boolean {
+    return this._recopierAutresEcrans;
+  }
+
+  set recopierAutresEcrans(recopier: boolean) {
+    if (!recopier) {
+      this.fermerPassageRecopie();
+    }
+    this._recopierAutresEcrans = recopier;
+  }
+
   /** Si true, le tag {L}NNN{L} est rendu en lien cliquable (réservé à l’éditeur). */
   public supportLiensLignes = false;
 
@@ -58,6 +79,7 @@ export class ContexteEcran {
    * @param ecran écran à afficher.
    */
   public afficherEcran(ecran: ChoixEcran) {
+    this.fermerPassageRecopie();
     switch (ecran) {
       case ChoixEcran.principal:
         this.ecranSecondaireAffiche = false;
@@ -229,6 +251,28 @@ export class ContexteEcran {
     // ajouter au dernier bloc de l’écran affiché
     const blocs = this.blocsCourants;
     blocs[blocs.length - 1].html += contenuHtml;
+    // restauration : recopier aussi sur l’écran principal
+    const ecranAffiche = this.ecranAffiche;
+    if (this._recopierAutresEcrans && ecranAffiche !== ChoixEcran.principal) {
+      if (this.passageRecopieOuvert !== ecranAffiche) {
+        this.fermerPassageRecopie();
+        const nom = ecranAffiche === ChoixEcran.secondaire ? 'secondaire' : 'temporaire';
+        this.ajouterAuPrincipal(`<div class="djn-rejeu-ecran djn-rejeu-${nom}"><div class="djn-rejeu-etiquette">écran ${nom}</div>`);
+        this.passageRecopieOuvert = ecranAffiche;
+      }
+      this.ajouterAuPrincipal(contenuHtml);
+    }
+  }
+
+  private fermerPassageRecopie() {
+    if (this.passageRecopieOuvert !== undefined) {
+      this.ajouterAuPrincipal('</div>');
+      this.passageRecopieOuvert = undefined;
+    }
+  }
+
+  private ajouterAuPrincipal(html: string) {
+    this._blocsPrincipal[this._blocsPrincipal.length - 1].html += html;
   }
 
   private remplacerHtml(contenuHtml: string) {

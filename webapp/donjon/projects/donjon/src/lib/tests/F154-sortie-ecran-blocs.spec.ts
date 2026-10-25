@@ -66,6 +66,45 @@ describe('[F154] Sortie écran : un bloc par tour', () => {
             expect(ecran.ecran).toBe('principal');
             expect(ecran.ecranSecondaire).toBe('secondaire');
         });
+
+        it('[F154-T004] restauration : le texte des écrans secondaire et temporaire est recopié sur le principal', () => {
+            const ecran = new ContexteEcran('');
+            ecran.recopierAutresEcrans = true;
+            ecran.ajouterContenuHtml('<p>avant</p>');
+            ecran.afficherEcran(ChoixEcran.secondaire);
+            ecran.ajouterContenuHtml('<p>souvenir 1</p>');
+            ecran.ajouterContenuHtml('<p>souvenir 2</p>');
+            ecran.afficherEcran(ChoixEcran.temporaire);
+            ecran.ajouterContenuHtml('<p>note</p>');
+            ecran.afficherEcran(ChoixEcran.precedent);
+            ecran.afficherEcran(ChoixEcran.principal);
+            ecran.ajouterContenuHtml('<p>après</p>');
+            expect(ecran.ecranPrincipal).toBe('<p>avant</p>'
+                + '<div class="djn-rejeu-ecran djn-rejeu-secondaire"><div class="djn-rejeu-etiquette">écran secondaire</div><p>souvenir 1</p><p>souvenir 2</p></div>'
+                + '<div class="djn-rejeu-ecran djn-rejeu-temporaire"><div class="djn-rejeu-etiquette">écran temporaire</div><p>note</p></div>'
+                + '<p>après</p>');
+            // l’écran secondaire garde son propre contenu
+            expect(ecran.ecranSecondaire).toBe('<p>souvenir 1</p><p>souvenir 2</p>');
+        });
+
+        it('[F154-T005] fin de la restauration : le passage en cours est fermé, plus de recopie ensuite', () => {
+            const ecran = new ContexteEcran('');
+            ecran.recopierAutresEcrans = true;
+            ecran.afficherEcran(ChoixEcran.secondaire);
+            ecran.ajouterContenuHtml('<p>rejoué</p>');
+            ecran.recopierAutresEcrans = false;
+            ecran.ajouterContenuHtml('<p>joué</p>');
+            expect(ecran.ecranPrincipal).toBe('<div class="djn-rejeu-ecran djn-rejeu-secondaire"><div class="djn-rejeu-etiquette">écran secondaire</div><p>rejoué</p></div>');
+            expect(ecran.ecranSecondaire).toBe('<p>rejoué</p><p>joué</p>');
+        });
+
+        it('[F154-T006] hors restauration : rien n’est recopié', () => {
+            const ecran = new ContexteEcran('');
+            ecran.afficherEcran(ChoixEcran.secondaire);
+            ecran.ajouterContenuHtml('<p>secondaire</p>');
+            ecran.afficherEcran(ChoixEcran.principal);
+            expect(ecran.ecranPrincipal).toBe('');
+        });
     });
 
     describe('Lecteur', () => {
@@ -423,7 +462,71 @@ fin action
             expect(lecteur.magnetoIdx).toBe(fichier.etapes.length);
             expect(toursPrincipal().length, 'une seule page dans le DOM').toBeLessThanOrEqual(5);
             verifierRenduEquivalent();
+            // le magnéto n’est pas une restauration : pas de passages recopiés
+            expect(racine().querySelector('.djn-rejeu-ecran')).toBeNull();
         }, 30_000);
+
+        it('[F154-T024] reprise d’une sauvegarde : les écrans secondaire et temporaire apparaissent sur le principal', () => {
+            monter(SCENARIO);
+            executer('regarder');
+            executer('feuilleter le carnet');
+            executer('refermer le carnet');
+            executer('consulter le journal');
+            toucher();
+            const sauvegarde = JSON.parse(JSON.stringify((lecteur as any).partie.creerSauvegardePourFichier())) as Sauvegarde;
+
+            monter(SCENARIO, { sauvegarde });
+            expect(lecteur.ecranAffiche).toBe(ChoixEcran.principal);
+            const secondaire = racine().querySelector('#taResultat > .djn-ecran:first-child .djn-rejeu-secondaire');
+            expect(secondaire?.textContent, 'carnet recopié').toContain('une page griffonnée.');
+            expect(secondaire?.querySelector('.djn-rejeu-etiquette')?.textContent).toBe('écran secondaire');
+            const temporaire = racine().querySelector('#taResultat > .djn-ecran:first-child .djn-rejeu-temporaire');
+            expect(temporaire?.textContent, 'journal recopié').toContain('rien à signaler.');
+            // ordre chronologique : le carnet avant le journal, puis la suite du principal
+            const texte = ecranVisible().textContent ?? '';
+            expect(texte.indexOf('griffonnée')).toBeLessThan(texte.indexOf('rangez le carnet'));
+            expect(texte.indexOf('rangez le carnet')).toBeLessThan(texte.indexOf('Journal de bord'));
+            expect(texte.indexOf('Journal de bord')).toBeLessThan(texte.indexOf('refermez le journal'));
+
+            // la partie reprise : plus de recopie
+            const nbPassages = racine().querySelectorAll('.djn-rejeu-ecran').length;
+            executer('feuilleter le carnet');
+            executer('refermer le carnet');
+            expect(racine().querySelectorAll('.djn-rejeu-ecran').length).toBe(nbPassages);
+        });
+
+        it('[F154-T026] « annuler » (rejeu de la partie) : pas de passages recopiés', () => {
+            monter(SCENARIO);
+            // comme le composant parent : recharger le jeu avec la sauvegarde émise
+            lecteur.nouvellePartieOuAnnulerTour.subscribe((sauvegarde: Sauvegarde) => {
+                const jeu = TestUtils["genererLeJeu"](SCENARIO + actions, false);
+                jeu.sauvegarde = sauvegarde;
+                lecteur.jeu = jeu;
+                lecteur.ngOnChanges({});
+            });
+            executer('feuilleter le carnet');
+            executer('refermer le carnet');
+            executer('regarder');
+            executer('annuler');
+            expect(ecranVisible().textContent, 'partie rejouée').toContain('rangez le carnet');
+            expect(racine().querySelector('.djn-rejeu-ecran')).toBeNull();
+        });
+
+        it('[F154-T025] reprise qui se termine sur l’écran secondaire : écran secondaire affiché avec son contenu', () => {
+            monter(SCENARIO);
+            executer('feuilleter le carnet');
+            const sauvegarde = JSON.parse(JSON.stringify((lecteur as any).partie.creerSauvegardePourFichier())) as Sauvegarde;
+
+            monter(SCENARIO, { sauvegarde });
+            expect(lecteur.ecranAffiche).toBe(ChoixEcran.secondaire);
+            expect(ecranVisible().textContent).toContain('une page griffonnée.');
+            executer('regarder');
+            expect(ecranVisible().textContent, 'la suite reste sur l’écran secondaire').toContain('> regarder');
+            executer('refermer le carnet');
+            const passage = racine().querySelector('#taResultat > .djn-ecran:first-child .djn-rejeu-secondaire');
+            expect(passage?.textContent).toContain('une page griffonnée.');
+            expect(passage?.textContent, 'seule la partie rejouée est recopiée').not.toContain('> regarder');
+        });
     });
 
 });
