@@ -1047,7 +1047,8 @@ export class ConditionsUtils {
         let elementExiste = false;
         if (!etatExiste && condition.sujetComplement) {
           const cor = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
-          elementExiste = (cor.elements.length + cor.concepts.length + cor.compteurs.length) > 0;
+          // (une direction compte aussi : « si ceci est sud »)
+          elementExiste = (cor.elements.length + cor.concepts.length + cor.compteurs.length) > 0 || !!cor.localisation;
         }
         if (!etatExiste && !elementExiste) {
           this.eju.ajouterConseil("État introuvable : « " + condition.complement + " ».");
@@ -1088,7 +1089,9 @@ export class ConditionsUtils {
           // complément qui n’est ni un élément, ni un état connu : la condition sera toujours fausse.
           if (!resultCondition && conseillerIntrouvable && ClasseUtils.heriteDe(sujet.classe, EClasseRacine.concept)) {
             const cor = this.eju.trouverCorrespondance(condition.sujetComplement, TypeSujet.SujetEstNom, false, false);
+            // (une direction compte aussi : « si ceci est le sud »)
             const existe = (cor.elements.length + cor.concepts.length + cor.compteurs.length + cor.listes.length) > 0
+              || !!cor.localisation
               || this.jeu.etats.trouverEtat(condition.complement) !== null;
             if (!existe) {
               this.eju.ajouterConseil("Ni élément ni état trouvé : « " + condition.complement + " ».");
