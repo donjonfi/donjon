@@ -275,6 +275,48 @@ La lampe est un objet dans le couloir.
             expect(lien, 'la lampe du nouveau lieu doit être cliquable').toBeTruthy();
         });
 
+        it('[F154-T014] défilement : re-défiler en bas quand une image du dernier tour est chargée', () => {
+            monter(`La salle est un lieu.
+action contempler le tableau:
+  afficher image tableau.png.
+fin action
+`);
+            const sortie = racine().querySelector<HTMLElement>('#taResultat')!;
+            let hauteur = 1000;
+            Object.defineProperty(sortie, 'scrollHeight', { get: () => hauteur });
+
+            const commander = () => {
+                lecteur.commande = 'contempler le tableau';
+                (lecteur as any).validationCommande();
+                fixture.componentRef.injector.get(ChangeDetectorRef).detectChanges();
+            };
+
+            // 1er défilement, l’image n’a pas encore sa hauteur
+            commander();
+            const image = toursPrincipal()[toursPrincipal().length - 1].querySelector('img')!;
+            expect(image, 'image dans le dernier tour').toBeTruthy();
+            vi.advanceTimersByTime(100);
+            expect(sortie.scrollTop).toBe(1000);
+            // plus de second défilement à délai fixe
+            hauteur = 1400;
+            vi.advanceTimersByTime(1000);
+            expect(sortie.scrollTop).toBe(1000);
+            // l’image est chargée : on re-défile en bas
+            image.dispatchEvent(new Event('load'));
+            expect(sortie.scrollTop).toBe(1400);
+
+            // le joueur a remonté pendant le chargement : on ne le ramène pas en bas
+            hauteur = 2000;
+            commander();
+            const image2 = toursPrincipal()[toursPrincipal().length - 1].querySelector('img')!;
+            vi.advanceTimersByTime(100);
+            expect(sortie.scrollTop).toBe(2000);
+            sortie.scrollTop = 500;
+            hauteur = 2400;
+            image2.dispatchEvent(new Event('load'));
+            expect(sortie.scrollTop).toBe(500);
+        });
+
         it('[F154-T013] taille de page par défaut', () => {
             monter(SCENARIO);
             expect(lecteur.toursParPage).toBe(TOURS_PAR_PAGE_PAR_DEFAUT);

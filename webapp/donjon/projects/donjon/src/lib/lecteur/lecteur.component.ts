@@ -1609,16 +1609,33 @@ export class LecteurComponent implements OnInit, OnChanges, OnDestroy, AfterView
       this.nbBlocsAffiches = this.toursParPage;
       // hors zone Angular : défiler et donner le focus ne demandent pas de détection de changements
       this.zone.runOutsideAngular(() => {
-        // scroll 1
+        // laisser le tour être rendu avant de défiler
         setTimeout(() => {
           this.defilerSortieEnBas();
-          // scroll 2 (afin de prendre en compte temps chargement images)
-          setTimeout(() => {
-            this.defilerSortieEnBas();
-          }, 500);
+          this.defilerApresChargementImages();
         }, 100);
       });
     }
+  }
+
+  /**
+   * Les images du dernier tour pas encore chargées n’ont pas encore leur hauteur :
+   * re-défiler en bas quand chacune est chargée, sauf si le joueur a remonté entre-temps.
+   */
+  private defilerApresChargementImages() {
+    const sortie: HTMLElement = this.resultatInputRef.nativeElement;
+    const positionEnBas = sortie.scrollTop;
+    const redefiler = () => {
+      if (sortie.scrollTop >= positionEnBas - 1) {
+        sortie.scrollTop = sortie.scrollHeight;
+      }
+    };
+    sortie.querySelectorAll<HTMLImageElement>('.djn-ecran:not([hidden]) > .djn-tour:last-child img').forEach(image => {
+      if (!image.complete) {
+        image.addEventListener('load', redefiler, { once: true });
+        image.addEventListener('error', redefiler, { once: true });
+      }
+    });
   }
 
   private defilerSortieEnBas() {
