@@ -134,6 +134,7 @@ fin routine
 exécuter routine attaquer.                     -- variante 0 arg
 exécuter routine attaquer avec la goule.       -- variante (un vivant)
 exécuter routine attaquer avec la goule et 5.  -- variante 2 args
+exécuter routine attaquer avec ceci.           -- ceci/cela/ici/joueur de l'appelant (pas en appel différé)
 ```
 
 **Règles de spécificité** :
