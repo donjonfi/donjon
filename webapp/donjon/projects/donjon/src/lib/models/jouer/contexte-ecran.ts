@@ -1,5 +1,25 @@
 import { BalisesHtml } from "../../utils/jeu/balises-html";
 
+/**
+ * Taille d’une « page » de la sortie : nombre de tours de l’écran principal gardés dans le DOM
+ * (les plus anciens restent en mémoire et sont rechargés par pages quand le joueur remonte).
+ * Valeur par défaut de `LecteurComponent.toursParPage`. Plus petit = plus léger, plus de rechargements.
+ */
+export const TOURS_PAR_PAGE_PAR_DEFAUT = 100;
+
+/** Distance au haut de la sortie (px) en dessous de laquelle la page de tours précédente est rechargée. */
+export const SEUIL_CHARGEMENT_TOURS_PX = 200;
+
+/**
+ * Bloc de la sortie (en pratique : un tour de jeu).
+ * Le lecteur rend chaque bloc séparément : seul le bloc modifié (le dernier) est
+ * re-sanitisé et re-parsé par le navigateur, au lieu de tout l’historique.
+ */
+export interface BlocEcran {
+  id: number;
+  html: string;
+}
+
 export class ContexteEcran {
 
   /** L’écran secondaire est-il actuellement affiché (indépendamment du fait que l’écran temporaire est affiché par dessus ou non) ? */
@@ -8,14 +28,38 @@ export class ContexteEcran {
   /** L’écran temporaire est-il actuellement affiché (cette écran s’affiche par dessus les autres) ? */
   private ecranTemporaireAffiche = false;
 
+  /** Identifiant du prochain bloc créé */
+  private prochainIdBloc = 0;
+
   /** L’écran principal du jeu */
-  private _ecranPrincipal = "";
+  private _blocsPrincipal: BlocEcran[] = [this.creerBloc()];
 
   /** L’écran secondaire du jeu */
-  private _ecranSecondaire = "";
+  private _blocsSecondaire: BlocEcran[] = [this.creerBloc()];
 
   /** L’écran temporaire du jeu */
-  private _ecranTemporaire = "";
+  private _blocsTemporaire: BlocEcran[] = [this.creerBloc()];
+
+  /** Écran dont le passage recopié sur l’écran principal est ouvert (cf. recopierAutresEcrans). */
+  private passageRecopieOuvert: ChoixEcran | undefined;
+
+  private _recopierAutresEcrans = false;
+
+  /**
+   * Pendant une restauration (triche auto, reprise d’une sauvegarde), le joueur ne voit que
+   * l’écran principal à la fin : le texte des écrans secondaire et temporaire y est donc aussi
+   * recopié, dans un passage encadré, à sa place dans la chronologie.
+   */
+  get recopierAutresEcrans(): boolean {
+    return this._recopierAutresEcrans;
+  }
+
+  set recopierAutresEcrans(recopier: boolean) {
+    if (!recopier) {
+      this.fermerPassageRecopie();
+    }
+    this._recopierAutresEcrans = recopier;
+  }
 
   /** Si true, le tag {L}NNN{L} est rendu en lien cliquable (réservé à l’éditeur). */
   public supportLiensLignes = false;
@@ -35,6 +79,7 @@ export class ContexteEcran {
    * @param ecran écran à afficher.
    */
   public afficherEcran(ecran: ChoixEcran) {
+    this.fermerPassageRecopie();
     switch (ecran) {
       case ChoixEcran.principal:
         this.ecranSecondaireAffiche = false;
@@ -48,7 +93,7 @@ export class ContexteEcran {
 
       case ChoixEcran.temporaire:
         // raz écran temporaire lorsqu’on l’affiche
-        this._ecranTemporaire = '';
+        this._blocsTemporaire = [this.creerBloc()];
         this.ecranTemporaireAffiche = true;
         break;
 
@@ -69,24 +114,49 @@ export class ContexteEcran {
    * Contenu de l’écran à afficher au joueur.
    */
   get ecran(): string {
-    // écran temporaire
-    if (this.ecranTemporaireAffiche) {
-      return this._ecranTemporaire;
-      // écran secondaire
-    } else if (this.ecranSecondaireAffiche) {
-      return this._ecranSecondaire;
-      // écran principal
-    } else {
-      return this._ecranPrincipal;
-    }
+    return ContexteEcran.joindre(this.blocsCourants);
   }
 
   get ecranPrincipal(): string {
-    return this._ecranPrincipal;
+    return ContexteEcran.joindre(this._blocsPrincipal);
   }
 
   get ecranSecondaire(): string {
-    return this._ecranSecondaire;
+    return ContexteEcran.joindre(this._blocsSecondaire);
+  }
+
+  /** Écran actuellement affiché au joueur (principal, secondaire ou temporaire). */
+  get ecranAffiche(): ChoixEcran {
+    if (this.ecranTemporaireAffiche) {
+      return ChoixEcran.temporaire;
+    } else if (this.ecranSecondaireAffiche) {
+      return ChoixEcran.secondaire;
+    } else {
+      return ChoixEcran.principal;
+    }
+  }
+
+  get blocsPrincipal(): BlocEcran[] {
+    return this._blocsPrincipal;
+  }
+
+  get blocsSecondaire(): BlocEcran[] {
+    return this._blocsSecondaire;
+  }
+
+  get blocsTemporaire(): BlocEcran[] {
+    return this._blocsTemporaire;
+  }
+
+  /**
+   * Commencer un nouveau bloc sur l’écran affiché (appelé au début de chaque tour).
+   * Les blocs précédents ne changeront plus : leur rendu n’est plus jamais recalculé.
+   */
+  public nouveauBloc() {
+    const blocs = this.blocsCourants;
+    if (blocs[blocs.length - 1].html.length) {
+      blocs.push(this.creerBloc());
+    }
   }
 
   /** Effacer l’écran. */
@@ -178,32 +248,70 @@ export class ContexteEcran {
     if (this.enrichisseurLiens) {
       contenuHtml = this.enrichisseurLiens(contenuHtml);
     }
-    // écran temporaire
-    if (this.ecranTemporaireAffiche) {
-      this._ecranTemporaire += contenuHtml;
-      // écran secondaire
-    } else if (this.ecranSecondaireAffiche) {
-      this._ecranSecondaire += contenuHtml;
-      // écran principal
-    } else {
-      this._ecranPrincipal += contenuHtml;
+    // ajouter au dernier bloc de l’écran affiché
+    const blocs = this.blocsCourants;
+    blocs[blocs.length - 1].html += contenuHtml;
+    // restauration : recopier aussi sur l’écran principal
+    const ecranAffiche = this.ecranAffiche;
+    if (this._recopierAutresEcrans && ecranAffiche !== ChoixEcran.principal) {
+      if (this.passageRecopieOuvert !== ecranAffiche) {
+        this.fermerPassageRecopie();
+        const nom = ecranAffiche === ChoixEcran.secondaire ? 'secondaire' : 'temporaire';
+        this.ajouterAuPrincipal(`<div class="djn-rejeu-ecran djn-rejeu-${nom}"><div class="djn-rejeu-etiquette">écran ${nom}</div>`);
+        this.passageRecopieOuvert = ecranAffiche;
+      }
+      this.ajouterAuPrincipal(contenuHtml);
     }
+  }
+
+  private fermerPassageRecopie() {
+    if (this.passageRecopieOuvert !== undefined) {
+      this.ajouterAuPrincipal('</div>');
+      this.passageRecopieOuvert = undefined;
+    }
+  }
+
+  private ajouterAuPrincipal(html: string) {
+    this._blocsPrincipal[this._blocsPrincipal.length - 1].html += html;
   }
 
   private remplacerHtml(contenuHtml: string) {
     if (this.enrichisseurLiens && contenuHtml.length) {
       contenuHtml = this.enrichisseurLiens(contenuHtml);
     }
+    const blocs = [this.creerBloc(contenuHtml)];
     // écran temporaire
     if (this.ecranTemporaireAffiche) {
-      this._ecranTemporaire = contenuHtml;
+      this._blocsTemporaire = blocs;
       // écran secondaire
     } else if (this.ecranSecondaireAffiche) {
-      this._ecranSecondaire = contenuHtml;
+      this._blocsSecondaire = blocs;
       // écran principal
     } else {
-      this._ecranPrincipal = contenuHtml;
+      this._blocsPrincipal = blocs;
     }
+  }
+
+  /** Blocs de l’écran actuellement affiché. */
+  private get blocsCourants(): BlocEcran[] {
+    // écran temporaire
+    if (this.ecranTemporaireAffiche) {
+      return this._blocsTemporaire;
+      // écran secondaire
+    } else if (this.ecranSecondaireAffiche) {
+      return this._blocsSecondaire;
+      // écran principal
+    } else {
+      return this._blocsPrincipal;
+    }
+  }
+
+  private creerBloc(html = ''): BlocEcran {
+    return { id: this.prochainIdBloc++, html };
+  }
+
+  private static joindre(blocs: BlocEcran[]): string {
+    return blocs.length === 1 ? blocs[0].html : blocs.map(x => x.html).join('');
   }
 
 }

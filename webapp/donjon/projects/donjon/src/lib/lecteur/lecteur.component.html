@@ -22,8 +22,28 @@
           </div>
         </div>
       }
-      <div id="taResultat" #taResultat class="sortie-jeu" [class.tactile-actif]="liensTactilesActifs" [innerHTML]="ecran"
+      <!-- un bloc par tour : seul le bloc modifié est re-rendu (pas tout l’historique) ;
+           l’écran principal reste dans le DOM (masqué) pendant les écrans secondaire/temporaire -->
+      <div id="taResultat" #taResultat class="sortie-jeu" [class.tactile-actif]="liensTactilesActifs"
         [style.padding.px]="margeInterface" (click)="onClicSortie($event)">
+        <div class="djn-ecran" [hidden]="ecranAffiche !== ChoixEcran.principal">
+          @for (bloc of blocsPrincipal; track bloc.id) {
+            <div class="djn-tour" [innerHTML]="bloc.html"></div>
+          }
+        </div>
+        @if (ecranAffiche === ChoixEcran.secondaire) {
+          <div class="djn-ecran">
+            @for (bloc of blocsSecondaire; track bloc.id) {
+              <div class="djn-tour" [innerHTML]="bloc.html"></div>
+            }
+          </div>
+        } @else if (ecranAffiche === ChoixEcran.temporaire) {
+          <div class="djn-ecran">
+            @for (bloc of blocsTemporaire; track bloc.id) {
+              <div class="djn-tour" [innerHTML]="bloc.html"></div>
+            }
+          </div>
+        }
       </div>
       @if (afficherCartoucheBas) {
         <div class="cartouche-jeu cartouche-jeu-bas">

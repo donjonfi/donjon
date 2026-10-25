@@ -727,6 +727,30 @@
   background-color: #fcf8ef;
 }
 
+// Tours précédents hors de la vue : le navigateur saute leur mise en page et leur rendu
+// (« auto » mémorise la hauteur réelle une fois le tour affiché).
+.djn-tour:not(:last-child) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 150px;
+}
+
+// Reprise d’une partie / triche auto : texte des écrans secondaire et temporaire recopié
+// sur l’écran principal (ContexteEcran.recopierAutresEcrans). Contenu issu d’un [innerHTML].
+:host ::ng-deep .djn-rejeu-ecran {
+  margin: 0.5em 0;
+  padding: 0.25em 0 0.25em 0.75em;
+  border-left: 3px solid rgba(108, 117, 125, 0.4);
+  opacity: 0.8;
+}
+
+:host ::ng-deep .djn-rejeu-etiquette {
+  font-size: 0.75em;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+}
+
 // Lien vers une ligne du scénario, généré par le tag {L}NNN{L} dans les messages d’erreur runtime.
 .t-lien-ligne {
   color: var(--bs-link-color, #0d6efd);
