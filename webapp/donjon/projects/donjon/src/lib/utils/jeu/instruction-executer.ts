@@ -266,7 +266,7 @@ export class InstructionExecuter {
     const args: string[] = trailerArgs ? this.couperTrailerArgs(trailerArgs) : [];
 
     // Résolution de surcharge (arité + types) — partagée avec le replay via lierAppelRoutine.
-    const liaison = this.lierAppelRoutine(nomRoutine, args);
+    const liaison = this.lierAppelRoutine(nomRoutine, args, contexteTour, evenement);
     if (liaison.erreur || !liaison.routine) {
       contexteTour.ajouterErreurInstruction(instruction, liaison.erreur ?? `La routine n’a pas pu être liée : ${nomRoutine}`);
       res.succes = false;
@@ -301,7 +301,7 @@ export class InstructionExecuter {
    * synchrone (`executerRoutine`) ET par tous les sites de replay (chrono, restauration,
    * magnéto) — d’où l’extraction : un simple `find` par nom exécuterait la mauvaise surcharge.
    */
-  public lierAppelRoutine(nom: string, args: string[]): { routine?: RoutineSimple, ceciVal?: Intitule, celaVal?: Intitule, erreur?: string } {
+  public lierAppelRoutine(nom: string, args: string[], contexteTour?: ContexteTour, evenement?: Evenement): { routine?: RoutineSimple, ceciVal?: Intitule, celaVal?: Intitule, erreur?: string } {
     // Comparaison insensible à la casse : le chrono (ProgrammationTemps) mémorise le nom en
     // minuscules, alors que routine.nom conserve la casse déclarée — un `===` raterait le fire-time.
     const nomNorm = nom.toLocaleLowerCase();
@@ -328,9 +328,9 @@ export class InstructionExecuter {
     };
     const bindings: Binding[] = [];
     for (const r of candidatsArite) {
-      const ceciVal = r.ceci ? this.bindArg(args[0], r.paramCeci!) : undefined;
+      const ceciVal = r.ceci ? this.bindArg(args[0], r.paramCeci!, contexteTour, evenement) : undefined;
       if (r.ceci && !ceciVal) continue;
-      const celaVal = r.cela ? this.bindArg(args[1], r.paramCela!) : undefined;
+      const celaVal = r.cela ? this.bindArg(args[1], r.paramCela!, contexteTour, evenement) : undefined;
       if (r.cela && !celaVal) continue;
       const score = this.scoreCandidat(r);
       bindings.push({ routine: r, ceciVal, celaVal, score });
@@ -407,8 +407,14 @@ export class InstructionExecuter {
    * Retourne un `Intitule` (potentiellement synthétique pour les types `nombre`/`texte`)
    * que la routine recevra via `ContexteTour.ceci`/`cela`.
    */
-  private bindArg(argBrut: string, param: ParamRoutine): Intitule | undefined {
+  private bindArg(argBrut: string, param: ParamRoutine, contexteTour?: ContexteTour, evenement?: Evenement): Intitule | undefined {
     const arg = argBrut.trim();
+
+    // cible spéciale de l’appelant (ceci, cela, ici, joueur…), comme pour « exécuter l’action »
+    const cibleSpeciale = this.resoudreCibleSpeciale(arg, contexteTour, evenement);
+    if (cibleSpeciale) {
+      return this.bindCible(cibleSpeciale, param);
+    }
 
     if (param.type === 'nombre') {
       const valeur = this.resoudreValeurNombre(arg);
@@ -431,6 +437,31 @@ export class InstructionExecuter {
     if (!elem) return undefined;
     if (!ClasseUtils.heriteDe(elem.classe, classeAttendue.nom)) return undefined;
     return elem;
+  }
+
+  /**
+   * Résoudre une cible spéciale (ceci, cela, ici, joueur…) dans le contexte de l’appelant.
+   * Sans contexte (rejeu d’une étape 'd', chrono) les arguments sont déjà sous forme canonique.
+   */
+  private resoudreCibleSpeciale(arg: string, contexteTour?: ContexteTour, evenement?: Evenement): Intitule | undefined {
+    if (!contexteTour) return undefined;
+    // les quantités (quantitéCeci…) ont besoin de l’évènement
+    if (!evenement && /^quantit[eé]/i.test(arg)) return undefined;
+    return InstructionsUtils.trouverCibleSpeciale(arg, contexteTour, evenement!, this.eju, this.jeu) as Intitule ?? undefined;
+  }
+
+  /** Lier une cible déjà résolue à un paramètre typé (mêmes règles que pour un élément nommé). */
+  private bindCible(cible: Intitule, param: ParamRoutine): Intitule | undefined {
+    if (param.type === 'nombre') {
+      return ClasseUtils.heriteDe(cible.classe, EClasseRacine.compteur) ? new Compteur('valeur', (cible as Compteur).valeur) : undefined;
+    }
+    if (param.type === 'texte') {
+      const texte = cible.intitule ? cible.intitule.toString() : cible.nom;
+      return texte ? new Intitule(texte, new GroupeNominal(null, texte, null), ClassesRacines.Intitule) : undefined;
+    }
+    const classeAttendue = ClasseUtils.trouverClasse(this.jeu.classes, param.classeName!);
+    if (!classeAttendue || !ClasseUtils.heriteDe(cible.classe, classeAttendue.nom)) return undefined;
+    return cible;
   }
 
   /** Tente de résoudre l’argument comme valeur entière (littéral ou valeur d’un compteur). */
@@ -531,13 +562,14 @@ export class InstructionExecuter {
   }
 
   /**  Envoyer la commande à exécuter au commandeur (l’instruction « Exécuter commande "xxxx…") */
-  public envoyerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+  public envoyerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined): Resultat {
     let res = new Resultat(true, "", 1);
     const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
     if (tokens) {
-      // remplacer les balises éventuelles dans le texte  
+      // remplacer les balises éventuelles dans le texte
       let texteCommande = CommandesUtils.nettoyerCommande(tokens[1]);
-      texteCommande = this.ins.dire.calculerTexteDynamique(texteCommande, 0, undefined, contexteTour, contexteTour.commande.evenement, undefined);
+      // (dans une routine, le contexte du tour n’a pas de commande)
+      texteCommande = this.ins.dire.calculerTexteDynamique(texteCommande, 0, undefined, contexteTour, contexteTour.commande?.evenement ?? evenement, undefined);
       // exécuter la commande
       res.sortie = this.com.executerCommande(texteCommande, true).sortie;
     } else {

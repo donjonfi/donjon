@@ -655,7 +655,7 @@ export class Instructions {
         resultat = this.insExecuter.executerDerniereCommande();
         // EXÉCUTER COMMANDE "…"
       } else if (ExprReg.xActionExecuterCommande.test(instruction.complement1)) {
-        resultat = this.insExecuter.envoyerCommande(instruction, contexteTour);
+        resultat = this.insExecuter.envoyerCommande(instruction, contexteTour, evenement);
         // EXÉCUTER ROUTINE
       } else if (ExprReg.xActionExecuterRoutine.test(instruction.complement1)) {
         resultat = this.insExecuter.executerRoutine(instruction, nbExecutions, contexteTour, evenement, declenchements);
