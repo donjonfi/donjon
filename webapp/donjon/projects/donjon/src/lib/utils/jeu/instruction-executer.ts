@@ -531,13 +531,14 @@ export class InstructionExecuter {
   }
 
   /**  Envoyer la commande à exécuter au commandeur (l’instruction « Exécuter commande "xxxx…") */
-  public envoyerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour): Resultat {
+  public envoyerCommande(instruction: ElementsPhrase, contexteTour: ContexteTour, evenement: Evenement | undefined): Resultat {
     let res = new Resultat(true, "", 1);
     const tokens = ExprReg.xActionExecuterCommande.exec(instruction.complement1);
     if (tokens) {
-      // remplacer les balises éventuelles dans le texte  
+      // remplacer les balises éventuelles dans le texte
       let texteCommande = CommandesUtils.nettoyerCommande(tokens[1]);
-      texteCommande = this.ins.dire.calculerTexteDynamique(texteCommande, 0, undefined, contexteTour, contexteTour.commande.evenement, undefined);
+      // (dans une routine, le contexte du tour n’a pas de commande)
+      texteCommande = this.ins.dire.calculerTexteDynamique(texteCommande, 0, undefined, contexteTour, contexteTour.commande?.evenement ?? evenement, undefined);
       // exécuter la commande
       res.sortie = this.com.executerCommande(texteCommande, true).sortie;
     } else {
